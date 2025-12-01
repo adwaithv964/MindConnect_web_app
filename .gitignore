@@ -149,3 +149,5 @@ dev-dist/
 
 # Vite Config timestamps (Covering .mjs files too)
 *.timestamp-*
+
+build/

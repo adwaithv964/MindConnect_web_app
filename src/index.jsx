@@ -9,4 +9,16 @@ const root = createRoot(container);
 
 root.render(<App />);
 
-// Service Worker registration is handled by vite-plugin-pwa auto-injection
+// Service Worker registration
+import { registerSW } from 'virtual:pwa-register';
+
+const updateSW = registerSW({
+    onNeedRefresh() {
+        if (confirm('New content available. Reload?')) {
+            updateSW(true);
+        }
+    },
+    onOfflineReady() {
+        console.log('App is ready to work offline');
+    },
+});
