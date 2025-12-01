@@ -35,7 +35,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        maximumFileSizeToCacheInBytes: 4000000
+        maximumFileSizeToCacheInBytes: 4000000,
+        navigateFallback: '/index.html',
+        cleanupOutdatedCaches: true,
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       }
     })
   ],
@@ -43,6 +49,16 @@ export default defineConfig({
     port: "4028",
     host: "0.0.0.0",
     strictPort: true,
-    allowedHosts: ['.amazonaws.com', '.builtwithrocket.new']
+    allowedHosts: ['.amazonaws.com', '.builtwithrocket.new', 'localhost', '127.0.0.1'],
+    hmr: {
+      clientPort: 4028,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 });

@@ -9,11 +9,4 @@ const root = createRoot(container);
 
 root.render(<App />);
 
-// Unregister any existing service workers to clear stale caches from previous projects
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-            registration.unregister();
-        });
-    });
-}
+// Service Worker registration is handled by vite-plugin-pwa auto-injection

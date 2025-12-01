@@ -61,7 +61,8 @@
     "dev": "vite",
     "start": "vite",
     "build": "vite build --sourcemap",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "dev:full": "npx concurrently \"npm run dev\" \"cd server && npm run dev\""
   },
   "eslintConfig": {
     "extends": [

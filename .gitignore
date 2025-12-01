@@ -137,3 +137,15 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+# --- Custom Project Ignores ---
+
+# Production Build Output (You named this 'build' in vite config)
+build/
+
+# PWA Dev Build Output
+dev-dist/
+
+# Vite Config timestamps (Covering .mjs files too)
+*.timestamp-*
