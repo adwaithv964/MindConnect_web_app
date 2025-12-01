@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tagger from "@dhiwise/component-tagger";
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +12,32 @@ export default defineConfig({
     outDir: "build",
     chunkSizeWarningLimit: 2000,
   },
-  plugins: [tsconfigPaths(), react(), tagger()],
+  plugins: [
+    tsconfigPaths(),
+    react(),
+    tagger(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        short_name: "MindConnect",
+        name: "MindConnect",
+        icons: [
+          {
+            src: "mind-map.ico",
+            sizes: "64x64 32x32 24x24 16x16",
+            type: "image/x-icon"
+          }
+        ],
+        start_url: ".",
+        display: "standalone",
+        theme_color: "#000000",
+        background_color: "#ffffff"
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      }
+    })
+  ],
   server: {
     port: "4028",
     host: "0.0.0.0",

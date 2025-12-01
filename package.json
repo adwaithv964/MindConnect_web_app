@@ -22,7 +22,9 @@
     "scripts": [
       "start",
       "build",
-      "serve"
+      "serve",
+      "run",
+      "run:dev"
     ],
     "warning": "🚨 CRITICAL: DO NOT REMOVE OR MODIFY ABOVE DEPENDENCIES - Required for app functionality"
   },
@@ -56,6 +58,7 @@
     "tailwindcss-fluid-type": "^2.0.7"
   },
   "scripts": {
+    "dev": "vite",
     "start": "vite",
     "build": "vite build --sourcemap",
     "serve": "vite preview"
@@ -87,7 +90,8 @@
     "autoprefixer": "10.4.2",
     "postcss": "^8.5.6",
     "tailwindcss": "3.4.6",
-    "vite": "^5.4.21",
+    "vite": "^7.2.6",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-tsconfig-paths": "3.6.0"
   }
 }
