@@ -101,21 +101,33 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
 
   return (
     <>
-      <button
-        onClick={toggleMobile}
-        className="mobile-menu-button"
-        aria-label="Toggle mobile menu"
-      >
-        <Icon name={isMobileOpen ? 'X' : 'Menu'} size={24} />
-      </button>
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-primary to-secondary z-50 flex items-center px-4 shadow-md">
+        <button
+          onClick={toggleMobile}
+          className="p-2 mr-3 text-white hover:bg-white/10 rounded-lg transition-colors"
+          aria-label="Toggle mobile menu"
+        >
+          <Icon name={isMobileOpen ? 'X' : 'Menu'} size={24} />
+        </button>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <Icon name="Brain" size={20} color="#FFFFFF" />
+          </div>
+          <span className="text-white font-heading font-semibold text-lg">
+            Mind Connect
+          </span>
+        </div>
+      </div>
+
       {isMobileOpen && (
-        <div 
+        <div
           className="mobile-overlay"
           onClick={closeMobile}
           aria-hidden="true"
         />
       )}
-      <aside 
+      <aside
         className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
         role="navigation"
         aria-label="Main navigation"

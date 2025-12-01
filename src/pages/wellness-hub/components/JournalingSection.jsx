@@ -121,17 +121,15 @@ const JournalingSection = ({ userMoodData = [] }) => {
               <motion.button
                 key={prompt?.id}
                 onClick={() => handlePromptSelect(prompt)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
-                  selectedPrompt?.id === prompt?.id
-                    ? 'border-primary bg-primary/5' :'border-border hover:border-primary/50 bg-card'
-                }`}
+                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${selectedPrompt?.id === prompt?.id
+                    ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 bg-card'
+                  }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    selectedPrompt?.id === prompt?.id ? 'bg-primary/20' : 'bg-muted'
-                  }`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedPrompt?.id === prompt?.id ? 'bg-primary/20' : 'bg-muted'
+                    }`}>
                     <Icon name={prompt?.icon} size={20} color={selectedPrompt?.id === prompt?.id ? 'var(--color-primary)' : 'currentColor'} />
                   </div>
                   <div className="flex-1 min-w-0">

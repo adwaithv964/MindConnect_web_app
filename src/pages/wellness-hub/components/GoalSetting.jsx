@@ -347,10 +347,9 @@ const GoalSetting = () => {
           ]?.map((badge, index) => (
             <div
               key={index}
-              className={`p-4 rounded-lg border text-center ${
-                badge?.earned
-                  ? 'border-primary/20 bg-primary/5' :'border-border bg-muted/30 opacity-50'
-              }`}
+              className={`p-4 rounded-lg border text-center ${badge?.earned
+                  ? 'border-primary/20 bg-primary/5' : 'border-border bg-muted/30 opacity-50'
+                }`}
             >
               <div
                 className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center"

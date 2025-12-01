@@ -86,7 +86,7 @@ app.get('/api/data', async (req, res) => {
 
 // 2. SERVE STATIC REACT FILES
 // We point to '../build' because your vite.config.js said "outDir: 'build'"
-app.use(express.static(path.join(__dirname, '../build'))); 
+app.use(express.static(path.join(__dirname, '../build')));
 
 
 // 3. CATCH-ALL ROUTE (For React Router)

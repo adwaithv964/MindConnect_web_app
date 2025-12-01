@@ -39,102 +39,102 @@ const AppointmentBookingContent = () => {
   });
 
   const counsellors = [
-  {
-    id: 1,
-    name: "Dr. Sarah Mitchell",
-    credentials: "PhD, Licensed Clinical Psychologist",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_13e1df70a-1763301872470.png",
-    imageAlt: "Professional woman with brown hair wearing white medical coat and stethoscope smiling warmly in modern clinical office",
-    specializations: ["Anxiety", "Depression", "Trauma"],
-    bio: "Specializing in cognitive behavioral therapy with over 15 years of experience helping individuals overcome anxiety and depression through evidence-based approaches.",
-    rating: 4.9,
-    patientsServed: 500,
-    experience: 15,
-    languages: ["English", "Spanish"],
-    isAvailable: true
-  },
-  {
-    id: 2,
-    name: "Dr. James Chen",
-    credentials: "MD, Psychiatrist",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_14f7a8d49-1763294480396.png",
-    imageAlt: "Asian male doctor with short black hair wearing navy blue scrubs and glasses in hospital setting with medical equipment visible",
-    specializations: ["Depression", "Bipolar Disorder", "Medication Management"],
-    bio: "Board-certified psychiatrist focusing on medication management and holistic treatment approaches for mood disorders and complex mental health conditions.",
-    rating: 4.8,
-    patientsServed: 750,
-    experience: 12,
-    languages: ["English", "Mandarin"],
-    isAvailable: true
-  },
-  {
-    id: 3,
-    name: "Dr. Emily Rodriguez",
-    credentials: "PsyD, Clinical Psychologist",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_1b25cd3a1-1763299505524.png",
-    imageAlt: "Hispanic woman with long dark hair wearing professional teal blazer smiling confidently in bright modern therapy office",
-    specializations: ["Relationships", "Family Therapy", "Stress Management"],
-    bio: "Experienced in couples and family therapy, helping individuals and families navigate relationship challenges and improve communication patterns.",
-    rating: 4.9,
-    patientsServed: 600,
-    experience: 10,
-    languages: ["English", "Spanish"],
-    isAvailable: false
-  },
-  {
-    id: 4,
-    name: "Dr. Michael Thompson",
-    credentials: "PhD, Trauma Specialist",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_1373cd82c-1763294505279.png",
-    imageAlt: "African American male therapist with short hair wearing gray suit and tie in warm-toned counseling room with comfortable seating",
-    specializations: ["PTSD", "Trauma", "Crisis Intervention"],
-    bio: "Specialized in trauma-focused cognitive behavioral therapy and EMDR, providing compassionate care for individuals recovering from traumatic experiences.",
-    rating: 5.0,
-    patientsServed: 400,
-    experience: 18,
-    languages: ["English"],
-    isAvailable: true
-  },
-  {
-    id: 5,
-    name: "Dr. Lisa Patel",
-    credentials: "LCSW, Licensed Clinical Social Worker",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_171ef9b9a-1763295573069.png",
-    imageAlt: "Indian woman with shoulder-length black hair wearing burgundy cardigan smiling warmly in cozy therapy office with plants and natural lighting",
-    specializations: ["Addiction", "Grief", "Life Transitions"],
-    bio: "Compassionate social worker specializing in addiction recovery and grief counseling, helping clients navigate major life transitions with resilience.",
-    rating: 4.7,
-    patientsServed: 550,
-    experience: 14,
-    languages: ["English", "Hindi"],
-    isAvailable: true
-  },
-  {
-    id: 6,
-    name: "Dr. Robert Kim",
-    credentials: "PhD, Child & Adolescent Psychologist",
-    image: "https://img.rocket.new/generatedImages/rocket_gen_img_1f2728076-1763294337676.png",
-    imageAlt: "Korean male psychologist with glasses wearing casual blue button-down shirt in colorful child-friendly therapy room with toys visible",
-    specializations: ["Anxiety", "ADHD", "Behavioral Issues"],
-    bio: "Dedicated to helping children and adolescents develop healthy coping mechanisms and emotional regulation skills through play therapy and CBT.",
-    rating: 4.8,
-    patientsServed: 450,
-    experience: 11,
-    languages: ["English"],
-    isAvailable: true
-  }];
+    {
+      id: 1,
+      name: "Dr. Sarah Mitchell",
+      credentials: "PhD, Licensed Clinical Psychologist",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_13e1df70a-1763301872470.png",
+      imageAlt: "Professional woman with brown hair wearing white medical coat and stethoscope smiling warmly in modern clinical office",
+      specializations: ["Anxiety", "Depression", "Trauma"],
+      bio: "Specializing in cognitive behavioral therapy with over 15 years of experience helping individuals overcome anxiety and depression through evidence-based approaches.",
+      rating: 4.9,
+      patientsServed: 500,
+      experience: 15,
+      languages: ["English", "Spanish"],
+      isAvailable: true
+    },
+    {
+      id: 2,
+      name: "Dr. James Chen",
+      credentials: "MD, Psychiatrist",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_14f7a8d49-1763294480396.png",
+      imageAlt: "Asian male doctor with short black hair wearing navy blue scrubs and glasses in hospital setting with medical equipment visible",
+      specializations: ["Depression", "Bipolar Disorder", "Medication Management"],
+      bio: "Board-certified psychiatrist focusing on medication management and holistic treatment approaches for mood disorders and complex mental health conditions.",
+      rating: 4.8,
+      patientsServed: 750,
+      experience: 12,
+      languages: ["English", "Mandarin"],
+      isAvailable: true
+    },
+    {
+      id: 3,
+      name: "Dr. Emily Rodriguez",
+      credentials: "PsyD, Clinical Psychologist",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_1b25cd3a1-1763299505524.png",
+      imageAlt: "Hispanic woman with long dark hair wearing professional teal blazer smiling confidently in bright modern therapy office",
+      specializations: ["Relationships", "Family Therapy", "Stress Management"],
+      bio: "Experienced in couples and family therapy, helping individuals and families navigate relationship challenges and improve communication patterns.",
+      rating: 4.9,
+      patientsServed: 600,
+      experience: 10,
+      languages: ["English", "Spanish"],
+      isAvailable: false
+    },
+    {
+      id: 4,
+      name: "Dr. Michael Thompson",
+      credentials: "PhD, Trauma Specialist",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_1373cd82c-1763294505279.png",
+      imageAlt: "African American male therapist with short hair wearing gray suit and tie in warm-toned counseling room with comfortable seating",
+      specializations: ["PTSD", "Trauma", "Crisis Intervention"],
+      bio: "Specialized in trauma-focused cognitive behavioral therapy and EMDR, providing compassionate care for individuals recovering from traumatic experiences.",
+      rating: 5.0,
+      patientsServed: 400,
+      experience: 18,
+      languages: ["English"],
+      isAvailable: true
+    },
+    {
+      id: 5,
+      name: "Dr. Lisa Patel",
+      credentials: "LCSW, Licensed Clinical Social Worker",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_171ef9b9a-1763295573069.png",
+      imageAlt: "Indian woman with shoulder-length black hair wearing burgundy cardigan smiling warmly in cozy therapy office with plants and natural lighting",
+      specializations: ["Addiction", "Grief", "Life Transitions"],
+      bio: "Compassionate social worker specializing in addiction recovery and grief counseling, helping clients navigate major life transitions with resilience.",
+      rating: 4.7,
+      patientsServed: 550,
+      experience: 14,
+      languages: ["English", "Hindi"],
+      isAvailable: true
+    },
+    {
+      id: 6,
+      name: "Dr. Robert Kim",
+      credentials: "PhD, Child & Adolescent Psychologist",
+      image: "https://img.rocket.new/generatedImages/rocket_gen_img_1f2728076-1763294337676.png",
+      imageAlt: "Korean male psychologist with glasses wearing casual blue button-down shirt in colorful child-friendly therapy room with toys visible",
+      specializations: ["Anxiety", "ADHD", "Behavioral Issues"],
+      bio: "Dedicated to helping children and adolescents develop healthy coping mechanisms and emotional regulation skills through play therapy and CBT.",
+      rating: 4.8,
+      patientsServed: 450,
+      experience: 11,
+      languages: ["English"],
+      isAvailable: true
+    }];
 
 
   const availableSlots = [
-  { id: 1, time: "9:00 AM", available: true },
-  { id: 2, time: "10:00 AM", available: true },
-  { id: 3, time: "11:00 AM", available: false },
-  { id: 4, time: "1:00 PM", available: true },
-  { id: 5, time: "2:00 PM", available: true },
-  { id: 6, time: "3:00 PM", available: true },
-  { id: 7, time: "4:00 PM", available: false },
-  { id: 8, time: "5:00 PM", available: true },
-  { id: 9, time: "6:00 PM", available: true }];
+    { id: 1, time: "9:00 AM", available: true },
+    { id: 2, time: "10:00 AM", available: true },
+    { id: 3, time: "11:00 AM", available: false },
+    { id: 4, time: "1:00 PM", available: true },
+    { id: 5, time: "2:00 PM", available: true },
+    { id: 6, time: "3:00 PM", available: true },
+    { id: 7, time: "4:00 PM", available: false },
+    { id: 8, time: "5:00 PM", available: true },
+    { id: 9, time: "6:00 PM", available: true }];
 
 
   const handleFilterChange = (key, value) => {
@@ -179,7 +179,7 @@ const AppointmentBookingContent = () => {
 
   const filteredCounsellors = counsellors?.filter((counsellor) => {
     const matchesSearch = counsellor?.name?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
-    counsellor?.specializations?.some((spec) => spec?.toLowerCase()?.includes(searchQuery?.toLowerCase()));
+      counsellor?.specializations?.some((spec) => spec?.toLowerCase()?.includes(searchQuery?.toLowerCase()));
     return matchesSearch;
   });
 
@@ -222,11 +222,11 @@ const AppointmentBookingContent = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {showFilters &&
-          <div className="lg:col-span-3">
+            <div className="lg:col-span-3">
               <FilterPanel
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters} />
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onClearFilters={handleClearFilters} />
 
             </div>
           }
@@ -234,15 +234,15 @@ const AppointmentBookingContent = () => {
           <div className={showFilters ? 'lg:col-span-6' : 'lg:col-span-8'}>
             <div className="space-y-4">
               {filteredCounsellors?.length > 0 ?
-              filteredCounsellors?.map((counsellor) =>
-              <CounsellorCard
-                key={counsellor?.id}
-                counsellor={counsellor}
-                onBookAppointment={handleBookAppointment} />
+                filteredCounsellors?.map((counsellor) =>
+                  <CounsellorCard
+                    key={counsellor?.id}
+                    counsellor={counsellor}
+                    onBookAppointment={handleBookAppointment} />
 
-              ) :
+                ) :
 
-              <div className="glass-card p-12 text-center">
+                <div className="glass-card p-12 text-center">
                   <Icon name="Search" size={48} color="var(--color-muted-foreground)" className="mx-auto mb-4" />
                   <h3 className="font-heading font-semibold text-xl text-foreground mb-2">
                     No counsellors found
@@ -269,7 +269,7 @@ const AppointmentBookingContent = () => {
 
 
               {selectedDate && selectedSlot &&
-              <div className="glass-card p-4 mt-4">
+                <div className="glass-card p-4 mt-4">
                   <div className="flex items-center gap-2 text-success mb-2">
                     <Icon name="CheckCircle2" size={20} />
                     <span className="font-medium">Time slot selected</span>

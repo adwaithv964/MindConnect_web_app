@@ -9,99 +9,149 @@
 @layer base {
   :root {
     /* Primary Colors */
-    --color-primary: #4A9B8E; /* teal-600 - Therapeutic teal */
-    --color-primary-foreground: #FFFFFF; /* white */
-    
+    --color-primary: #4A9B8E;
+    /* teal-600 - Therapeutic teal */
+    --color-primary-foreground: #FFFFFF;
+    /* white */
+
     /* Secondary Colors */
-    --color-secondary: #7FB069; /* green-500 - Sage green */
-    --color-secondary-foreground: #FFFFFF; /* white */
-    
+    --color-secondary: #7FB069;
+    /* green-500 - Sage green */
+    --color-secondary-foreground: #FFFFFF;
+    /* white */
+
     /* Accent Colors */
-    --color-accent: #F4A261; /* orange-400 - Warm amber */
-    --color-accent-foreground: #2D3748; /* gray-800 */
-    
+    --color-accent: #F4A261;
+    /* orange-400 - Warm amber */
+    --color-accent-foreground: #2D3748;
+    /* gray-800 */
+
     /* Background Colors */
-    --color-background: #FEFEFE; /* gray-50 - Soft white */
-    --color-foreground: #2D3748; /* gray-800 - Dark gray-blue */
-    
+    --color-background: #FEFEFE;
+    /* gray-50 - Soft white */
+    --color-foreground: #2D3748;
+    /* gray-800 - Dark gray-blue */
+
     /* Surface Colors */
-    --color-card: #F8FAFA; /* gray-100 - Subtle gray-teal */
-    --color-card-foreground: #2D3748; /* gray-800 */
-    
-    --color-popover: #FFFFFF; /* white */
-    --color-popover-foreground: #2D3748; /* gray-800 */
-    
+    --color-card: #F8FAFA;
+    /* gray-100 - Subtle gray-teal */
+    --color-card-foreground: #2D3748;
+    /* gray-800 */
+
+    --color-popover: #FFFFFF;
+    /* white */
+    --color-popover-foreground: #2D3748;
+    /* gray-800 */
+
     /* Muted Colors */
-    --color-muted: #F8FAFA; /* gray-100 */
-    --color-muted-foreground: #718096; /* gray-500 - Medium gray */
-    
+    --color-muted: #F8FAFA;
+    /* gray-100 */
+    --color-muted-foreground: #718096;
+    /* gray-500 - Medium gray */
+
     /* Border & Input */
-    --color-border: rgba(160, 174, 192, 0.2); /* gray-400 with opacity */
-    --color-input: rgba(160, 174, 192, 0.2); /* gray-400 with opacity */
-    --color-ring: #4A9B8E; /* teal-600 */
-    
+    --color-border: rgba(160, 174, 192, 0.2);
+    /* gray-400 with opacity */
+    --color-input: rgba(160, 174, 192, 0.2);
+    /* gray-400 with opacity */
+    --color-ring: #4A9B8E;
+    /* teal-600 */
+
     /* Status Colors */
-    --color-success: #68D391; /* green-400 - Gentle green */
-    --color-success-foreground: #2D3748; /* gray-800 */
-    
-    --color-warning: #F6AD55; /* orange-300 - Soft orange */
-    --color-warning-foreground: #2D3748; /* gray-800 */
-    
-    --color-error: #FC8181; /* red-400 - Muted coral */
-    --color-error-foreground: #FFFFFF; /* white */
-    
-    --color-destructive: #FC8181; /* red-400 */
-    --color-destructive-foreground: #FFFFFF; /* white */
-    
+    --color-success: #68D391;
+    /* green-400 - Gentle green */
+    --color-success-foreground: #2D3748;
+    /* gray-800 */
+
+    --color-warning: #F6AD55;
+    /* orange-300 - Soft orange */
+    --color-warning-foreground: #2D3748;
+    /* gray-800 */
+
+    --color-error: #FC8181;
+    /* red-400 - Muted coral */
+    --color-error-foreground: #FFFFFF;
+    /* white */
+
+    --color-destructive: #FC8181;
+    /* red-400 */
+    --color-destructive-foreground: #FFFFFF;
+    /* white */
+
     /* Radius */
     --radius: 0.5rem;
   }
 
   .dark {
     /* Primary Colors */
-    --color-primary: #5BB5A6; /* teal-400 - Lighter therapeutic teal */
-    --color-primary-foreground: #1A202C; /* gray-900 */
-    
+    --color-primary: #5BB5A6;
+    /* teal-400 - Lighter therapeutic teal */
+    --color-primary-foreground: #1A202C;
+    /* gray-900 */
+
     /* Secondary Colors */
-    --color-secondary: #90C97D; /* green-400 - Lighter sage */
-    --color-secondary-foreground: #1A202C; /* gray-900 */
-    
+    --color-secondary: #90C97D;
+    /* green-400 - Lighter sage */
+    --color-secondary-foreground: #1A202C;
+    /* gray-900 */
+
     /* Accent Colors */
-    --color-accent: #F6AD55; /* orange-300 - Maintained warmth */
-    --color-accent-foreground: #1A202C; /* gray-900 */
-    
+    --color-accent: #F6AD55;
+    /* orange-300 - Maintained warmth */
+    --color-accent-foreground: #1A202C;
+    /* gray-900 */
+
     /* Background Colors */
-    --color-background: #1A202C; /* gray-900 - Dark background */
-    --color-foreground: #F7FAFC; /* gray-50 - Light text */
-    
+    --color-background: #1A202C;
+    /* gray-900 - Dark background */
+    --color-foreground: #F7FAFC;
+    /* gray-50 - Light text */
+
     /* Surface Colors */
-    --color-card: #2D3748; /* gray-800 - Dark surface */
-    --color-card-foreground: #F7FAFC; /* gray-50 */
-    
-    --color-popover: #2D3748; /* gray-800 */
-    --color-popover-foreground: #F7FAFC; /* gray-50 */
-    
+    --color-card: #2D3748;
+    /* gray-800 - Dark surface */
+    --color-card-foreground: #F7FAFC;
+    /* gray-50 */
+
+    --color-popover: #2D3748;
+    /* gray-800 */
+    --color-popover-foreground: #F7FAFC;
+    /* gray-50 */
+
     /* Muted Colors */
-    --color-muted: #2D3748; /* gray-800 */
-    --color-muted-foreground: #A0AEC0; /* gray-400 */
-    
+    --color-muted: #2D3748;
+    /* gray-800 */
+    --color-muted-foreground: #A0AEC0;
+    /* gray-400 */
+
     /* Border & Input */
-    --color-border: rgba(160, 174, 192, 0.3); /* gray-400 with opacity */
-    --color-input: rgba(160, 174, 192, 0.3); /* gray-400 with opacity */
-    --color-ring: #5BB5A6; /* teal-400 */
-    
+    --color-border: rgba(160, 174, 192, 0.3);
+    /* gray-400 with opacity */
+    --color-input: rgba(160, 174, 192, 0.3);
+    /* gray-400 with opacity */
+    --color-ring: #5BB5A6;
+    /* teal-400 */
+
     /* Status Colors */
-    --color-success: #68D391; /* green-400 */
-    --color-success-foreground: #1A202C; /* gray-900 */
-    
-    --color-warning: #F6AD55; /* orange-300 */
-    --color-warning-foreground: #1A202C; /* gray-900 */
-    
-    --color-error: #FC8181; /* red-400 */
-    --color-error-foreground: #1A202C; /* gray-900 */
-    
-    --color-destructive: #FC8181; /* red-400 */
-    --color-destructive-foreground: #1A202C; /* gray-900 */
+    --color-success: #68D391;
+    /* green-400 */
+    --color-success-foreground: #1A202C;
+    /* gray-900 */
+
+    --color-warning: #F6AD55;
+    /* orange-300 */
+    --color-warning-foreground: #1A202C;
+    /* gray-900 */
+
+    --color-error: #FC8181;
+    /* red-400 */
+    --color-error-foreground: #1A202C;
+    /* gray-900 */
+
+    --color-destructive: #FC8181;
+    /* red-400 */
+    --color-destructive-foreground: #1A202C;
+    /* gray-900 */
   }
 
   * {
@@ -114,16 +164,23 @@
     font-weight: 400;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Inter', sans-serif;
   }
 
-  code, pre {
+  code,
+  pre {
     font-family: 'JetBrains Mono', monospace;
   }
 }
 
 @layer components {
+
   /* Sidebar Styles */
   .sidebar {
     @apply fixed top-0 left-0 h-full bg-card border-r border-border transition-all duration-300 ease-in-out z-[100];
@@ -212,9 +269,11 @@
   }
 
   @media (max-width: 1024px) {
+
     .main-content,
     .main-content.sidebar-collapsed {
       margin-left: 0;
+      padding-top: 80px;
       padding-bottom: 80px;
     }
   }
@@ -231,9 +290,12 @@
   }
 
   @keyframes pulse-gentle {
-    0%, 100% {
+
+    0%,
+    100% {
       box-shadow: 0 4px 14px rgba(252, 129, 129, 0.3);
     }
+
     50% {
       box-shadow: 0 6px 20px rgba(252, 129, 129, 0.5);
     }
@@ -275,9 +337,12 @@
 
   /* Breathing Animation */
   @keyframes breathe {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.05);
     }
@@ -296,9 +361,11 @@
     0% {
       opacity: 0.4;
     }
+
     50% {
       opacity: 0.8;
     }
+
     100% {
       opacity: 0.4;
     }

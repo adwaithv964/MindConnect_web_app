@@ -27,7 +27,7 @@ const MoodTracker = () => {
   const handleMoodSubmit = (entry) => {
     setMoodHistory([entry, ...moodHistory]);
     setShowSuccessMessage(true);
-    
+
     setTimeout(() => {
       setShowSuccessMessage(false);
       setSelectedMood(null);
@@ -43,7 +43,7 @@ const MoodTracker = () => {
     <SidebarProvider>
       <div className="min-h-screen bg-background">
         <RoleBasedSidebar userRole="patient" />
-        
+
         <main className="main-content">
           <BreadcrumbTrail />
 
