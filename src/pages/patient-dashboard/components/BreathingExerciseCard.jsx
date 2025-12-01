@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import Icon from '../../../components/AppIcon';
+import Button from '../../../components/ui/Button';
+
+const BreathingExerciseCard = ({ onStartExercise }) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handlePreview = () => {
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 4000);
+  };
+
+  return (
+    <div className="glass-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-heading font-semibold text-foreground">Breathing Exercise</h2>
+        <Icon name="Wind" size={20} className="text-primary" />
+      </div>
+
+      <div className="flex items-center justify-center mb-6 h-40">
+        <div className="relative w-32 h-32">
+          <div 
+            className={`absolute inset-0 rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 ${
+              isAnimating ? 'breathing-animation' : ''
+            }`}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Icon name="Wind" size={48} className="text-primary" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3 mb-4">
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+          <Icon name="Timer" size={20} className="text-primary" />
+          <div>
+            <p className="text-sm font-medium text-foreground">4-7-8 Technique</p>
+            <p className="text-xs text-muted-foreground">Inhale 4s, Hold 7s, Exhale 8s</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+          <Icon name="Heart" size={20} className="text-success" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Reduces Anxiety</p>
+            <p className="text-xs text-muted-foreground">Calms nervous system</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <Button variant="outline" fullWidth onClick={handlePreview}>
+          Preview
+        </Button>
+        <Button variant="default" fullWidth iconName="Play" onClick={onStartExercise}>
+          Start Session
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default BreathingExerciseCard;
