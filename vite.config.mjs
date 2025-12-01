@@ -34,7 +34,8 @@ export default defineConfig({
         background_color: "#ffffff"
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 4000000
       }
     })
   ],
