@@ -38,6 +38,13 @@ const Appointment = mongoose.model('Appointment', AppointmentSchema);
 
 // --- API ROUTES START HERE ---
 
+// Auth Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/counsellor', require('./routes/counsellor'));
+app.use('/api/appointments', require('./routes/appointments'));
+app.use('/api/patients', require('./routes/patients'));
+app.use('/api/notes', require('./routes/notes'));
+
 // Sync endpoint
 app.post('/api/sync', async (req, res) => {
     const { moodLogs, appointments } = req.body;
