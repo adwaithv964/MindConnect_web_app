@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 5001;
 // --- 1. UPDATE CORS CONFIGURATION HERE ---
 const allowedOrigins = [
   'http://localhost:5173',                  // Vite Localhost
-  'http://localhost:3000',                  // Standard React Localhost (just in case)
+  'http://localhost:3000',
+  'http://localhost:4028',                  // Standard React Localhost (just in case)
   'https://mind-connect-web-app.vercel.app' // YOUR VERCEL FRONTEND URL
 ];
 
