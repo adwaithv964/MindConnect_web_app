@@ -2,14 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const path = require('path'); // <--- 1. ADD THIS IMPORT
+// const path = require('path'); // <--- REMOVE THIS (Not needed for API-only backend)
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+// --- 1. UPDATE CORS CONFIGURATION HERE ---
+const allowedOrigins = [
+  'http://localhost:5173',                  // Vite Localhost
+  'http://localhost:3000',                  // Standard React Localhost (just in case)
+  'https://mind-connect-web-app.vercel.app' // YOUR VERCEL FRONTEND URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 // MongoDB Connection
@@ -54,7 +73,6 @@ app.post('/api/sync', async (req, res) => {
         let savedAppointments = [];
 
         if (moodLogs && Array.isArray(moodLogs) && moodLogs.length > 0) {
-            // Remove local ID before saving if needed, or let MongoDB generate _id
             const moodsToInsert = moodLogs.map(({ id, ...rest }) => rest);
             savedMoods = await MoodLog.insertMany(moodsToInsert);
         }
@@ -90,18 +108,10 @@ app.get('/api/data', async (req, res) => {
 
 // --- API ROUTES END HERE ---
 
-
-// 2. SERVE STATIC REACT FILES
-// We point to '../build' because your vite.config.js said "outDir: 'build'"
-app.use(express.static(path.join(__dirname, '../build')));
-
-
-// 3. CATCH-ALL ROUTE (For React Router)
-// If the request is not an API call, send them the React App (index.html)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
-});
-
+// --- REMOVED STATIC FILE SERVING ---
+// Since you are using Vercel (Frontend) + Render (Backend), 
+// this server does NOT need to serve the React build files.
+// It is purely an API now.
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
