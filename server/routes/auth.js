@@ -26,7 +26,8 @@ router.post('/register', async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            isVerified: role === 'counsellor' ? false : true // Counsellors need verification
+            firebaseUid: req.body.firebaseUid, // Save Firebase UID
+            isVerified: role === 'counsellor' ? false : true
         });
 
         await user.save();
@@ -77,6 +78,47 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid Credentials' });
+        }
+
+        // Create token
+        const payload = {
+            user: {
+                id: user._id,
+                role: user.role
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '1d' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+            }
+        );
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Firebase Login
+router.post('/firebase-login', async (req, res) => {
+    try {
+        const { email, firebaseUid } = req.body;
+
+        // Check if user exists
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: 'User not found. Please register first.' });
+        }
+
+        // Update firebaseUid if not present (for legacy users or first time sync)
+        if (!user.firebaseUid && firebaseUid) {
+            user.firebaseUid = firebaseUid;
+            await user.save();
         }
 
         // Create token

@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthLayout from '../../components/AuthLayout';
 import Icon from '../../components/AppIcon';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -33,9 +35,17 @@ const Register = () => {
         setLoading(true);
         setError('');
         try {
-            // Remove confirmPassword before sending
+            // 1. Create user in Firebase
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const firebaseUser = userCredential.user;
+
+            // 2. Create user in MongoDB
             const { confirmPassword, ...submitData } = formData;
-            const res = await axios.post('http://localhost:5001/api/auth/register', submitData);
+            const res = await axios.post('http://localhost:5001/api/auth/register', {
+                ...submitData,
+                firebaseUid: firebaseUser.uid
+            });
+
             const { token, user } = res.data;
 
             localStorage.setItem('token', token);
@@ -47,7 +57,8 @@ const Register = () => {
                 navigate('/patient-dashboard');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+            console.error(err);
+            setError(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -100,8 +111,8 @@ const Register = () => {
                         type="button"
                         onClick={() => toggleRole('patient')}
                         className={`flex-1 py-4 px-4 rounded-xl border-2 text-center transition-all duration-200 flex flex-col items-center gap-2 ${role === 'patient'
-                                ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
-                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                            ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                             }`}
                     >
                         <div className={`p-2 rounded-full ${role === 'patient' ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-500'}`}>
@@ -117,8 +128,8 @@ const Register = () => {
                         type="button"
                         onClick={() => toggleRole('counsellor')}
                         className={`flex-1 py-4 px-4 rounded-xl border-2 text-center transition-all duration-200 flex flex-col items-center gap-2 ${role === 'counsellor'
-                                ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
-                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                            ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                             }`}
                     >
                         <div className={`p-2 rounded-full ${role === 'counsellor' ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-500'}`}>

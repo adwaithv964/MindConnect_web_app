@@ -12,7 +12,12 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false // Password optional for Firebase users
+    },
+    firebaseUid: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     role: {
         type: String,

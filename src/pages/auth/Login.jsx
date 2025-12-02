@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthLayout from '../../components/AuthLayout';
 import Icon from '../../components/AppIcon';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -22,7 +24,16 @@ const Login = () => {
         setLoading(true);
         setError('');
         try {
-            const res = await axios.post('http://localhost:5001/api/auth/login', formData);
+            // 1. Login with Firebase
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const firebaseUser = userCredential.user;
+
+            // 2. Get user profile from MongoDB
+            const res = await axios.post('http://localhost:5001/api/auth/firebase-login', {
+                email: firebaseUser.email,
+                firebaseUid: firebaseUser.uid
+            });
+
             const { token, user } = res.data;
 
             localStorage.setItem('token', token);
@@ -36,7 +47,8 @@ const Login = () => {
                 navigate('/patient-dashboard');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            console.error(err);
+            setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
