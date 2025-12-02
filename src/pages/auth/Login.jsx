@@ -68,8 +68,8 @@ const Login = () => {
             quote="Helping you feel connected and understood in an increasingly isolated world."
         >
             <div className="w-full">
-                <h2 className="text-3xl font-heading font-bold text-gray-900 mb-8 text-center lg:text-left">
-                    Sign In to Your Account
+                <h2 className="text-3xl font-heading font-bold text-gray-900 mb-2 text-center lg:text-left">
+                    Welcome back, friend.
                 </h2>
 
                 <form className="space-y-6" onSubmit={onSubmit}>
@@ -139,7 +139,7 @@ const Login = () => {
                                     Signing in...
                                 </span>
                             ) : (
-                                'Log In'
+                                'Sign In'
                             )}
                         </button>
                     </div>
@@ -152,11 +152,10 @@ const Login = () => {
 
                 <div className="mt-8 bg-gray-50 rounded-lg p-4 text-center">
                     <p className="text-sm text-gray-600">
-                        New to MindConnect?{' '}
+                        Don't have an account yet?{' '}
                         <Link to="/register" className="font-medium text-[#008080] hover:text-[#006666] underline">
-                            Create an account
-                        </Link>{' '}
-                        to start your journey.
+                            Register
+                        </Link>
                     </p>
                 </div>
             </div>

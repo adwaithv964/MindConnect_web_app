@@ -3,9 +3,9 @@ import Icon from './AppIcon';
 
 const AuthLayout = ({ children, title, subtitle, features, quote }) => {
     return (
-        <div className="min-h-screen flex flex-col lg:flex-row">
-            {/* Left Side - Info & Branding */}
-            <div className="lg:w-1/2 bg-gradient-to-br from-[#4A90E2] to-[#50E3C2] p-8 lg:p-12 flex flex-col justify-between text-white relative overflow-hidden">
+        <div className="min-h-screen flex flex-col lg:flex-row bg-[#E0F2F1] lg:bg-white">
+            {/* Left Side - Info & Branding (Hidden on Mobile) */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#4A90E2] to-[#50E3C2] p-8 lg:p-12 flex-col justify-between text-white relative overflow-hidden">
                 {/* Background Decorative Elements */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
@@ -57,8 +57,14 @@ const AuthLayout = ({ children, title, subtitle, features, quote }) => {
             </div>
 
             {/* Right Side - Form */}
-            <div className="lg:w-1/2 bg-white p-8 lg:p-12 flex items-center justify-center overflow-y-auto">
-                <div className="w-full max-w-md">
+            <div className="w-full lg:w-1/2 p-6 lg:p-12 flex items-center justify-center overflow-y-auto">
+                <div className="w-full max-w-md bg-white lg:bg-transparent p-6 rounded-2xl shadow-xl lg:shadow-none">
+                    {/* Mobile Logo (Visible only on Mobile) */}
+                    <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
+                        <Icon name="Brain" size={28} className="text-[#008080]" />
+                        <span className="font-heading font-bold text-xl text-gray-800">MindConnect</span>
+                    </div>
+
                     {children}
                 </div>
             </div>

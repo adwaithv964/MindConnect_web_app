@@ -15,6 +15,7 @@ import ScheduleManager from './pages/counsellor-dashboard/ScheduleManager';
 import PatientRecords from './pages/counsellor-dashboard/PatientRecords';
 import ConsultationRoom from './pages/counsellor-dashboard/ConsultationRoom';
 import ProfileEditor from './pages/counsellor-dashboard/ProfileEditor';
+import LandingPage from './pages/LandingPage';
 
 const Routes = () => {
   return (
@@ -23,7 +24,7 @@ const Routes = () => {
         <ScrollToTop />
         <RouterRoutes>
           {/* Define your route here */}
-          <Route path="/" element={<PatientDashboard />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/appointment-booking" element={<AppointmentBooking />} />

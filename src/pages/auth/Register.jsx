@@ -84,38 +84,51 @@ const Register = () => {
             quote="Find peace of mind knowing you have a supportive community and reliable resources at your fingertips, helping you feel connected in an isolated world."
         >
             <div className="w-full">
-                <h2 className="text-3xl font-heading font-bold text-gray-900 mb-6 text-center lg:text-left">
+                <h2 className="text-2xl font-heading font-bold text-gray-900 mb-2 text-center lg:text-left">
                     Create Your Secure Account
                 </h2>
+                <div className="mb-6">
+                    <p className="text-sm text-gray-500 mb-2">Step 1 of 2</p>
+                    <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#008080] w-1/2 rounded-full"></div>
+                    </div>
+                </div>
 
                 {/* Role Toggle */}
-                <div className="flex p-1 bg-gray-100 rounded-lg mb-8">
+                <div className="flex gap-4 mb-8">
                     <button
                         type="button"
                         onClick={() => toggleRole('patient')}
-                        className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${role === 'patient'
-                                ? 'bg-[#008080] text-white shadow-md'
-                                : 'text-gray-600 hover:text-gray-900'
+                        className={`flex-1 py-4 px-4 rounded-xl border-2 text-center transition-all duration-200 flex flex-col items-center gap-2 ${role === 'patient'
+                                ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                             }`}
                     >
-                        I am seeking support
-                        <span className="block text-xs opacity-80 font-normal">(User/Patient)</span>
+                        <div className={`p-2 rounded-full ${role === 'patient' ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                            <Icon name="Users" size={20} />
+                        </div>
+                        <div>
+                            <span className="block text-sm font-bold">I am seeking support</span>
+                            <span className="block text-xs opacity-80 font-normal mt-1 leading-tight">(For Patients/Users wanting to build a trusted circle)</span>
+                        </div>
                     </button>
+
                     <button
                         type="button"
                         onClick={() => toggleRole('counsellor')}
-                        className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-200 ${role === 'counsellor'
-                                ? 'bg-[#008080] text-white shadow-md'
-                                : 'text-gray-600 hover:text-gray-900'
+                        className={`flex-1 py-4 px-4 rounded-xl border-2 text-center transition-all duration-200 flex flex-col items-center gap-2 ${role === 'counsellor'
+                                ? 'border-[#008080] bg-[#E0F2F1] text-[#008080]'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                             }`}
                     >
-                        I am a Mental Health Professional
-                        <span className="block text-xs opacity-80 font-normal">(Counsellor/Doctor)</span>
+                        <div className={`p-2 rounded-full ${role === 'counsellor' ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                            <Icon name="Stethoscope" size={20} />
+                        </div>
+                        <div>
+                            <span className="block text-sm font-bold">I am a Mental Health Professional</span>
+                            <span className="block text-xs opacity-80 font-normal mt-1 leading-tight">(For Counsellors/Doctors requiring verification)</span>
+                        </div>
                     </button>
-                </div>
-
-                <div className="mb-6 text-center text-sm text-gray-600">
-                    Join our community to build your trusted circle and access wellness tools.
                 </div>
 
                 <form className="space-y-4" onSubmit={onSubmit}>
@@ -161,14 +174,14 @@ const Register = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="sr-only">Password</label>
+                        <label htmlFor="password" className="sr-only">Create Password</label>
                         <input
                             id="password"
                             name="password"
                             type="password"
                             required
                             className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                            placeholder="Password"
+                            placeholder="Create Password"
                             value={password}
                             onChange={onChange}
                         />
@@ -190,14 +203,14 @@ const Register = () => {
 
                     <div className="flex items-start gap-2 text-xs text-gray-500 mt-2">
                         <Icon name="Lock" size={14} className="mt-0.5 flex-shrink-0" />
-                        <p>We prioritize your privacy using end-to-end encryption and strong data protection measures.</p>
+                        <p>We maintain strong privacy protection and a strict verification process for professionals</p>
                     </div>
 
                     <div className="pt-2">
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-[#008080] hover:bg-[#006666] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008080] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-[#80CBC4] hover:bg-[#4DB6AC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#80CBC4] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <span className="flex items-center gap-2">
@@ -205,7 +218,7 @@ const Register = () => {
                                     Creating Account...
                                 </span>
                             ) : (
-                                'Get Started'
+                                'Continue'
                             )}
                         </button>
                     </div>
