@@ -16,6 +16,7 @@ import PatientRecords from './pages/counsellor-dashboard/PatientRecords';
 import ConsultationRoom from './pages/counsellor-dashboard/ConsultationRoom';
 import ProfileEditor from './pages/counsellor-dashboard/ProfileEditor';
 import LandingPage from './pages/LandingPage';
+import CounsellorLayout from './components/layout/CounsellorLayout';
 
 const Routes = () => {
   return (
@@ -29,11 +30,11 @@ const Routes = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/appointment-booking" element={<AppointmentBooking />} />
           <Route path="/wellness-hub" element={<WellnessHub />} />
-          <Route path="/counsellor-dashboard" element={<CounsellorDashboard />} />
-          <Route path="/counsellor/schedule" element={<ScheduleManager />} />
-          <Route path="/counsellor/patients" element={<PatientRecords />} />
-          <Route path="/counsellor/consultation" element={<ConsultationRoom />} />
-          <Route path="/counsellor/profile" element={<ProfileEditor />} />
+          <Route path="/counsellor-dashboard" element={<CounsellorLayout><CounsellorDashboard /></CounsellorLayout>} />
+          <Route path="/counsellor/schedule" element={<CounsellorLayout><ScheduleManager /></CounsellorLayout>} />
+          <Route path="/counsellor/patients" element={<CounsellorLayout><PatientRecords /></CounsellorLayout>} />
+          <Route path="/counsellor/consultation" element={<CounsellorLayout><ConsultationRoom /></CounsellorLayout>} />
+          <Route path="/counsellor/profile" element={<CounsellorLayout><ProfileEditor /></CounsellorLayout>} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/mood-tracker" element={<MoodTracker />} />
           <Route path="/resource-library" element={<ResourceLibrary />} />

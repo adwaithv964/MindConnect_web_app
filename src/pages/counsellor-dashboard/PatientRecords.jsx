@@ -31,30 +31,25 @@ const PatientRecords = () => {
     }, []);
 
     return (
-        <SidebarProvider>
-            <div className="min-h-screen bg-background">
-                <RoleBasedSidebar userRole="counsellor" />
-                <main className="main-content">
-                    <BreadcrumbTrail />
-                    <h1 className="text-3xl font-bold mb-6">Patient Records</h1>
-                    {loading ? (
-                        <p>Loading...</p>
-                    ) : (
-                        <div className="grid gap-4">
-                            {patients.map(patient => (
-                                <div key={patient._id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-                                    <div>
-                                        <h3 className="font-semibold text-lg">{patient.name}</h3>
-                                        <p className="text-gray-600">{patient.email}</p>
-                                    </div>
-                                    <button className="text-indigo-600 hover:text-indigo-800">View Details</button>
-                                </div>
-                            ))}
+        <>
+            <BreadcrumbTrail />
+            <h1 className="text-3xl font-bold mb-6">Patient Records</h1>
+            {loading ? (
+                <p>Loading...</p>
+            ) : (
+                <div className="grid gap-4">
+                    {patients.map(patient => (
+                        <div key={patient._id} className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+                            <div>
+                                <h3 className="font-semibold text-lg">{patient.name}</h3>
+                                <p className="text-gray-600">{patient.email}</p>
+                            </div>
+                            <button className="text-indigo-600 hover:text-indigo-800">View Details</button>
                         </div>
-                    )}
-                </main>
-            </div>
-        </SidebarProvider>
+                    ))}
+                </div>
+            )}
+        </>
     );
 };
 
