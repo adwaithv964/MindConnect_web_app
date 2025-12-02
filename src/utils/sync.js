@@ -5,6 +5,9 @@ import { saveToLocalStorage, getFromLocalStorage, clearLocalStorage } from './of
 const MOOD_LOGS_KEY = 'offline_mood_logs';
 const APPOINTMENTS_KEY = 'offline_appointments';
 
+// Get the API Base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const saveData = async (type, data) => {
     if (navigator.onLine) {
         try {
@@ -13,7 +16,8 @@ export const saveData = async (type, data) => {
             if (type === 'moodLog') payload.moodLogs = [data];
             if (type === 'appointment') payload.appointments = [data];
 
-            const response = await axios.post('/api/sync', payload);
+            // UPDATED: Use the full API URL
+            const response = await axios.post(`${API_BASE_URL}/api/sync`, payload);
             console.log('Online: Data saved to MongoDB', response.data);
             return true;
         } catch (error) {
@@ -54,7 +58,8 @@ export const syncData = async () => {
     console.log('Syncing offline data...', { moodLogs, appointments });
 
     try {
-        const response = await axios.post('/api/sync', {
+        // UPDATED: Use the full API URL
+        const response = await axios.post(`${API_BASE_URL}/api/sync`, {
             moodLogs,
             appointments
         });

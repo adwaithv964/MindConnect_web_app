@@ -41,7 +41,9 @@ const Register = () => {
 
             // 2. Create user in MongoDB
             const { confirmPassword, ...submitData } = formData;
-            const res = await axios.post('http://localhost:5001/api/auth/register', {
+            
+            // UPDATED: Uses environment variable for API URL
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
                 ...submitData,
                 firebaseUid: firebaseUser.uid
             });

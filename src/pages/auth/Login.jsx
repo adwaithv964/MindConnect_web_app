@@ -29,7 +29,8 @@ const Login = () => {
             const firebaseUser = userCredential.user;
 
             // 2. Get user profile from MongoDB
-            const res = await axios.post('http://localhost:5001/api/auth/firebase-login', {
+            // UPDATED: Uses environment variable for API URL
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/firebase-login`, {
                 email: firebaseUser.email,
                 firebaseUid: firebaseUser.uid
             });
