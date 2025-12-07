@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import BreadcrumbTrail from '../../components/ui/BreadcrumbTrail';
-import { useAuth } from '../../context/AuthContext'; // Assuming context is available
+import { useAuth } from '../../context/AuthContext';
+import Toast from '../../components/ui/Toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 const PatientProfile = () => {
     const { currentUser } = useAuth();
@@ -12,6 +15,7 @@ const PatientProfile = () => {
     });
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -24,7 +28,7 @@ const PatientProfile = () => {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:5001/api/patients/${userId}`);
+                const response = await fetch(`${API_BASE_URL}/api/patients/${userId}`);
                 if (!response.ok) throw new Error('Failed to fetch profile');
 
                 const data = await response.json();
@@ -39,6 +43,7 @@ const PatientProfile = () => {
                 });
             } catch (error) {
                 console.error("Error fetching patient profile:", error);
+                setToast({ message: 'Failed to load profile data', type: 'error' });
             } finally {
                 setLoading(false);
             }
@@ -60,7 +65,7 @@ const PatientProfile = () => {
 
             if (!userId) return;
 
-            const response = await fetch(`http://localhost:5001/api/patients/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/patients/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -74,7 +79,7 @@ const PatientProfile = () => {
 
             const updatedUser = await response.json();
 
-            // Update local state if needed, though we generally rely on fetch or manual update
+            // Update local state if needed
             setProfile(prev => ({
                 ...prev,
                 name: updatedUser.name || prev.name,
@@ -84,11 +89,11 @@ const PatientProfile = () => {
             }));
 
             setIsEditing(false);
-            alert('Profile updated successfully!');
+            setToast({ message: 'Profile updated successfully!', type: 'success' });
 
         } catch (error) {
             console.error('Error updating patient profile:', error);
-            alert('Failed to update profile.');
+            setToast({ message: 'Failed to update profile.', type: 'error' });
         }
     };
 
@@ -96,6 +101,7 @@ const PatientProfile = () => {
 
     return (
         <div className="space-y-6">
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
             <BreadcrumbTrail />
             <div>
                 <h1 className="text-3xl font-heading font-bold text-gray-900">My Profile</h1>

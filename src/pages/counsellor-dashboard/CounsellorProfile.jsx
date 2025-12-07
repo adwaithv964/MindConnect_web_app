@@ -3,10 +3,14 @@ import { SidebarProvider } from '../../components/ui/RoleBasedSidebar';
 import RoleBasedSidebar from '../../components/ui/RoleBasedSidebar';
 import BreadcrumbTrail from '../../components/ui/BreadcrumbTrail';
 import { useAuth } from '../../context/AuthContext';
+import Toast from '../../components/ui/Toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 const CounsellorProfile = () => {
     const { currentUser } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState(null);
     const [profile, setProfile] = useState({
         name: '',
         email: '',
@@ -29,7 +33,7 @@ const CounsellorProfile = () => {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:5001/api/counsellor/profile/${userId}`);
+                const response = await fetch(`${API_BASE_URL}/api/counsellor/profile/${userId}`);
                 if (!response.ok) throw new Error('Failed to fetch profile');
 
                 const data = await response.json();
@@ -44,6 +48,7 @@ const CounsellorProfile = () => {
                 });
             } catch (error) {
                 console.error("Error fetching profile:", error);
+                setToast({ message: 'Failed to load profile data', type: 'error' });
             } finally {
                 setLoading(false);
             }
@@ -65,7 +70,7 @@ const CounsellorProfile = () => {
 
             if (!userId) return;
 
-            const response = await fetch(`http://localhost:5001/api/counsellor/profile/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/counsellor/profile/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,11 +86,11 @@ const CounsellorProfile = () => {
             }
 
             const updatedData = await response.json();
-            alert('Profile updated successfully!');
+            setToast({ message: 'Profile updated successfully!', type: 'success' });
 
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert('Failed to update profile.');
+            setToast({ message: 'Failed to update profile.', type: 'error' });
         }
     };
 
@@ -93,6 +98,7 @@ const CounsellorProfile = () => {
 
     return (
         <>
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
             <BreadcrumbTrail />
             <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
             <div className="bg-white p-6 rounded-lg shadow max-w-2xl">
