@@ -2,13 +2,15 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSidebar } from './RoleBasedSidebar'; // Reusing the context hook
 import Icon from '../AppIcon';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
 
 const CounsellorSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { isCollapsed, isMobileOpen, toggleCollapse, toggleMobile, closeMobile } = useSidebar();
 
-    const navigationItems = [
+    const mainNavItems = [
         {
             label: 'Dashboard',
             path: '/counsellor-dashboard',
@@ -32,12 +34,27 @@ const CounsellorSidebar = () => {
             path: '/counsellor/consultation',
             icon: 'Video',
             tooltip: 'Video consultation room'
-        },
+        }
+    ];
+
+    const settingsNavItems = [
         {
             label: 'Profile',
             path: '/counsellor/profile',
             icon: 'User',
             tooltip: 'Edit your professional profile'
+        },
+        {
+            label: 'General',
+            path: '/counsellor/settings/general',
+            icon: 'Settings',
+            tooltip: 'General application settings'
+        },
+        {
+            label: 'Preferences',
+            path: '/counsellor/settings/preferences',
+            icon: 'Sliders',
+            tooltip: 'Notification and display preferences'
         }
     ];
 
@@ -45,6 +62,20 @@ const CounsellorSidebar = () => {
         navigate(path);
         if (window.innerWidth < 1024) {
             closeMobile();
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/login');
+            if (window.innerWidth < 1024) {
+                closeMobile();
+            }
+        } catch (error) {
+            console.error('Error signing out:', error);
         }
     };
 
@@ -90,11 +121,11 @@ const CounsellorSidebar = () => {
                 />
             )}
             <aside
-                className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+                className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 flex flex-col`}
                 role="navigation"
                 aria-label="Main navigation"
             >
-                <div className="sidebar-header">
+                <div className="sidebar-header shrink-0">
                     <div className="sidebar-logo">
                         <Icon name="Brain" size={28} color="#FFFFFF" />
                     </div>
@@ -105,34 +136,74 @@ const CounsellorSidebar = () => {
                     )}
                 </div>
 
-                <nav className="sidebar-nav">
-                    {navigationItems.map((item) => (
-                        <div
-                            key={item.path}
-                            onClick={() => handleNavigation(item.path)}
-                            className={`sidebar-nav-item ${isActive(item.path) ? 'active' : ''}`}
-                            role="button"
-                            tabIndex={0}
-                            title={isCollapsed ? item.tooltip : ''}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    handleNavigation(item.path);
-                                }
-                            }}
-                        >
-                            <Icon name={item.icon} size={20} />
-                            <span className="font-medium">{item.label}</span>
-                        </div>
-                    ))}
-                </nav>
+                <div className="flex-1 overflow-y-auto py-4">
+                    <nav className="sidebar-nav">
+                        {mainNavItems.map((item) => (
+                            <div
+                                key={item.path}
+                                onClick={() => handleNavigation(item.path)}
+                                className={`sidebar-nav-item ${isActive(item.path) ? 'active' : ''}`}
+                                role="button"
+                                tabIndex={0}
+                                title={isCollapsed ? item.tooltip : ''}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        handleNavigation(item.path);
+                                    }
+                                }}
+                            >
+                                <Icon name={item.icon} size={20} />
+                                <span className="font-medium">{item.label}</span>
+                            </div>
+                        ))}
 
-                <button
-                    onClick={toggleCollapse}
-                    className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 items-center justify-center w-10 h-10 rounded-lg bg-muted hover:bg-muted/80 transition-colors duration-150"
-                    aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                >
-                    <Icon name={isCollapsed ? 'ChevronRight' : 'ChevronLeft'} size={20} />
-                </button>
+                        <div className="my-4 border-t border-gray-200/20 mx-4"></div>
+
+                        {!isCollapsed && (
+                            <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                Settings
+                            </div>
+                        )}
+
+                        {settingsNavItems.map((item) => (
+                            <div
+                                key={item.path}
+                                onClick={() => handleNavigation(item.path)}
+                                className={`sidebar-nav-item ${isActive(item.path) ? 'active' : ''}`}
+                                role="button"
+                                tabIndex={0}
+                                title={isCollapsed ? item.tooltip : ''}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        handleNavigation(item.path);
+                                    }
+                                }}
+                            >
+                                <Icon name={item.icon} size={20} />
+                                <span className="font-medium">{item.label}</span>
+                            </div>
+                        ))}
+                    </nav>
+                </div>
+
+                <div className="shrink-0 p-4 border-t border-gray-200/20">
+                    <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center p-3 rounded-lg text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors"
+                        title={isCollapsed ? 'Sign Out' : ''}
+                    >
+                        <Icon name="LogOut" size={20} />
+                        {!isCollapsed && <span className="ml-3 font-medium">Sign Out</span>}
+                    </button>
+
+                    <button
+                        onClick={toggleCollapse}
+                        className="hidden lg:flex mt-4 items-center justify-center w-full h-10 rounded-lg bg-black/20 hover:bg-black/30 transition-colors duration-150"
+                        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    >
+                        <Icon name={isCollapsed ? 'ChevronRight' : 'ChevronLeft'} size={20} />
+                    </button>
+                </div>
             </aside>
         </>
     );
