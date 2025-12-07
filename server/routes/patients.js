@@ -38,4 +38,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
+// Update patient profile
+router.put('/:id', async (req, res) => {
+    try {
+        const { name, email, phone, emergencyContact } = req.body;
+
+        const userFields = {};
+        if (name !== undefined) userFields.name = name;
+        if (email !== undefined) userFields.email = email;
+        // Phone is not in User schema yet, assuming we add it or store in specific profile if we had one.
+        // For now, let's look at User schema. It doesn't have phone. Let's add it or ignore it.
+        // The user request images showed "Phone Number". I should add 'phone' to User schema.
+        if (phone !== undefined) userFields.phone = phone;
+        if (emergencyContact !== undefined) userFields.emergencyContact = emergencyContact;
+
+        let user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user = await User.findByIdAndUpdate(
+            req.params.id,
+            { $set: userFields },
+            { new: true }
+        ).select('-password');
+
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

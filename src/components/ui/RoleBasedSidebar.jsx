@@ -33,6 +33,7 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isCollapsed, isMobileOpen, toggleCollapse, toggleMobile, closeMobile } = useSidebar();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(location.pathname.includes('/settings') || location.pathname.includes('/patient/profile'));
 
   const navigationItems = [
     {
@@ -82,7 +83,7 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
   const settingsItems = [
     {
       label: 'Profile',
-      path: '/settings/profile',
+      path: '/patient/profile',
       icon: 'User',
       tooltip: 'Edit your profile'
     },
@@ -190,11 +191,6 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
                 role="button"
                 tabIndex={0}
                 title={isCollapsed ? item?.tooltip : ''}
-                onKeyDown={(e) => {
-                  if (e?.key === 'Enter' || e?.key === ' ') {
-                    handleNavigation(item?.path);
-                  }
-                }}
               >
                 <Icon name={item?.icon} size={20} />
                 <span className="font-medium">{item?.label}</span>
@@ -203,30 +199,37 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
 
             <div className="my-4 border-t border-gray-200/20 mx-4"></div>
 
-            {!isCollapsed && (
-              <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Settings
+            {/* Collapsible Settings Menu */}
+            <div
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className={`sidebar-nav-item justify-between ${isSettingsOpen || location.pathname.includes('/settings') || location.pathname.includes('/patient/profile') ? 'text-primary bg-primary/10' : ''}`}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="flex items-center gap-3">
+                <Icon name="Settings" size={20} />
+                <span className="font-medium">Settings</span>
+              </div>
+              <Icon name={isSettingsOpen ? "ChevronDown" : "ChevronRight"} size={16} />
+            </div>
+
+            {/* Settings Sub-items */}
+            {isSettingsOpen && (
+              <div className="ml-4 pl-2 border-l border-gray-200/20 space-y-1 mt-1 transition-all duration-200">
+                {settingsItems.map((item) => (
+                  <div
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className={`sidebar-nav-item text-sm py-2 ${isActive(item.path) ? 'active text-primary font-semibold' : 'text-gray-500 hover:text-gray-700'}`}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <Icon name={item.icon} size={18} />
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                ))}
               </div>
             )}
-
-            {settingsItems.map((item) => (
-              <div
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={`sidebar-nav-item ${isActive(item.path) ? 'active' : ''}`}
-                role="button"
-                tabIndex={0}
-                title={isCollapsed ? item.tooltip : ''}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleNavigation(item.path);
-                  }
-                }}
-              >
-                <Icon name={item.icon} size={20} />
-                <span className="font-medium">{item.label}</span>
-              </div>
-            ))}
           </nav>
         </div>
 

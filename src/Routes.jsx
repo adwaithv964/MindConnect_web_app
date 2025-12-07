@@ -15,12 +15,13 @@ import Register from './pages/auth/Register';
 import ScheduleManager from './pages/counsellor-dashboard/ScheduleManager';
 import PatientRecords from './pages/counsellor-dashboard/PatientRecords';
 import ConsultationRoom from './pages/counsellor-dashboard/ConsultationRoom';
-import ProfileEditor from './pages/counsellor-dashboard/ProfileEditor';
+import CounsellorProfile from './pages/counsellor-dashboard/CounsellorProfile';
 import SettingsGeneral from './pages/counsellor-dashboard/settings/SettingsGeneral';
 import SettingsPreferences from './pages/counsellor-dashboard/settings/SettingsPreferences';
 import LandingPage from './pages/LandingPage';
 import CounsellorLayout from './components/layout/CounsellorLayout';
 import PatientLayout from './components/layout/PatientLayout';
+import PatientProfile from './pages/patient-dashboard/PatientProfile';
 
 const Routes = () => {
   return (
@@ -36,13 +37,12 @@ const Routes = () => {
 
             <Route path="/appointment-booking" element={<AppointmentBooking />} />
             <Route path="/wellness-hub" element={<WellnessHub />} />
-
             {/* Counsellor Routes */}
             <Route path="/counsellor-dashboard" element={<CounsellorLayout><CounsellorDashboard /></CounsellorLayout>} />
             <Route path="/counsellor/schedule" element={<CounsellorLayout><ScheduleManager /></CounsellorLayout>} />
             <Route path="/counsellor/patients" element={<CounsellorLayout><PatientRecords /></CounsellorLayout>} />
             <Route path="/counsellor/consultation" element={<CounsellorLayout><ConsultationRoom /></CounsellorLayout>} />
-            <Route path="/counsellor/profile" element={<CounsellorLayout><ProfileEditor /></CounsellorLayout>} />
+            <Route path="/counsellor/profile" element={<CounsellorLayout><CounsellorProfile /></CounsellorLayout>} />
             <Route path="/counsellor/settings/general" element={<CounsellorLayout><SettingsGeneral /></CounsellorLayout>} />
             <Route path="/counsellor/settings/preferences" element={<CounsellorLayout><SettingsPreferences /></CounsellorLayout>} />
 
@@ -50,7 +50,7 @@ const Routes = () => {
             <Route path="/patient-dashboard" element={<PatientDashboard />} />
             <Route path="/mood-tracker" element={<PatientLayout><MoodTracker /></PatientLayout>} />
             <Route path="/resource-library" element={<PatientLayout><ResourceLibrary /></PatientLayout>} />
-            <Route path="/settings/profile" element={<PatientLayout><ProfileEditor /></PatientLayout>} />
+            <Route path="/patient/profile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
             <Route path="/settings/general" element={<PatientLayout><SettingsGeneral /></PatientLayout>} />
             <Route path="/settings/preferences" element={<PatientLayout><SettingsPreferences /></PatientLayout>} />
 

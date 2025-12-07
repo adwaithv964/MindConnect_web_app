@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSidebar } from './RoleBasedSidebar'; // Reusing the context hook
 import Icon from '../AppIcon';
@@ -9,6 +9,7 @@ const CounsellorSidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { isCollapsed, isMobileOpen, toggleCollapse, toggleMobile, closeMobile } = useSidebar();
+    const [isSettingsOpen, setIsSettingsOpen] = useState(location.pathname.includes('/counsellor/settings') || location.pathname.includes('/counsellor/profile'));
 
     const mainNavItems = [
         {
@@ -159,30 +160,37 @@ const CounsellorSidebar = () => {
 
                         <div className="my-4 border-t border-gray-200/20 mx-4"></div>
 
-                        {!isCollapsed && (
-                            <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                Settings
+                        {/* Collapsible Settings Menu */}
+                        <div
+                            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                            className={`sidebar-nav-item justify-between ${isSettingsOpen || location.pathname.includes('/counsellor/settings') || location.pathname.includes('/counsellor/profile') ? 'text-primary bg-primary/10' : ''}`}
+                            role="button"
+                            tabIndex={0}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Icon name="Settings" size={20} />
+                                <span className="font-medium">Settings</span>
+                            </div>
+                            <Icon name={isSettingsOpen ? "ChevronDown" : "ChevronRight"} size={16} />
+                        </div>
+
+                        {/* Settings Sub-items */}
+                        {isSettingsOpen && (
+                            <div className="ml-4 pl-2 border-l border-gray-200/20 space-y-1 mt-1 transition-all duration-200">
+                                {settingsNavItems.map((item) => (
+                                    <div
+                                        key={item.path}
+                                        onClick={() => handleNavigation(item.path)}
+                                        className={`sidebar-nav-item text-sm py-2 ${isActive(item.path) ? 'active text-primary font-semibold' : 'text-gray-500 hover:text-gray-700'}`}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
+                                        <Icon name={item.icon} size={18} />
+                                        <span className="font-medium">{item.label}</span>
+                                    </div>
+                                ))}
                             </div>
                         )}
-
-                        {settingsNavItems.map((item) => (
-                            <div
-                                key={item.path}
-                                onClick={() => handleNavigation(item.path)}
-                                className={`sidebar-nav-item ${isActive(item.path) ? 'active' : ''}`}
-                                role="button"
-                                tabIndex={0}
-                                title={isCollapsed ? item.tooltip : ''}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        handleNavigation(item.path);
-                                    }
-                                }}
-                            >
-                                <Icon name={item.icon} size={20} />
-                                <span className="font-medium">{item.label}</span>
-                            </div>
-                        ))}
                     </nav>
                 </div>
 

@@ -34,10 +34,26 @@ router.get('/', async (req, res) => {
 });
 
 // Get counsellor profile (protected)
+// Get counsellor profile (protected)
 router.get('/profile/:id', async (req, res) => {
     try {
-        const profile = await CounsellorProfile.findOne({ userId: req.params.id });
-        if (!profile) return res.status(404).json({ message: 'Profile not found' });
+        let profile = await CounsellorProfile.findOne({ userId: req.params.id }).populate('userId', 'name email emergencyContact');
+
+        if (!profile) {
+            // Check if user exists even if profile doesn't
+            const user = await User.findById(req.params.id).select('name email emergencyContact');
+            if (user) {
+                return res.json({
+                    userId: user,
+                    bio: '',
+                    specializations: [],
+                    experienceYears: '',
+                    languages: [],
+                    availability: []
+                });
+            }
+            return res.status(404).json({ message: 'Profile not found' });
+        }
         res.json(profile);
     } catch (err) {
         console.error(err.message);
@@ -46,9 +62,23 @@ router.get('/profile/:id', async (req, res) => {
 });
 
 // Update counsellor profile
+// Update counsellor profile
 router.put('/profile/:id', async (req, res) => {
     try {
-        const { bio, specializations, availability, experienceYears, languages } = req.body;
+        const {
+            bio, specializations, availability, experienceYears, languages,
+            name, email, emergencyContact
+        } = req.body;
+
+        // Update User Table Fields
+        const userFields = {};
+        if (name !== undefined) userFields.name = name;
+        if (email !== undefined) userFields.email = email;
+        if (emergencyContact !== undefined) userFields.emergencyContact = emergencyContact;
+
+        if (Object.keys(userFields).length > 0) {
+            await User.findByIdAndUpdate(req.params.id, { $set: userFields });
+        }
 
         // Build profile object
         const profileFields = {};
