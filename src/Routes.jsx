@@ -32,8 +32,8 @@ const Routes = () => {
           <RouterRoutes>
             {/* Define your route here */}
             <Route path="/" element={<AuthRedirect><LandingPage /></AuthRedirect>} />
-            <Route path="/login" element={<AuthRedirect><Login /></AuthRedirect>} />
-            <Route path="/register" element={<AuthRedirect><Register /></AuthRedirect>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             <Route path="/appointment-booking" element={<AppointmentBooking />} />
             <Route path="/wellness-hub" element={<WellnessHub />} />

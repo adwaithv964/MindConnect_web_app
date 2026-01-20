@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthLayout from '../../components/AuthLayout';
 import Icon from '../../components/AppIcon';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -16,7 +17,26 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { currentUser, userRole, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        // Only redirect if:
+        // 1. Auth context is done loading
+        // 2. We have a current user
+        // 3. We are NOT currently submitting the form (loading state)
+        //    This prevents redirecting before the role is fully set in localStorage/state during the registration process itself.
+        if (!authLoading && currentUser && !loading && userRole) {
+            if (userRole === 'counsellor') {
+                navigate('/counsellor-dashboard');
+            } else if (userRole === 'admin') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/patient-dashboard');
+            }
+        }
+    }, [currentUser, userRole, authLoading, loading, navigate]);
 
     const { name, email, password, confirmPassword, role } = formData;
 
@@ -41,7 +61,7 @@ const Register = () => {
 
             // 2. Create user in MongoDB
             const { confirmPassword, ...submitData } = formData;
-            
+
             // UPDATED: Uses environment variable for API URL
             const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
                 ...submitData,
@@ -61,9 +81,10 @@ const Register = () => {
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
-        } finally {
-            setLoading(false);
+            setLoading(false); // Only set loading to false on error, so we don't trigger the useEffect redirect too early
         }
+        // Note: We intentionally don't set loading(false) on success because we are navigating away.
+        // If we set it to false, the useEffect might kick in with incomplete context data.
     };
 
     const features = [

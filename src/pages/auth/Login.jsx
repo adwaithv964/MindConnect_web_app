@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthLayout from '../../components/AuthLayout';
 import Icon from '../../components/AppIcon';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -13,7 +14,21 @@ const Login = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { currentUser, userRole, loading: authLoading } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (!authLoading && currentUser && !loading && userRole) {
+            if (userRole === 'counsellor') {
+                navigate('/counsellor-dashboard');
+            } else if (userRole === 'admin') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/patient-dashboard');
+            }
+        }
+    }, [currentUser, userRole, authLoading, loading, navigate]);
 
     const { email, password } = formData;
 
@@ -50,9 +65,9 @@ const Login = () => {
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.message || err.message || 'Login failed. Please check your credentials.');
-        } finally {
-            setLoading(false);
+            setLoading(false); // Only reset loading on error
         }
+        // Do not reset loading on success to prevent useEffect from firing prematurely
     };
 
     const features = [

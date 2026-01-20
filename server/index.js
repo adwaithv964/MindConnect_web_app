@@ -11,10 +11,12 @@ const PORT = process.env.PORT || 5001;
 
 // --- 1. UPDATE CORS CONFIGURATION HERE ---
 const allowedOrigins = [
-    'http://localhost:5001',                  // Vite Localhost
-    'http://localhost:3000',
-    'http://localhost:4028',                  // Standard React Localhost (just in case)
-    'https://mind-connect-web-app.vercel.app' // YOUR VERCEL FRONTEND URL
+    'http://localhost:5001',                  // Backend
+    'http://localhost:3000',                  // React default
+    'http://localhost:4028',
+    'http://localhost:5173',                  // Vite Dev
+    'http://localhost:4173',                  // Vite Preview
+    'https://mind-connect-web-app.vercel.app' // Vercel Frontend
 ];
 
 app.use(cors({
