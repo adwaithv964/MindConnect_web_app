@@ -38,8 +38,7 @@ router.post('/ai-discover', async (req, res) => {
 
         // Enable Google Search grounding so Gemini uses real live web data
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash',
-            tools: [{ googleSearch: {} }]
+            model: 'gemini-2.5-flash'
         });
 
         const encodedQuery = encodeURIComponent(query);
@@ -65,7 +64,7 @@ Return exactly 12 resources as a JSON array. Use this EXACT distribution:
 **3 WORKSHEETS** — from TherapistAid.com or PsychologyTools.com.
   These sites have stable URLs. Example: https://www.therapistaid.com/therapy-worksheets/anxiety/none
 
-Return ONLY a valid JSON array, no markdown, no explanation:
+Return ONLY a valid JSON array. Do NOT wrap in markdown code fences. No explanations, no preamble, just the raw JSON array:
 [
   {
     "title": "Descriptive resource title",
@@ -73,9 +72,9 @@ Return ONLY a valid JSON array, no markdown, no explanation:
     "url": "https://guaranteed-working-url.com",
     "contentType": "article" | "video" | "podcast" | "worksheet",
     "author": "Author, channel name, or platform",
-    "duration": "12 min read" or "18 min" or "45 min episode",
+    "duration": "12 min read",
     "rating": 4.7,
-    "source": "verywellmind.com" | "youtube.com" | "open.spotify.com" | "therapistaid.com",
+    "source": "verywellmind.com",
     "thumbnail": ""
   }
 ]
@@ -85,13 +84,31 @@ Topic: "${query}"`;
         const result = await model.generateContent(prompt);
         const text = result.response.text();
 
-        // Parse the JSON response
+        // Parse JSON — handle markdown code fences that some models wrap response in
         let resources = [];
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-            resources = JSON.parse(jsonMatch[0]);
-        } else {
-            throw new Error('Gemini did not return valid JSON array');
+        try {
+            // Strip markdown code fences if present (```json ... ``` or ``` ... ```)
+            const stripped = text
+                .replace(/^```(?:json)?\s*/i, '')
+                .replace(/\s*```\s*$/i, '')
+                .trim();
+
+            // Try direct parse first (cleanest path)
+            try {
+                resources = JSON.parse(stripped);
+            } catch {
+                // Fallback: extract array via regex
+                const jsonMatch = stripped.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    resources = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error('Could not find JSON array in response');
+                }
+            }
+        } catch (parseErr) {
+            console.error('[AI Discovery] JSON parse error:', parseErr.message);
+            console.error('[AI Discovery] Raw response:', text.slice(0, 500));
+            throw new Error(`Failed to parse Gemini response: ${parseErr.message}`);
         }
 
         // Safety net: rewrite any specific YouTube/Spotify URLs to search pages
