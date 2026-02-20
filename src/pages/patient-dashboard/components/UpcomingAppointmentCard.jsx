@@ -3,7 +3,7 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 
-const UpcomingAppointmentCard = ({ appointment, onViewDetails }) => {
+const UpcomingAppointmentCard = ({ appointment, onViewDetails, onReschedule }) => {
   const getStatusColor = (status) => {
     const colors = {
       confirmed: 'text-success bg-success/10',
@@ -12,6 +12,22 @@ const UpcomingAppointmentCard = ({ appointment, onViewDetails }) => {
     };
     return colors?.[status] || colors?.pending;
   };
+
+  // No upcoming appointment
+  if (!appointment) {
+    return (
+      <div className="glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
+        <Icon name="CalendarX" size={40} className="text-muted-foreground mb-3 opacity-50" />
+        <h2 className="text-xl font-heading font-semibold text-foreground mb-1">No Upcoming Session</h2>
+        <p className="text-sm text-muted-foreground mb-4 text-center">
+          You don't have any confirmed or pending appointments.
+        </p>
+        <Button variant="default" fullWidth iconName="Calendar" onClick={onViewDetails}>
+          Book a Session
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-card p-6">
@@ -22,11 +38,17 @@ const UpcomingAppointmentCard = ({ appointment, onViewDetails }) => {
         </span>
       </div>
       <div className="flex items-start gap-4 mb-6">
-        <Image 
-          src={appointment?.counsellorImage} 
-          alt={appointment?.counsellorImageAlt}
-          className="w-16 h-16 rounded-full object-cover"
-        />
+        {appointment?.counsellorImage ? (
+          <Image
+            src={appointment.counsellorImage}
+            alt={appointment.counsellorName}
+            className="w-16 h-16 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Icon name="User" size={28} className="text-primary" />
+          </div>
+        )}
         <div className="flex-1">
           <h3 className="font-semibold text-foreground mb-1">{appointment?.counsellorName}</h3>
           <p className="text-sm text-muted-foreground mb-2">{appointment?.specialization}</p>
@@ -43,14 +65,17 @@ const UpcomingAppointmentCard = ({ appointment, onViewDetails }) => {
         </div>
       </div>
       <div className="flex items-center gap-3 mb-4 p-3 bg-primary/5 rounded-lg">
-        <Icon name="Video" size={20} className="text-primary" />
+        <Icon name={appointment?.sessionType === 'inperson' ? 'MapPin' : 'Video'} size={20} className="text-primary" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-foreground">Video Consultation</p>
+          <p className="text-sm font-medium text-foreground capitalize">
+            {appointment?.sessionType === 'inperson' ? 'In-Person Session' :
+              appointment?.sessionType === 'phone' ? 'Phone Consultation' : 'Video Consultation'}
+          </p>
           <p className="text-xs text-muted-foreground">Join link will be available 10 mins before</p>
         </div>
       </div>
       <div className="flex gap-3">
-        <Button variant="outline" fullWidth iconName="Calendar">
+        <Button variant="outline" fullWidth iconName="Calendar" onClick={onReschedule}>
           Reschedule
         </Button>
         <Button variant="default" fullWidth iconName="Video" onClick={onViewDetails}>

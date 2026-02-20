@@ -2,7 +2,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Icon from '../../../components/AppIcon';
 
-const MoodTrendChart = ({ data }) => {
+const MoodTrendChart = ({ data, stats }) => {
   const moodToValue = {
     excellent: 5,
     good: 4,
@@ -13,9 +13,13 @@ const MoodTrendChart = ({ data }) => {
 
   const chartData = data?.map(entry => ({
     date: entry?.date,
-    value: moodToValue?.[entry?.mood],
+    value: entry?.mood ? (moodToValue?.[entry?.mood] ?? undefined) : undefined,
     mood: entry?.mood
   }));
+
+  const avgDisplay = stats?.averageMood ?? '--';
+  const impPct = stats?.improvementPct ?? 0;
+  const lowDays = stats?.lowDays ?? 0;
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload?.length) {
@@ -43,24 +47,29 @@ const MoodTrendChart = ({ data }) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-            <XAxis 
-              dataKey="date" 
+            <XAxis
+              dataKey="date"
               stroke="var(--color-muted-foreground)"
               style={{ fontSize: '12px' }}
             />
-            <YAxis 
+            <YAxis
               domain={[0, 6]}
               ticks={[1, 2, 3, 4, 5]}
               stroke="var(--color-muted-foreground)"
               style={{ fontSize: '12px' }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke="var(--color-primary)" 
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="var(--color-primary)"
               strokeWidth={3}
-              dot={{ fill: 'var(--color-primary)', r: 5 }}
+              connectNulls
+              dot={(props) => {
+                const { cx, cy, payload } = props;
+                if (payload?.value === undefined || payload?.value === null) return null;
+                return <circle key={`dot-${cx}-${cy}`} cx={cx} cy={cy} r={5} fill="var(--color-primary)" />;
+              }}
               activeDot={{ r: 7 }}
             />
           </LineChart>
@@ -69,15 +78,17 @@ const MoodTrendChart = ({ data }) => {
 
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
         <div className="text-center">
-          <p className="text-2xl font-semibold text-success">4.2</p>
+          <p className="text-2xl font-semibold text-success">{avgDisplay}</p>
           <p className="text-xs text-muted-foreground">Average</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-semibold text-primary">+12%</p>
+          <p className={`text-2xl font-semibold ${impPct >= 0 ? 'text-primary' : 'text-error'}`}>
+            {impPct >= 0 ? '+' : ''}{impPct}%
+          </p>
           <p className="text-xs text-muted-foreground">Improvement</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-semibold text-warning">3</p>
+          <p className="text-2xl font-semibold text-warning">{lowDays}</p>
           <p className="text-xs text-muted-foreground">Low Days</p>
         </div>
       </div>

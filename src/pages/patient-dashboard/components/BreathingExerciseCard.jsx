@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const BreathingExerciseCard = ({ onStartExercise }) => {
+const BreathingExerciseCard = ({ onStartExercise, breathingStats }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handlePreview = () => {
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 4000);
   };
+
+  const totalSessions = breathingStats?.totalSessions ?? 0;
+  const streak = breathingStats?.streak ?? 0;
 
   return (
     <div className="glass-card p-6">
@@ -19,10 +22,9 @@ const BreathingExerciseCard = ({ onStartExercise }) => {
 
       <div className="flex items-center justify-center mb-6 h-40">
         <div className="relative w-32 h-32">
-          <div 
-            className={`absolute inset-0 rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 ${
-              isAnimating ? 'breathing-animation' : ''
-            }`}
+          <div
+            className={`absolute inset-0 rounded-full bg-gradient-to-br from-primary to-secondary opacity-20 ${isAnimating ? 'breathing-animation' : ''
+              }`}
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <Icon name="Wind" size={48} className="text-primary" />
@@ -40,9 +42,12 @@ const BreathingExerciseCard = ({ onStartExercise }) => {
         </div>
         <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
           <Icon name="Heart" size={20} className="text-success" />
-          <div>
-            <p className="text-sm font-medium text-foreground">Reduces Anxiety</p>
-            <p className="text-xs text-muted-foreground">Calms nervous system</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">Your Progress</p>
+            <p className="text-xs text-muted-foreground">
+              {totalSessions} session{totalSessions !== 1 ? 's' : ''} completed
+              {streak > 0 ? ` · ${streak}-day streak 🔥` : ''}
+            </p>
           </div>
         </div>
       </div>
