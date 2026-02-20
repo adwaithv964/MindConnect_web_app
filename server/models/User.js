@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false // Only relevant for counsellors
     },
+    isPatientVerified: {
+        type: Boolean,
+        default: false
+    },
     emergencyContact: {
         type: String,
         required: false
@@ -35,6 +39,10 @@ const UserSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: false
+    },
+    profilePhoto: {
+        type: String,
+        required: false // base64 data URL
     },
     createdAt: {
         type: Date,

@@ -31,7 +31,23 @@ const CounsellorProfileSchema = new mongoose.Schema({
     },
     languages: [{
         type: String
-    }]
+    }],
+    qualifications: {
+        type: String // e.g., "LCSW, Licensed Clinical Social Worker"
+    },
+    patientCount: {
+        type: Number
+    },
+    // NMC Verification Details
+    registrationNumber: { type: String },
+    registrationYear: { type: String },
+    stateMedicalCouncil: { type: String },
+    nmcVerificationStatus: {
+        type: String,
+        enum: ['pending', 'verified', 'failed', 'unverified'],
+        default: 'unverified'
+    },
+    verifiedName: { type: String } // Stores the name as it appears in the NMC registry
 });
 
 module.exports = mongoose.model('CounsellorProfile', CounsellorProfileSchema);
