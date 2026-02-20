@@ -35,7 +35,7 @@ const RiskAssessmentPanel = ({ riskPatients, onViewPatient, onContactPatient }) 
     const contactDate = new Date(date);
     const now = new Date();
     const diffHours = Math.floor((now - contactDate) / (1000 * 60 * 60));
-    
+
     if (diffHours < 1) return 'Just now';
     if (diffHours < 24) return `${diffHours}h ago`;
     const diffDays = Math.floor(diffHours / 24);
@@ -68,18 +68,29 @@ const RiskAssessmentPanel = ({ riskPatients, onViewPatient, onContactPatient }) 
         {sortedPatients?.map((patient) => {
           const config = getRiskConfig(patient?.riskLevel);
           return (
-            <div 
+            <div
               key={patient?.id}
               className={`p-4 rounded-lg border-2 ${config?.color} hover:shadow-md transition-all duration-200`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <Image
-                      src={patient?.avatar}
-                      alt={patient?.avatarAlt}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-border"
-                    />
+                    <div className="relative w-12 h-12">
+                      {patient?.avatar ? (
+                        <img
+                          src={patient.avatar}
+                          alt={patient?.avatarAlt || patient?.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-border"
+                          onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                        />
+                      ) : null}
+                      <div
+                        className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg"
+                        style={{ display: patient?.avatar ? 'none' : 'flex' }}
+                      >
+                        {(patient?.name || 'P')[0].toUpperCase()}
+                      </div>
+                    </div>
                     <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${config?.color} flex items-center justify-center`}>
                       <Icon name={config?.icon} size={12} className={config?.textColor} />
                     </div>

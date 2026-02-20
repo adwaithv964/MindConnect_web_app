@@ -2,44 +2,59 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const CalendarView = ({ selectedDate, onDateSelect, availableSlots, onSlotSelect, selectedSlot }) => {
+const CalendarView = ({
+  selectedDate,
+  onDateSelect,
+  availableSlots,
+  isLoadingSlots,
+  onSlotSelect,
+  selectedSlot,
+  selectedCounsellor
+}) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const getDaysInMonth = (date) => {
+  const getDaysInMonth = date => {
     const year = date?.getFullYear();
     const month = date?.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay?.getDate();
-    const startingDayOfWeek = firstDay?.getDay();
-
-    return { daysInMonth, startingDayOfWeek };
+    return {
+      daysInMonth: lastDay?.getDate(),
+      startingDayOfWeek: firstDay?.getDay()
+    };
   };
 
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
 
-  const previousMonth = () => {
+  const previousMonth = () =>
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
-  };
 
-  const nextMonth = () => {
+  const nextMonth = () =>
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
-  };
 
-  const isDateAvailable = (day) => {
+  const isDateAvailable = day => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     const today = new Date();
-    today?.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
     return date >= today;
   };
 
-  const isDateSelected = (day) => {
-    if (!selectedDate) return false;
-    return (selectedDate?.getDate() === day &&
-    selectedDate?.getMonth() === currentMonth?.getMonth() && selectedDate?.getFullYear() === currentMonth?.getFullYear());
+  const isDateSelected = day =>
+    selectedDate &&
+    selectedDate.getDate() === day &&
+    selectedDate.getMonth() === currentMonth.getMonth() &&
+    selectedDate.getFullYear() === currentMonth.getFullYear();
+
+  const isToday = day => {
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentMonth.getMonth() === today.getMonth() &&
+      currentMonth.getFullYear() === today.getFullYear()
+    );
   };
 
-  const handleDateClick = (day) => {
+  const handleDateClick = day => {
     if (isDateAvailable(day)) {
       const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
       onDateSelect(date);
@@ -50,50 +65,38 @@ const CalendarView = ({ selectedDate, onDateSelect, availableSlots, onSlotSelect
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="glass-card p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-heading font-semibold text-xl text-foreground">
-          {monthNames?.[currentMonth?.getMonth()]} {currentMonth?.getFullYear()}
+    <div className="glass-card p-4">
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-heading font-semibold text-lg text-foreground">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h2>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            iconName="ChevronLeft"
-            onClick={previousMonth}
-            aria-label="Previous month"
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            iconName="ChevronRight"
-            onClick={nextMonth}
-            aria-label="Next month"
-          />
+        <div className="flex gap-1">
+          <Button variant="outline" size="sm" iconName="ChevronLeft" onClick={previousMonth} aria-label="Previous month" />
+          <Button variant="outline" size="sm" iconName="ChevronRight" onClick={nextMonth} aria-label="Next month" />
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-2 mb-4">
-        {dayNames?.map((day) => (
-          <div
-            key={day}
-            className="text-center text-sm font-medium text-muted-foreground py-2"
-          >
+
+      {/* Day Labels */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {dayNames.map(day => (
+          <div key={day} className="text-center text-xs font-medium text-muted-foreground py-1">
             {day}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-2">
-        {Array.from({ length: startingDayOfWeek })?.map((_, index) => (
-          <div key={`empty-${index}`} />
-        ))}
-        {Array.from({ length: daysInMonth })?.map((_, index) => {
-          const day = index + 1;
+
+      {/* Days Grid */}
+      <div className="grid grid-cols-7 gap-1 mb-4">
+        {Array.from({ length: startingDayOfWeek }).map((_, i) => <div key={`e-${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
           const available = isDateAvailable(day);
           const selected = isDateSelected(day);
+          const today = isToday(day);
 
           return (
             <button
@@ -101,10 +104,11 @@ const CalendarView = ({ selectedDate, onDateSelect, availableSlots, onSlotSelect
               onClick={() => handleDateClick(day)}
               disabled={!available}
               className={`
-                aspect-square rounded-lg text-sm font-medium transition-all duration-150
-                ${selected ? 'bg-primary text-primary-foreground' : ''}
-                ${!selected && available ? 'hover:bg-muted' : ''}
-                ${!available ? 'text-muted-foreground/40 cursor-not-allowed' : 'text-foreground'}
+                aspect-square rounded-lg text-xs font-medium transition-all duration-150 relative
+                ${selected ? 'bg-primary text-primary-foreground shadow-sm' : ''}
+                ${!selected && available ? 'hover:bg-primary/10 text-foreground' : ''}
+                ${!available ? 'text-muted-foreground/30 cursor-not-allowed' : ''}
+                ${today && !selected ? 'ring-1 ring-primary text-primary font-bold' : ''}
               `}
             >
               {day}
@@ -112,32 +116,62 @@ const CalendarView = ({ selectedDate, onDateSelect, availableSlots, onSlotSelect
           );
         })}
       </div>
-      {selectedDate && availableSlots?.length > 0 && (
-        <div className="mt-6 border-t border-border pt-6">
-          <h3 className="font-medium text-foreground mb-4 flex items-center gap-2">
-            <Icon name="Clock" size={20} color="var(--color-primary)" />
-            Available Time Slots
+
+      {/* Time Slots */}
+      {selectedDate && (
+        <div className="border-t border-border pt-4">
+          <h3 className="font-medium text-sm text-foreground mb-3 flex items-center gap-2">
+            <Icon name="Clock" size={16} color="var(--color-primary)" />
+            {selectedCounsellor
+              ? `Slots — ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              : 'Select a counsellor first'}
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {availableSlots?.map((slot) => (
-              <button
-                key={slot?.id}
-                onClick={() => onSlotSelect(slot)}
-                className={`
-                  px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150
-                  ${selectedSlot?.id === slot?.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80 text-foreground'
-                  }
-                  ${!slot?.available ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
-                disabled={!slot?.available}
-              >
-                {slot?.time}
-              </button>
-            ))}
-          </div>
+
+          {!selectedCounsellor ? (
+            <p className="text-xs text-muted-foreground text-center py-3">
+              Choose a counsellor from the list to see available time slots.
+            </p>
+          ) : isLoadingSlots ? (
+            <div className="grid grid-cols-2 gap-2">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="h-9 bg-muted animate-pulse rounded-lg" />
+              ))}
+            </div>
+          ) : availableSlots.length === 0 ? (
+            <div className="text-center py-4">
+              <Icon name="CalendarX2" size={24} color="var(--color-muted-foreground)" className="mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">No slots available on this day</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {availableSlots.map(slot => (
+                <button
+                  key={slot.id}
+                  onClick={() => slot.available && onSlotSelect(slot)}
+                  disabled={!slot.available}
+                  className={`
+                    px-2 py-2 rounded-lg text-xs font-medium transition-all duration-150
+                    ${selectedSlot?.id === slot.id
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : slot.available
+                        ? 'bg-muted hover:bg-primary/10 hover:text-primary text-foreground'
+                        : 'bg-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                    }
+                  `}
+                >
+                  {slot.time}
+                  {!slot.available && <span className="ml-1 text-xs">✕</span>}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+      )}
+
+      {!selectedDate && (
+        <p className="text-xs text-muted-foreground text-center mt-2">
+          Click a date above to select it
+        </p>
       )}
     </div>
   );

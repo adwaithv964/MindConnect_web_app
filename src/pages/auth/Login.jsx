@@ -14,7 +14,7 @@ const Login = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { currentUser, userRole, loading: authLoading } = useAuth();
+    const { currentUser, userRole, loading: authLoading, login: authLogin } = useAuth();
     const navigate = useNavigate();
 
     // Redirect if already authenticated
@@ -52,8 +52,8 @@ const Login = () => {
 
             const { token, user } = res.data;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+            // Set role + localStorage atomically via AuthContext to avoid race with onAuthStateChanged
+            authLogin(user, token);
 
             if (user.role === 'counsellor') {
                 navigate('/counsellor-dashboard');

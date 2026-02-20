@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SidebarProvider } from '../ui/RoleBasedSidebar';
 import CounsellorSidebar from '../ui/CounsellorSidebar';
 import SOSFloatingButton from '../ui/SOSFloatingButton';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const CounsellorLayout = ({ children }) => {
     const handleEmergency = () => {

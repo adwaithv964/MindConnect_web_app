@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { SidebarProvider } from '../../components/ui/RoleBasedSidebar';
 import RoleBasedSidebar from '../../components/ui/RoleBasedSidebar';
 import SOSFloatingButton from '../../components/ui/SOSFloatingButton';
@@ -19,11 +20,37 @@ import WellnessScoreCard from './components/WellnessScoreCard';
 const PatientDashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isVerified, setIsVerified] = useState(false);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+
+    // Fetch user verification status
+    const fetchStatus = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const userId = storedUser?._id || storedUser?.id;
+        if (userId) {
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+          try {
+            const response = await axios.get(`${API_BASE_URL}/api/patients/${userId}`);
+            // API returns { patient: ... }
+            if (response.data?.patient?.isPatientVerified) {
+              setIsVerified(true);
+            }
+          } catch (err) {
+            console.error("Failed to fetch verification status", err);
+          }
+        }
+      } catch (e) { console.error(e); }
+    };
+    fetchStatus();
+
     return () => clearInterval(timer);
   }, []);
+
+
 
   const todayMood = {
     mood: "good",
@@ -227,18 +254,34 @@ const PatientDashboard = () => {
         <div className="main-content">
           <BreadcrumbTrail />
 
-          <div className="mb-8">
-            <h1 className="text-3xl font-heading font-bold text-foreground mb-2">
-              {getGreeting()}, Alex
-            </h1>
-            <p className="text-muted-foreground">
-              {currentTime?.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </p>
+          <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-heading font-bold text-foreground mb-2">
+                {getGreeting()}, Alex
+              </h1>
+              <p className="text-muted-foreground">
+                {currentTime?.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+            </div>
+            {/* Verification Status Badge */}
+            <div className="mb-2">
+              {isVerified ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full border border-blue-200 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                  <span className="font-medium text-sm">Verified Patient</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full border border-gray-200 shadow-sm" title="Your account verified by a counsellor after an appointment">
+                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                  <span className="font-medium text-sm">Unverified</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

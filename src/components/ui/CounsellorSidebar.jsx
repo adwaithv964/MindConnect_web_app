@@ -25,6 +25,12 @@ const CounsellorSidebar = () => {
             tooltip: 'View and manage patient records'
         },
         {
+            label: 'Requests',
+            path: '/counsellor/requests',
+            icon: 'Inbox',
+            tooltip: 'View and manage appointment requests'
+        },
+        {
             label: 'Schedule',
             path: '/counsellor/schedule',
             icon: 'Calendar',

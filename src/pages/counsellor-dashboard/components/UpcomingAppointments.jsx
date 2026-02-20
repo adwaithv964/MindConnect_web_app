@@ -44,7 +44,7 @@ const UpcomingAppointments = ({ appointments, onJoinSession, onReschedule }) => 
     const sessionTime = new Date(dateString);
     const now = new Date();
     const diffMinutes = Math.floor((sessionTime - now) / (1000 * 60));
-    
+
     if (diffMinutes < 0) return 'In progress';
     if (diffMinutes < 60) return `In ${diffMinutes} min`;
     const hours = Math.floor(diffMinutes / 60);
@@ -69,23 +69,34 @@ const UpcomingAppointments = ({ appointments, onJoinSession, onReschedule }) => 
       </div>
       <div className="space-y-4">
         {appointments?.map((appointment) => (
-          <div 
+          <div
             key={appointment?.id}
             className="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary/50 transition-all duration-200"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
-                <Image
-                  src={appointment?.patientAvatar}
-                  alt={appointment?.patientAvatarAlt}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-border"
-                />
+                <div className="relative w-12 h-12 flex-shrink-0">
+                  {appointment?.patientAvatar ? (
+                    <img
+                      src={appointment.patientAvatar}
+                      alt={appointment?.patientAvatarAlt || appointment?.patientName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-border"
+                      onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                    />
+                  ) : null}
+                  <div
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg border-2 border-border"
+                    style={{ display: appointment?.patientAvatar ? 'none' : 'flex' }}
+                  >
+                    {(appointment?.patientName || 'P')[0].toUpperCase()}
+                  </div>
+                </div>
                 <div>
                   <h4 className="font-medium text-foreground">{appointment?.patientName}</h4>
                   <div className="flex items-center gap-2 mt-1">
-                    <Icon 
-                      name={getSessionTypeIcon(appointment?.sessionType)} 
-                      size={14} 
+                    <Icon
+                      name={getSessionTypeIcon(appointment?.sessionType)}
+                      size={14}
                       className={getSessionTypeColor(appointment?.sessionType)}
                     />
                     <span className="text-xs text-muted-foreground capitalize">

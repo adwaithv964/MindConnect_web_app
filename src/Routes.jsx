@@ -18,10 +18,13 @@ import ConsultationRoom from './pages/counsellor-dashboard/ConsultationRoom';
 import CounsellorProfile from './pages/counsellor-dashboard/CounsellorProfile';
 import SettingsGeneral from './pages/counsellor-dashboard/settings/SettingsGeneral';
 import SettingsPreferences from './pages/counsellor-dashboard/settings/SettingsPreferences';
+import AppointmentRequests from './pages/counsellor-dashboard/AppointmentRequests';
 import LandingPage from './pages/LandingPage';
 import CounsellorLayout from './components/layout/CounsellorLayout';
 import PatientLayout from './components/layout/PatientLayout';
 import PatientProfile from './pages/patient-dashboard/PatientProfile';
+import PatientRequests from './pages/patient-dashboard/PatientRequests';
+import MyBookings from './pages/my-bookings';
 
 const Routes = () => {
   return (
@@ -30,27 +33,31 @@ const Routes = () => {
         <ErrorBoundary>
           <ScrollToTop />
           <RouterRoutes>
-            {/* Define your route here */}
+            {/* Public routes */}
             <Route path="/" element={<AuthRedirect><LandingPage /></AuthRedirect>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
             <Route path="/appointment-booking" element={<AppointmentBooking />} />
             <Route path="/wellness-hub" element={<WellnessHub />} />
-            {/* Counsellor Routes */}
-            <Route path="/counsellor-dashboard" element={<CounsellorLayout><CounsellorDashboard /></CounsellorLayout>} />
-            <Route path="/counsellor/schedule" element={<CounsellorLayout><ScheduleManager /></CounsellorLayout>} />
-            <Route path="/counsellor/patients" element={<CounsellorLayout><PatientRecords /></CounsellorLayout>} />
-            <Route path="/counsellor/consultation" element={<CounsellorLayout><ConsultationRoom /></CounsellorLayout>} />
-            <Route path="/counsellor/profile" element={<CounsellorLayout><CounsellorProfile /></CounsellorLayout>} />
-            <Route path="/counsellor/settings/general" element={<CounsellorLayout><SettingsGeneral /></CounsellorLayout>} />
-            <Route path="/counsellor/settings/preferences" element={<CounsellorLayout><SettingsPreferences /></CounsellorLayout>} />
 
-            {/* Patient Routes */}
+            {/* Counsellor Routes — only accessible to counsellors */}
+            <Route path="/counsellor-dashboard" element={<ProtectedRoute role="counsellor"><CounsellorLayout><CounsellorDashboard /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/schedule" element={<ProtectedRoute role="counsellor"><CounsellorLayout><ScheduleManager /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/patients" element={<ProtectedRoute role="counsellor"><CounsellorLayout><PatientRecords /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/consultation" element={<ProtectedRoute role="counsellor"><CounsellorLayout><ConsultationRoom /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/profile" element={<ProtectedRoute role="counsellor"><CounsellorLayout><CounsellorProfile /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/settings/general" element={<ProtectedRoute role="counsellor"><CounsellorLayout><SettingsGeneral /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/settings/preferences" element={<ProtectedRoute role="counsellor"><CounsellorLayout><SettingsPreferences /></CounsellorLayout></ProtectedRoute>} />
+            <Route path="/counsellor/requests" element={<ProtectedRoute role="counsellor"><CounsellorLayout><AppointmentRequests /></CounsellorLayout></ProtectedRoute>} />
+
+            {/* Patient Routes — only accessible to patients */}
             <Route path="/patient-dashboard" element={<PatientDashboard />} />
             <Route path="/mood-tracker" element={<PatientLayout><MoodTracker /></PatientLayout>} />
             <Route path="/resource-library" element={<PatientLayout><ResourceLibrary /></PatientLayout>} />
-            <Route path="/patient/profile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
+            <Route path="/patient/profile" element={<ProtectedRoute role="patient"><PatientLayout><PatientProfile /></PatientLayout></ProtectedRoute>} />
+            <Route path="/patient/requests" element={<ProtectedRoute role="patient"><PatientLayout><PatientRequests /></PatientLayout></ProtectedRoute>} />
+            <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/settings/general" element={<PatientLayout><SettingsGeneral /></PatientLayout>} />
             <Route path="/settings/preferences" element={<PatientLayout><SettingsPreferences /></PatientLayout>} />
 
@@ -62,18 +69,35 @@ const Routes = () => {
   );
 };
 
+// Redirects unauthenticated users to login; redirects wrong-role users to their own dashboard
+const ProtectedRoute = ({ children, role }) => {
+  const { currentUser, userRole, loading } = useAuth();
+
+  if (loading) return null; // Wait for auth to resolve
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If role is specified and user has a different role, send them to their correct dashboard
+  if (role && userRole && userRole !== role) {
+    console.warn(`[ProtectedRoute] User role "${userRole}" tried to access "${role}" route. Redirecting.`);
+    if (userRole === 'counsellor') return <Navigate to="/counsellor-dashboard" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
+    return <Navigate to="/patient-dashboard" replace />;
+  }
+
+  return children;
+};
+
 // Helper component to redirect if already authenticated
 const AuthRedirect = ({ children }) => {
   const { currentUser, userRole, loading } = useAuth();
-
-  // While loading auth state, we might want to show nothing or a spinner
-  // But since the AuthProvider has a "loading" state that blocks children rendering, we might be fine.
 
   if (currentUser) {
     if (userRole === 'counsellor') {
       return <Navigate to="/counsellor-dashboard" replace />;
     } else if (userRole === 'admin') {
-      // Assuming admin route exists or handled, if not strictly defined in routes above, default to patient or specific
       return <Navigate to="/admin-dashboard" replace />;
     } else {
       return <Navigate to="/patient-dashboard" replace />;
@@ -84,3 +108,4 @@ const AuthRedirect = ({ children }) => {
 };
 
 export default Routes;
+

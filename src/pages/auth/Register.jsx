@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthLayout from '../../components/AuthLayout';
 import Icon from '../../components/AppIcon';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -13,20 +13,20 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'patient' // Default role
+        role: 'patient', // Default role
+        registrationNumber: '',
+        stateMedicalCouncil: '',
+        registrationYear: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { currentUser, userRole, loading: authLoading } = useAuth();
+    const [checking, setChecking] = useState(false);
+    const [isVerified, setIsVerified] = useState(false); // Track verification step
+    const { currentUser, userRole, loading: authLoading, login: authLogin } = useAuth();
     const navigate = useNavigate();
 
     // Redirect if already authenticated
     useEffect(() => {
-        // Only redirect if:
-        // 1. Auth context is done loading
-        // 2. We have a current user
-        // 3. We are NOT currently submitting the form (loading state)
-        //    This prevents redirecting before the role is fully set in localStorage/state during the registration process itself.
         if (!authLoading && currentUser && !loading && userRole) {
             if (userRole === 'counsellor') {
                 navigate('/counsellor-dashboard');
@@ -38,12 +38,37 @@ const Register = () => {
         }
     }, [currentUser, userRole, authLoading, loading, navigate]);
 
-    const { name, email, password, confirmPassword, role } = formData;
+    const { name, email, password, confirmPassword, role, registrationNumber, stateMedicalCouncil, registrationYear } = formData;
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const toggleRole = (selectedRole) => {
         setFormData({ ...formData, role: selectedRole });
+        setIsVerified(false); // Reset verification if role toggles
+        setError('');
+    };
+
+    const handleVerify = async () => {
+        setChecking(true);
+        setError('');
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-nmc-public`, {
+                name,
+                registrationNumber,
+                stateMedicalCouncil,
+                registrationYear
+            });
+
+            if (res.data.success) {
+                setIsVerified(true);
+            }
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.message || 'Verification Failed. Please check your details.');
+            setIsVerified(false);
+        } finally {
+            setChecking(false);
+        }
     };
 
     const onSubmit = async e => {
@@ -54,15 +79,17 @@ const Register = () => {
         }
         setLoading(true);
         setError('');
+
+        let firebaseUser = null;
+
         try {
             // 1. Create user in Firebase
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const firebaseUser = userCredential.user;
+            firebaseUser = userCredential.user;
 
             // 2. Create user in MongoDB
             const { confirmPassword, ...submitData } = formData;
 
-            // UPDATED: Uses environment variable for API URL
             const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
                 ...submitData,
                 firebaseUid: firebaseUser.uid
@@ -70,8 +97,8 @@ const Register = () => {
 
             const { token, user } = res.data;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+            // Set role + localStorage atomically via AuthContext to avoid race with onAuthStateChanged
+            authLogin(user, token);
 
             if (user.role === 'counsellor') {
                 navigate('/counsellor-dashboard');
@@ -80,11 +107,20 @@ const Register = () => {
             }
         } catch (err) {
             console.error(err);
+
+            // Rollback: Delete Firebase user if MongoDB registration fails
+            if (firebaseUser) {
+                try {
+                    await deleteUser(firebaseUser);
+                    console.log('Rolled back Firebase user creation');
+                } catch (firebaseErr) {
+                    console.error('Failed to rollback Firebase user:', firebaseErr);
+                }
+            }
+
             setError(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
-            setLoading(false); // Only set loading to false on error, so we don't trigger the useEffect redirect too early
+            setLoading(false);
         }
-        // Note: We intentionally don't set loading(false) on success because we are navigating away.
-        // If we set it to false, the useEffect might kick in with incomplete context data.
     };
 
     const features = [
@@ -165,6 +201,143 @@ const Register = () => {
                     </button>
                 </div>
 
+                {/* Counsellor Verification Section */}
+                {role === 'counsellor' && (
+                    <div className={`bg-blue-50 p-4 rounded-lg mb-6 border ${isVerified ? 'border-green-200 bg-green-50' : 'border-blue-200'}`}>
+                        <div className="flex items-start gap-3 mb-4">
+                            <Icon name={isVerified ? 'CheckCircle' : 'Shield'} className={isVerified ? 'text-green-600 mt-1' : 'text-blue-600 mt-1'} size={20} />
+                            <div>
+                                <h3 className={`font-semibold ${isVerified ? 'text-green-900' : 'text-blue-900'}`}>
+                                    {isVerified ? 'Verification Successful' : 'Verification Required'}
+                                </h3>
+                                <p className={`text-sm ${isVerified ? 'text-green-700' : 'text-blue-700'}`}>
+                                    {isVerified ? 'Your details have been verified. You may now proceed.' : 'As a professional, we must verify your medical registration with the NMC registry before you can access the platform.'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-blue-900 mb-1">Full Name (as per Registry)</label>
+                                <input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    required={role === 'counsellor'}
+                                    disabled={isVerified}
+                                    className={`appearance-none rounded-lg relative block w-full px-4 py-2 border ${isVerified ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white border-blue-200 placeholder-blue-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
+                                    placeholder="Dr. Full Name"
+                                    value={name}
+                                    onChange={onChange}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="registrationNumber" className="block text-sm font-medium text-blue-900 mb-1">Registration Number</label>
+                                <input
+                                    id="registrationNumber"
+                                    name="registrationNumber"
+                                    type="text"
+                                    required={role === 'counsellor'}
+                                    disabled={isVerified}
+                                    className={`appearance-none rounded-lg relative block w-full px-4 py-2 border ${isVerified ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white border-blue-200 placeholder-blue-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
+                                    placeholder="Enter your Registration No."
+                                    value={registrationNumber}
+                                    onChange={onChange}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="registrationYear" className="block text-sm font-medium text-blue-900 mb-1">Year of Reg.</label>
+                                    <input
+                                        id="registrationYear"
+                                        name="registrationYear"
+                                        type="number"
+                                        required={role === 'counsellor'}
+                                        disabled={isVerified}
+                                        className={`appearance-none rounded-lg relative block w-full px-4 py-2 border ${isVerified ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white border-blue-200 placeholder-blue-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
+                                        placeholder="e.g 2015"
+                                        value={registrationYear}
+                                        onChange={onChange}
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="stateMedicalCouncil" className="block text-sm font-medium text-blue-900 mb-1">State Council</label>
+                                    <select
+                                        id="stateMedicalCouncil"
+                                        name="stateMedicalCouncil"
+                                        required={role === 'counsellor'}
+                                        disabled={isVerified}
+                                        className={`appearance-none rounded-lg relative block w-full px-4 py-2 border ${isVerified ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white border-blue-200 placeholder-blue-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500'}`}
+                                        value={stateMedicalCouncil}
+                                        onChange={onChange}
+                                    >
+                                        <option value="">Select Council</option>
+                                        <option value="None">None</option>
+                                        <option value="Andhra Pradesh Medical Council">Andhra Pradesh Medical Council</option>
+                                        <option value="Arunachal Pradesh Medical Council">Arunachal Pradesh Medical Council</option>
+                                        <option value="Assam Medical Council">Assam Medical Council</option>
+                                        <option value="Bhopal Medical Council">Bhopal Medical Council</option>
+                                        <option value="Bihar Medical Council">Bihar Medical Council</option>
+                                        <option value="Bombay Medical Council">Bombay Medical Council</option>
+                                        <option value="Chandigarh Medical Council">Chandigarh Medical Council</option>
+                                        <option value="Chattisgarh Medical Council">Chattisgarh Medical Council</option>
+                                        <option value="Delhi Medical Council">Delhi Medical Council</option>
+                                        <option value="Goa Medical Council">Goa Medical Council</option>
+                                        <option value="Gujarat Medical Council">Gujarat Medical Council</option>
+                                        <option value="Haryana Medical Council">Haryana Medical Council</option>
+                                        <option value="Himachal Pradesh Medical Council">Himachal Pradesh Medical Council</option>
+                                        <option value="Hyderabad Medical Council">Hyderabad Medical Council</option>
+                                        <option value="Jammu & Kashmir Medical Council">Jammu & Kashmir Medical Council</option>
+                                        <option value="Jharkhand Medical Council">Jharkhand Medical Council</option>
+                                        <option value="Karnataka Medical Council">Karnataka Medical Council</option>
+                                        <option value="Madhya Pradesh Medical Council">Madhya Pradesh Medical Council</option>
+                                        <option value="Madras Medical Council">Madras Medical Council</option>
+                                        <option value="Mahakoshal Medical Council">Mahakoshal Medical Council</option>
+                                        <option value="Maharashtra Medical Council">Maharashtra Medical Council</option>
+                                        <option value="Manipur Medical Council">Manipur Medical Council</option>
+                                        <option value="Medical Council of India">Medical Council of India</option>
+                                        <option value="Medical Council of Tanganyika">Medical Council of Tanganyika</option>
+                                        <option value="Mizoram Medical Council">Mizoram Medical Council</option>
+                                        <option value="Mysore Medical Council">Mysore Medical Council</option>
+                                        <option value="Nagaland Medical Council">Nagaland Medical Council</option>
+                                        <option value="Orissa Council of Medical Registration">Orissa Council of Medical Registration</option>
+                                        <option value="Pondicherry Medical Council">Pondicherry Medical Council</option>
+                                        <option value="Punjab Medical Council">Punjab Medical Council</option>
+                                        <option value="Rajasthan Medical Council">Rajasthan Medical Council</option>
+                                        <option value="Sikkim Medical Council">Sikkim Medical Council</option>
+                                        <option value="Tamil Nadu Medical Council">Tamil Nadu Medical Council</option>
+                                        <option value="Telangana State Medical Council">Telangana State Medical Council</option>
+                                        <option value="Travancore Cochin Medical Council, Trivandrum">Travancore Cochin Medical Council, Trivandrum</option>
+                                        <option value="Tripura State Medical Council">Tripura State Medical Council</option>
+                                        <option value="Uttar Pradesh Medical Council">Uttar Pradesh Medical Council</option>
+                                        <option value="Uttarakhand Medical Council">Uttarakhand Medical Council</option>
+                                        <option value="Vidharba Medical Council">Vidharba Medical Council</option>
+                                        <option value="West Bengal Medical Council">West Bengal Medical Council</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {!isVerified && (
+                                <div className="flex justify-between items-center pt-2">
+                                    <a href="mailto:admin@mindconnect.com?subject=Verification%20Support" className="text-xs text-blue-600 hover:underline">
+                                        Need help verifying? Contact Support
+                                    </a>
+                                    <button
+                                        type="button"
+                                        onClick={handleVerify}
+                                        disabled={checking || !name || !registrationNumber || !registrationYear || !stateMedicalCouncil}
+                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+                                    >
+                                        {checking ? 'Checking...' : 'Verify Info'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 <form className="space-y-4" onSubmit={onSubmit}>
                     {error && (
                         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
@@ -179,83 +352,90 @@ const Register = () => {
                         </div>
                     )}
 
-                    <div>
-                        <label htmlFor="name" className="sr-only">Full Name</label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            required
-                            className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                            placeholder="Full Name"
-                            value={name}
-                            onChange={onChange}
-                        />
-                    </div>
+                    {role !== 'counsellor' && (
+                        <div>
+                            <label htmlFor="name" className="sr-only">Full Name</label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                placeholder="Full Name"
+                                value={name}
+                                onChange={onChange}
+                            />
+                        </div>
+                    )}
 
-                    <div>
-                        <label htmlFor="email" className="sr-only">Email Address</label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                            placeholder="Email Address"
-                            value={email}
-                            onChange={onChange}
-                        />
-                    </div>
+                    {/* Only show rest of form if NOT counsellor OR (if counsellor AND isVerified) */}
+                    {(role !== 'counsellor' || isVerified) && (
+                        <>
+                            <div>
+                                <label htmlFor="email" className="sr-only">Email Address</label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    required
+                                    className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                    placeholder="Email Address"
+                                    value={email}
+                                    onChange={onChange}
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="password" className="sr-only">Create Password</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                            placeholder="Create Password"
-                            value={password}
-                            onChange={onChange}
-                        />
-                    </div>
+                            <div>
+                                <label htmlFor="password" className="sr-only">Create Password</label>
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    required
+                                    className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                    placeholder="Create Password"
+                                    value={password}
+                                    onChange={onChange}
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            required
-                            className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={onChange}
-                        />
-                    </div>
+                            <div>
+                                <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+                                <input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    required
+                                    className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                    placeholder="Confirm Password"
+                                    value={confirmPassword}
+                                    onChange={onChange}
+                                />
+                            </div>
 
-                    <div className="flex items-start gap-2 text-xs text-gray-500 mt-2">
-                        <Icon name="Lock" size={14} className="mt-0.5 flex-shrink-0" />
-                        <p>We maintain strong privacy protection and a strict verification process for professionals</p>
-                    </div>
+                            <div className="flex items-start gap-2 text-xs text-gray-500 mt-2">
+                                <Icon name="Lock" size={14} className="mt-0.5 flex-shrink-0" />
+                                <p>We maintain strong privacy protection and a strict verification process for professionals</p>
+                            </div>
 
-                    <div className="pt-2">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-[#80CBC4] hover:bg-[#4DB6AC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#80CBC4] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                            {loading ? (
-                                <span className="flex items-center gap-2">
-                                    <Icon name="Loader" size={16} className="animate-spin" />
-                                    Creating Account...
-                                </span>
-                            ) : (
-                                'Continue'
-                            )}
-                        </button>
-                    </div>
+                            <div className="pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-[#80CBC4] hover:bg-[#4DB6AC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#80CBC4] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center gap-2">
+                                            <Icon name="Loader" size={16} className="animate-spin" />
+                                            Creating Account...
+                                        </span>
+                                    ) : (
+                                        'Continue'
+                                    )}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </form>
 
                 <div className="mt-8 text-center">

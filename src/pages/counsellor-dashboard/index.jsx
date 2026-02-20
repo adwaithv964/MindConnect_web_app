@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import BreadcrumbTrail from '../../components/ui/BreadcrumbTrail';
 import PatientOverviewCard from './components/PatientOverviewCard';
 import MoodTrendChart from './components/MoodTrendChart';
@@ -6,270 +8,283 @@ import UpcomingAppointments from './components/UpcomingAppointments';
 import RiskAssessmentPanel from './components/RiskAssessmentPanel';
 import PatientEngagementMetrics from './components/PatientEngagementMetrics';
 import QuickActionsPanel from './components/QuickActionsPanel';
+import PatientDetailModal from './components/PatientDetailModal';
+import AddPatientModal from './components/AddPatientModal';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import Select from '../../components/ui/Select';
 import Input from '../../components/ui/Input';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
 const CounsellorDashboard = () => {
+  const navigate = useNavigate();
+  const [counsellorId, setCounsellorId] = useState(null);
+
+  // Data states
+  const [patients, setPatients] = useState([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [riskPatients, setRiskPatients] = useState([]);
+  const [stats, setStats] = useState({ totalPatients: 0, highRisk: 0, todaysSessions: 0, avgProgress: 0 });
+  const [moodTrendData, setMoodTrendData] = useState([]);
+  const [recentActions, setRecentActions] = useState([]);
+  const [engagementData] = useState([
+    { name: 'Mood Tracking', value: 245 },
+    { name: 'Journaling', value: 189 },
+    { name: 'Breathing Exercises', value: 156 },
+    { name: 'Goal Activities', value: 134 }
+  ]);
+  const [complianceData] = useState([
+    { category: 'Medication', rate: 85 },
+    { category: 'Therapy Sessions', rate: 92 },
+    { category: 'Homework', rate: 68 },
+    { category: 'Self-Care', rate: 75 }
+  ]);
+
+  // UI states
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [detailPatient, setDetailPatient] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [filterRisk, setFilterRisk] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid');
+  const [loading, setLoading] = useState(true);
+  const [loadingMood, setLoadingMood] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const patients = [
-    {
-      id: "PT-2024-001",
-      name: "Sarah Johnson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1985c262f-1763294244026.png",
-      avatarAlt: "Professional headshot of young woman with blonde hair wearing blue blazer smiling warmly",
-      isOnline: true,
-      currentMood: "anxious",
-      riskLevel: "medium",
-      progressScore: 68,
-      totalSessions: 12,
-      goalsCompleted: 4,
-      totalGoals: 6,
-      lastSession: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      recentNotes: "Patient showing improvement in anxiety management. Continue CBT techniques and breathing exercises."
-    },
-    {
-      id: "PT-2024-002",
-      name: "Michael Chen",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1bd15b436-1763300581767.png",
-      avatarAlt: "Professional headshot of Asian man with short black hair wearing gray suit and glasses",
-      isOnline: false,
-      currentMood: "stressed",
-      riskLevel: "high",
-      progressScore: 45,
-      totalSessions: 8,
-      goalsCompleted: 2,
-      totalGoals: 5,
-      lastSession: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      recentNotes: "Increased stress levels due to work pressure. Recommended stress management workshop and mindfulness practice."
-    },
-    {
-      id: "PT-2024-003",
-      name: "Emily Rodriguez",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_107555573-1763296653935.png",
-      avatarAlt: "Professional headshot of Hispanic woman with long brown hair wearing white blouse smiling confidently",
-      isOnline: true,
-      currentMood: "happy",
-      riskLevel: "low",
-      progressScore: 85,
-      totalSessions: 15,
-      goalsCompleted: 7,
-      totalGoals: 8,
-      lastSession: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      recentNotes: "Excellent progress in managing depression symptoms. Patient reports improved sleep and social engagement."
-    },
-    {
-      id: "PT-2024-004",
-      name: "David Thompson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1219eacec-1763294869102.png",
-      avatarAlt: "Professional headshot of young man with brown hair wearing navy blue shirt with friendly expression",
-      isOnline: false,
-      currentMood: "sad",
-      riskLevel: "critical",
-      progressScore: 32,
-      totalSessions: 6,
-      goalsCompleted: 1,
-      totalGoals: 4,
-      lastSession: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      recentNotes: "Patient missed last two sessions. Expressing suicidal ideation. Immediate follow-up required."
-    },
-    {
-      id: "PT-2024-005",
-      name: "Lisa Anderson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1b032f6ab-1763294605043.png",
-      avatarAlt: "Professional headshot of middle-aged woman with short red hair wearing green cardigan with warm smile",
-      isOnline: true,
-      currentMood: "neutral",
-      riskLevel: "low",
-      progressScore: 72,
-      totalSessions: 10,
-      goalsCompleted: 5,
-      totalGoals: 7,
-      lastSession: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      recentNotes: "Steady progress with PTSD treatment. Patient responding well to EMDR therapy sessions."
-    },
-    {
-      id: "PT-2024-006",
-      name: "James Wilson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1f23d9c3d-1763295425663.png",
-      avatarAlt: "Professional headshot of African American man with short hair wearing black polo shirt with confident expression",
-      isOnline: false,
-      currentMood: "anxious",
-      riskLevel: "medium",
-      progressScore: 58,
-      totalSessions: 9,
-      goalsCompleted: 3,
-      totalGoals: 6,
-      lastSession: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-      recentNotes: "Patient struggling with social anxiety. Recommended gradual exposure therapy and support group participation."
-    }];
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
+  // Load all dashboard data
+  const fetchDashboardData = useCallback(async (id) => {
+    if (!id) return;
+    try {
+      const [patientsRes, upcomingRes, riskRes, statsRes] = await Promise.allSettled([
+        axios.get(`${API_BASE_URL}/api/counsellor/${id}/patients`),
+        axios.get(`${API_BASE_URL}/api/counsellor/${id}/upcoming`),
+        axios.get(`${API_BASE_URL}/api/counsellor/${id}/risk-patients`),
+        axios.get(`${API_BASE_URL}/api/counsellor/${id}/dashboard-stats`)
+      ]);
 
-  const moodTrendData = [
-    { date: "Nov 1", moodScore: 6.5, anxietyLevel: 5.2, stressLevel: 6.8 },
-    { date: "Nov 5", moodScore: 7.2, anxietyLevel: 4.8, stressLevel: 5.5 },
-    { date: "Nov 10", moodScore: 6.8, anxietyLevel: 5.5, stressLevel: 6.2 },
-    { date: "Nov 15", moodScore: 7.5, anxietyLevel: 4.2, stressLevel: 4.8 },
-    { date: "Nov 20", moodScore: 8.0, anxietyLevel: 3.8, stressLevel: 4.2 },
-    { date: "Nov 25", moodScore: 7.8, anxietyLevel: 4.0, stressLevel: 4.5 },
-    { date: "Nov 30", moodScore: 8.2, anxietyLevel: 3.5, stressLevel: 3.8 }];
+      if (patientsRes.status === 'fulfilled') {
+        const pts = patientsRes.value.data || [];
+        setPatients(pts);
+        // Derive recent actions from recently confirmed/added patients
+        const actions = pts
+          .slice()
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(p => ({ label: `Patient card created for ${p.name}`, createdAt: p.createdAt }));
+        setRecentActions(actions);
+      }
+      if (upcomingRes.status === 'fulfilled') setUpcomingAppointments(upcomingRes.value.data || []);
+      if (riskRes.status === 'fulfilled') setRiskPatients(riskRes.value.data || []);
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data || {});
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
+    document.title = 'Counsellor Dashboard - Mind Connect';
+    const stored = JSON.parse(localStorage.getItem('user') || '{}');
+    const uid = stored?._id || stored?.id;
+    setCounsellorId(uid);
+    if (uid) fetchDashboardData(uid);
+    else setLoading(false);
+  }, [fetchDashboardData]);
 
-  const upcomingAppointments = [
-    {
-      id: "APT-001",
-      patientName: "Sarah Johnson",
-      patientAvatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1985c262f-1763294244026.png",
-      patientAvatarAlt: "Professional headshot of young woman with blonde hair wearing blue blazer smiling warmly",
-      dateTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
-      duration: 60,
-      sessionType: "video",
-      notes: "Follow-up on anxiety management techniques and goal progress review"
-    },
-    {
-      id: "APT-002",
-      patientName: "Michael Chen",
-      patientAvatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1bd15b436-1763300581767.png",
-      patientAvatarAlt: "Professional headshot of Asian man with short black hair wearing gray suit and glasses",
-      dateTime: new Date(Date.now() + 5 * 60 * 60 * 1000),
-      duration: 45,
-      sessionType: "audio",
-      notes: "Stress management strategies and work-life balance discussion"
-    },
-    {
-      id: "APT-003",
-      patientName: "Emily Rodriguez",
-      patientAvatar: "https://img.rocket.new/generatedImages/rocket_gen_img_107555573-1763296653935.png",
-      patientAvatarAlt: "Professional headshot of Hispanic woman with long brown hair wearing white blouse smiling confidently",
-      dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      duration: 60,
-      sessionType: "video",
-      notes: "Depression progress assessment and medication review"
-    }];
-
-
-  const riskPatients = [
-    {
-      id: "PT-2024-004",
-      name: "David Thompson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1219eacec-1763294869102.png",
-      avatarAlt: "Professional headshot of young man with brown hair wearing navy blue shirt with friendly expression",
-      riskLevel: "critical",
-      riskFactors: [
-        "Expressed suicidal ideation in last session",
-        "Missed two consecutive appointments",
-        "Declining mood scores over past 2 weeks",
-        "Limited social support system"],
-
-      lastContact: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      flaggedBy: "Dr. Martinez"
-    },
-    {
-      id: "PT-2024-002",
-      name: "Michael Chen",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1bd15b436-1763300581767.png",
-      avatarAlt: "Professional headshot of Asian man with short black hair wearing gray suit and glasses",
-      riskLevel: "high",
-      riskFactors: [
-        "Elevated stress levels affecting daily functioning",
-        "Reports of sleep disturbances and appetite changes",
-        "Work-related burnout symptoms"],
-
-      lastContact: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      flaggedBy: "System Alert"
-    },
-    {
-      id: "PT-2024-006",
-      name: "James Wilson",
-      avatar: "https://img.rocket.new/generatedImages/rocket_gen_img_1f23d9c3d-1763295425663.png",
-      avatarAlt: "Professional headshot of African American man with short hair wearing black polo shirt with confident expression",
-      riskLevel: "medium",
-      riskFactors: [
-        "Increasing social isolation patterns",
-        "Anxiety symptoms interfering with work performance",
-        "Reluctance to engage in exposure therapy"],
-
-      lastContact: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-      flaggedBy: null
-    }];
-
-
-  const engagementData = [
-    { name: "Mood Tracking", value: 245 },
-    { name: "Journaling", value: 189 },
-    { name: "Breathing Exercises", value: 156 },
-    { name: "Goal Activities", value: 134 }];
-
-
-  const complianceData = [
-    { category: "Medication", rate: 85 },
-    { category: "Therapy Sessions", rate: 92 },
-    { category: "Homework", rate: 68 },
-    { category: "Self-Care", rate: 75 }];
-
+  // Fetch mood trends when a patient is selected
+  useEffect(() => {
+    if (!selectedPatient?.patientId || !counsellorId) {
+      setMoodTrendData([]);
+      return;
+    }
+    const fetchMoodTrends = async () => {
+      setLoadingMood(true);
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/counsellor/${counsellorId}/mood-trends/${selectedPatient.patientId}`
+        );
+        setMoodTrendData(res.data || []);
+      } catch (err) {
+        console.error('Mood trend fetch error:', err);
+        setMoodTrendData([]);
+      } finally {
+        setLoadingMood(false);
+      }
+    };
+    fetchMoodTrends();
+  }, [selectedPatient?.patientId, counsellorId]);
 
   const riskFilterOptions = [
     { value: 'all', label: 'All Patients' },
     { value: 'critical', label: 'Critical Risk' },
     { value: 'high', label: 'High Risk' },
     { value: 'medium', label: 'Medium Risk' },
-    { value: 'low', label: 'Low Risk' }];
+    { value: 'low', label: 'Low Risk' }
+  ];
 
-
-  const filteredPatients = patients?.filter((patient) => {
+  const filteredPatients = patients.filter((patient) => {
     const matchesRisk = filterRisk === 'all' || patient?.riskLevel === filterRisk;
     const matchesSearch = patient?.name?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
-      patient?.id?.toLowerCase()?.includes(searchQuery?.toLowerCase());
+      patient?.id?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
+      patient?.email?.toLowerCase()?.includes(searchQuery?.toLowerCase());
     return matchesRisk && matchesSearch;
   });
 
+  // --- Action Handlers ---
   const handleViewDetails = (patientId) => {
-    const patient = patients?.find((p) => p?.id === patientId);
-    setSelectedPatient(patient);
-    console.log('Viewing details for patient:', patientId);
+    const patient = patients.find((p) => p?.id === patientId || p?.patientId?.toString() === patientId);
+    if (patient) {
+      setDetailPatient(patient);
+      setSelectedPatient(patient);
+    }
   };
 
   const handleStartChat = (patientId) => {
-    console.log('Starting chat with patient:', patientId);
+    navigate('/counsellor/consultation', { state: { patientId } });
   };
 
   const handleJoinSession = (appointmentId) => {
-    console.log('Joining session:', appointmentId);
+    navigate('/counsellor/consultation', { state: { appointmentId } });
   };
 
-  const handleReschedule = (appointmentId) => {
-    console.log('Rescheduling appointment:', appointmentId);
+  const handleReschedule = async (appointmentId) => {
+    const newDate = window.prompt('Enter new date (YYYY-MM-DD):');
+    const newTime = window.prompt('Enter new time slot (e.g. 10:00 AM):');
+    if (!newDate || !newTime) return;
+    try {
+      await axios.put(`${API_BASE_URL}/api/appointments/${appointmentId}`, {
+        date: newDate, timeSlot: newTime
+      });
+      showToast('Appointment rescheduled!');
+      fetchDashboardData(counsellorId);
+    } catch (err) {
+      showToast('Failed to reschedule.', 'error');
+    }
   };
 
   const handleViewPatient = (patientId) => {
-    const patient = patients?.find((p) => p?.id === patientId);
-    setSelectedPatient(patient);
-    console.log('Viewing risk patient:', patientId);
+    const patient = patients.find((p) => p?.id === patientId || p?.patientId?.toString() === patientId);
+    if (patient) setDetailPatient(patient);
   };
 
   const handleContactPatient = (patientId) => {
-    console.log('Contacting patient:', patientId);
+    navigate('/counsellor/consultation', { state: { patientId } });
   };
 
   const handleQuickAction = (actionId) => {
-    console.log('Quick action triggered:', actionId);
+    const routes = {
+      'new-session': '/counsellor/requests',
+      'patient-notes': null,
+      'treatment-plan': '/counsellor/patients',
+      'prescriptions': '/counsellor/patients',
+      'reports': null,
+      'referrals': '/counsellor/patients'
+    };
+    if (actionId === 'reports') {
+      handleExportReport();
+      return;
+    }
+    if (actionId === 'patient-notes' && detailPatient) {
+      // Already handled via detail modal
+      return;
+    }
+    const route = routes[actionId];
+    if (route) navigate(route);
   };
 
-  const handleEmergency = () => {
-    console.log('Emergency SOS triggered');
+  const handleExportReport = () => {
+    if (patients.length === 0) {
+      showToast('No patients to export.', 'error');
+      return;
+    }
+    const headers = ['Name', 'Email', 'ID', 'Risk Level', 'Progress (%)', 'Sessions', 'Goals Completed', 'Total Goals', 'Current Mood', 'Recent Notes'];
+    const rows = patients.map(p => [
+      p.name, p.email, p.id, p.riskLevel, p.progressScore,
+      p.totalSessions, p.goalsCompleted, p.totalGoals, p.currentMood,
+      `"${(p.recentNotes || '').replace(/"/g, "'")}"` // Escape quotes
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `patient-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Report exported successfully!');
   };
 
-  useEffect(() => {
-    document.title = 'Counsellor Dashboard - Mind Connect';
-  }, []);
+  const handlePatientAdded = (newPatient) => {
+    setPatients(prev => [newPatient, ...prev]);
+    setStats(prev => ({ ...prev, totalPatients: prev.totalPatients + 1 }));
+    showToast(`${newPatient.name} added to your patient list!`);
+  };
+
+  const handlePatientUpdated = (updatedPatient) => {
+    setPatients(prev => prev.map(p =>
+      p._id === updatedPatient._id ? { ...p, ...updatedPatient } : p
+    ));
+    // Refresh risk patients
+    if (counsellorId) {
+      axios.get(`${API_BASE_URL}/api/counsellor/${counsellorId}/risk-patients`)
+        .then(res => setRiskPatients(res.data || []))
+        .catch(() => { });
+    }
+    showToast('Patient record updated!');
+  };
+
+  const handleRemovePatient = (recordId) => {
+    setPatients(prev => prev.filter(p => p._id !== recordId));
+    setStats(prev => ({
+      ...prev,
+      totalPatients: Math.max(0, prev.totalPatients - 1)
+    }));
+    showToast('Patient removed from your list.');
+  };
+
+  const displayStats = {
+    totalPatients: stats.totalPatients ?? patients.length,
+    highRisk: stats.highRisk ?? patients.filter(p => p.riskLevel === 'high' || p.riskLevel === 'critical').length,
+    todaysSessions: stats.todaysSessions ?? 0,
+    avgProgress: stats.avgProgress ?? (patients.length > 0
+      ? Math.round(patients.reduce((sum, p) => sum + (p.progressScore || 0), 0) / patients.length) : 0)
+  };
 
   return (
     <>
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all
+          ${toast.type === 'error' ? 'bg-error text-white' : 'bg-success text-white'}`}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* Modals */}
+      {showAddModal && counsellorId && (
+        <AddPatientModal
+          counsellorId={counsellorId}
+          onClose={() => setShowAddModal(false)}
+          onPatientAdded={handlePatientAdded}
+        />
+      )}
+      {detailPatient && counsellorId && (
+        <PatientDetailModal
+          patient={detailPatient}
+          counsellorId={counsellorId}
+          onClose={() => setDetailPatient(null)}
+          onPatientUpdated={handlePatientUpdated}
+          onRemovePatient={handleRemovePatient}
+        />
+      )}
+
       <BreadcrumbTrail />
 
       <div className="mb-8">
@@ -283,21 +298,24 @@ const CounsellorDashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" iconName="Download">
+            <Button variant="outline" iconName="Download" onClick={handleExportReport}>
               Export Report
             </Button>
-            <Button variant="default" iconName="UserPlus">
+            <Button variant="default" iconName="UserPlus" onClick={() => setShowAddModal(true)}>
               Add Patient
             </Button>
           </div>
         </div>
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
           <div className="glass-card p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Patients</p>
-                <p className="text-2xl font-bold text-foreground">{patients?.length}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {loading ? <span className="animate-pulse">—</span> : displayStats.totalPatients}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Icon name="Users" size={24} className="text-primary" />
@@ -309,7 +327,7 @@ const CounsellorDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">High Risk</p>
                 <p className="text-2xl font-bold text-error">
-                  {patients?.filter((p) => p?.riskLevel === 'high' || p?.riskLevel === 'critical')?.length}
+                  {loading ? <span className="animate-pulse">—</span> : displayStats.highRisk}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-error/10 flex items-center justify-center">
@@ -322,11 +340,7 @@ const CounsellorDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Today's Sessions</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {upcomingAppointments?.filter((apt) => {
-                    const aptDate = new Date(apt.dateTime);
-                    const today = new Date();
-                    return aptDate?.toDateString() === today?.toDateString();
-                  })?.length}
+                  {loading ? <span className="animate-pulse">—</span> : displayStats.todaysSessions}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
@@ -339,7 +353,7 @@ const CounsellorDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Avg Progress</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {Math.round(patients?.reduce((sum, p) => sum + p?.progressScore, 0) / patients?.length)}%
+                  {loading ? <span className="animate-pulse">—</span> : `${displayStats.avgProgress}%`}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
@@ -349,36 +363,37 @@ const CounsellorDashboard = () => {
           </div>
         </div>
 
+        {/* Search & Filter */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1">
             <Input
               type="search"
-              placeholder="Search patients by name or ID..."
+              placeholder="Search patients by name, ID, or email..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e?.target?.value)} />
-
+              onChange={(e) => setSearchQuery(e?.target?.value)}
+            />
           </div>
           <div className="lg:w-64">
             <Select
               options={riskFilterOptions}
               value={filterRisk}
               onChange={setFilterRisk}
-              placeholder="Filter by risk level" />
-
+              placeholder="Filter by risk level"
+            />
           </div>
           <div className="flex gap-2">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="icon"
               iconName="Grid3x3"
-              onClick={() => setViewMode('grid')} />
-
+              onClick={() => setViewMode('grid')}
+            />
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="icon"
               iconName="List"
-              onClick={() => setViewMode('list')} />
-
+              onClick={() => setViewMode('list')}
+            />
           </div>
         </div>
       </div>
@@ -389,48 +404,102 @@ const CounsellorDashboard = () => {
             <h2 className="font-heading font-semibold text-xl text-foreground mb-4">
               Patient Overview
             </h2>
-            <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-4`}>
-              {filteredPatients?.map((patient) =>
-                <PatientOverviewCard
-                  key={patient?.id}
-                  patient={patient}
-                  onViewDetails={handleViewDetails}
-                  onStartChat={handleStartChat} />
 
-              )}
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="glass-card p-6 animate-pulse">
+                    <div className="flex gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-full bg-muted" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded w-2/3" />
+                        <div className="h-3 bg-muted rounded w-1/2" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-muted rounded" />
+                      <div className="h-3 bg-muted rounded w-3/4" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredPatients.length === 0 ? (
+              <div className="glass-card p-16 text-center">
+                <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground opacity-40" />
+                <h3 className="font-heading font-semibold text-lg text-foreground mb-2">
+                  {patients.length === 0 ? 'No Patients Yet' : 'No Patients Found'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {patients.length === 0
+                    ? 'Patients appear automatically when you confirm their appointment requests, or add them manually below.'
+                    : 'Try adjusting your search or filter criteria.'}
+                </p>
+                {patients.length === 0 && (
+                  <div className="flex items-center gap-3 justify-center">
+                    <Button variant="outline" iconName="Calendar" onClick={() => navigate('/counsellor/requests')}>
+                      View Appointment Requests
+                    </Button>
+                    <Button variant="default" iconName="UserPlus" onClick={() => setShowAddModal(true)}>
+                      Add Patient Manually
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-4`}>
+                {filteredPatients.map((patient) => (
+                  <PatientOverviewCard
+                    key={patient?._id || patient?.id}
+                    patient={patient}
+                    onViewDetails={handleViewDetails}
+                    onStartChat={handleStartChat}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {selectedPatient &&
+          {selectedPatient && (
             <div className="mb-6">
-              <MoodTrendChart
-                data={moodTrendData}
-                patientName={selectedPatient?.name}
-                chartType="line" />
-
+              {loadingMood ? (
+                <div className="glass-card p-6 animate-pulse">
+                  <div className="h-48 bg-muted rounded" />
+                </div>
+              ) : moodTrendData.length > 0 ? (
+                <MoodTrendChart
+                  data={moodTrendData}
+                  patientName={selectedPatient?.name}
+                  chartType="line"
+                />
+              ) : (
+                <div className="glass-card p-6 text-center text-muted-foreground">
+                  <Icon name="LineChart" size={32} className="mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">No mood data available for {selectedPatient?.name} yet.</p>
+                </div>
+              )}
             </div>
-          }
+          )}
 
           <PatientEngagementMetrics
             engagementData={engagementData}
-            complianceData={complianceData} />
-
+            complianceData={complianceData}
+          />
         </div>
 
         <div className="space-y-6">
           <RiskAssessmentPanel
             riskPatients={riskPatients}
             onViewPatient={handleViewPatient}
-            onContactPatient={handleContactPatient} />
-
+            onContactPatient={handleContactPatient}
+          />
 
           <UpcomingAppointments
             appointments={upcomingAppointments}
             onJoinSession={handleJoinSession}
-            onReschedule={handleReschedule} />
+            onReschedule={handleReschedule}
+          />
 
-
-          <QuickActionsPanel onAction={handleQuickAction} />
+          <QuickActionsPanel onAction={handleQuickAction} recentActions={recentActions} />
         </div>
       </div>
 
@@ -462,7 +531,6 @@ const CounsellorDashboard = () => {
       </div>
     </>
   );
-
 };
 
 export default CounsellorDashboard;

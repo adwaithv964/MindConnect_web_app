@@ -4,7 +4,7 @@ import Button from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import Icon from '../../../components/AppIcon';
 
-const MoodEntryForm = ({ selectedMood, moodIntensity, onSubmit }) => {
+const MoodEntryForm = ({ selectedMood, moodIntensity, onSubmit, submitting }) => {
   const [notes, setNotes] = useState('');
   const [selectedFactors, setSelectedFactors] = useState([]);
   const [shareWithCounsellor, setShareWithCounsellor] = useState(false);
@@ -21,27 +21,26 @@ const MoodEntryForm = ({ selectedMood, moodIntensity, onSubmit }) => {
   ];
 
   const toggleFactor = (factorId) => {
-    setSelectedFactors(prev => 
-      prev?.includes(factorId) 
-        ? prev?.filter(id => id !== factorId)
-        : [...prev, factorId]
+    setSelectedFactors(prev =>
+      prev.includes(factorId) ? prev.filter(id => id !== factorId) : [...prev, factorId]
     );
   };
 
   const handleSubmit = () => {
-    if (!selectedMood) return;
+    if (!selectedMood || submitting) return;
 
     const entry = {
-      mood: selectedMood,
+      moodId: selectedMood.id,
+      moodLabel: selectedMood.label,
+      moodEmoji: selectedMood.emoji,
       intensity: moodIntensity,
       notes,
       factors: selectedFactors,
       shareWithCounsellor,
-      timestamp: new Date()?.toISOString()
+      timestamp: new Date().toISOString()
     };
 
     onSubmit(entry);
-    
     setNotes('');
     setSelectedFactors([]);
     setShareWithCounsellor(false);
@@ -68,22 +67,22 @@ const MoodEntryForm = ({ selectedMood, moodIntensity, onSubmit }) => {
           Contributing Factors
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {contributingFactors?.map((factor) => (
+          {contributingFactors.map((factor) => (
             <button
-              key={factor?.id}
-              onClick={() => toggleFactor(factor?.id)}
+              key={factor.id}
+              onClick={() => toggleFactor(factor.id)}
               className={`
                 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
                 transition-all duration-200
-                ${selectedFactors?.includes(factor?.id)
+                ${selectedFactors.includes(factor.id)
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-card text-foreground hover:bg-muted border border-border'
                 }
               `}
-              aria-pressed={selectedFactors?.includes(factor?.id)}
+              aria-pressed={selectedFactors.includes(factor.id)}
             >
-              <Icon name={factor?.icon} size={16} />
-              <span>{factor?.label}</span>
+              <Icon name={factor.icon} size={16} />
+              <span>{factor.label}</span>
             </button>
           ))}
         </div>
@@ -99,12 +98,12 @@ const MoodEntryForm = ({ selectedMood, moodIntensity, onSubmit }) => {
       <Button
         variant="default"
         fullWidth
-        iconName="Save"
+        iconName={submitting ? 'Loader2' : 'Save'}
         iconPosition="left"
         onClick={handleSubmit}
-        disabled={!selectedMood}
+        disabled={!selectedMood || submitting}
       >
-        Save Mood Entry
+        {submitting ? 'Saving...' : 'Save Mood Entry'}
       </Button>
     </div>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const QuickActionsPanel = ({ onAction }) => {
+const QuickActionsPanel = ({ onAction, recentActions = [] }) => {
   const quickActions = [
     {
       id: 'new-session',
@@ -48,6 +48,24 @@ const QuickActionsPanel = ({ onAction }) => {
     }
   ];
 
+  const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return '';
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff < 1) return 'Just now';
+    if (diff < 60) return `${diff}m ago`;
+    const hrs = Math.floor(diff / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
+
+  // Fallback placeholder actions when no real data available
+  const placeholderActions = [
+    { label: 'Session notes added for a patient', time: '2h ago' },
+    { label: 'Treatment plan updated', time: '5h ago' }
+  ];
+
+  const actionsToShow = recentActions.length > 0 ? recentActions : placeholderActions;
+
   return (
     <div className="glass-card p-6">
       <div className="flex items-center gap-3 mb-6">
@@ -83,14 +101,14 @@ const QuickActionsPanel = ({ onAction }) => {
           </Button>
         </div>
         <div className="mt-3 space-y-2">
-          <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-            <span className="text-xs text-foreground">Session notes added for Sarah Johnson</span>
-            <span className="text-xs text-muted-foreground">2h ago</span>
-          </div>
-          <div className="flex items-center justify-between p-2 bg-muted/30 rounded">
-            <span className="text-xs text-foreground">Treatment plan updated for Michael Chen</span>
-            <span className="text-xs text-muted-foreground">5h ago</span>
-          </div>
+          {actionsToShow.slice(0, 4).map((action, idx) => (
+            <div key={idx} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+              <span className="text-xs text-foreground truncate mr-2">{action.label}</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {action.time || formatTimeAgo(action.createdAt)}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

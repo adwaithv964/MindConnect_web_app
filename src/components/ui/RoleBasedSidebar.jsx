@@ -1,8 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from '../AppIcon';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 
 const SidebarContext = createContext();
 
@@ -33,7 +32,11 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isCollapsed, isMobileOpen, toggleCollapse, toggleMobile, closeMobile } = useSidebar();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(location.pathname.includes('/settings') || location.pathname.includes('/patient/profile'));
+  const [isSettingsOpen, setIsSettingsOpen] = useState(
+    location.pathname.includes('/settings') ||
+    location.pathname.includes('/patient/profile') ||
+    location.pathname.includes('/counsellor/profile')
+  );
 
   const navigationItems = [
     {
@@ -65,11 +68,25 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
       tooltip: 'Schedule and manage counselling sessions'
     },
     {
+      label: 'My Bookings',
+      path: '/my-bookings',
+      icon: 'BookMarked',
+      roles: ['patient'],
+      tooltip: 'View your appointment history and status'
+    },
+    {
       label: 'Resources',
       path: '/resource-library',
       icon: 'BookOpen',
       roles: ['patient', 'counsellor'],
       tooltip: 'Browse educational content and support materials'
+    },
+    {
+      label: 'Requests',
+      path: '/counsellor/requests',
+      icon: 'Inbox', // Using Inbox icon for requests
+      roles: ['counsellor'],
+      tooltip: 'View and manage appointment requests'
     },
     {
       label: 'Care Management',
@@ -80,26 +97,17 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
     }
   ];
 
-  const settingsItems = [
-    {
-      label: 'Profile',
-      path: '/patient/profile',
-      icon: 'User',
-      tooltip: 'Edit your profile'
-    },
-    {
-      label: 'General',
-      path: '/settings/general',
-      icon: 'Settings',
-      tooltip: 'General settings'
-    },
-    {
-      label: 'Preferences',
-      path: '/settings/preferences',
-      icon: 'Sliders',
-      tooltip: 'Preferences'
-    }
-  ];
+  const settingsItems = userRole === 'counsellor'
+    ? [
+      { label: 'Profile', path: '/counsellor/profile', icon: 'User', tooltip: 'Edit your profile' },
+      { label: 'General', path: '/counsellor/settings/general', icon: 'Settings', tooltip: 'General settings' },
+      { label: 'Preferences', path: '/counsellor/settings/preferences', icon: 'Sliders', tooltip: 'Preferences' }
+    ]
+    : [
+      { label: 'Profile', path: '/patient/profile', icon: 'User', tooltip: 'Edit your profile' },
+      { label: 'General', path: '/settings/general', icon: 'Settings', tooltip: 'General settings' },
+      { label: 'Preferences', path: '/settings/preferences', icon: 'Sliders', tooltip: 'Preferences' }
+    ];
 
   const filteredNavigation = navigationItems?.filter(item => item?.roles?.includes(userRole));
 
@@ -110,11 +118,11 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
     }
   };
 
+  const { logout } = useAuth();
+
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      await logout(); // Uses AuthContext.logout which clears localStorage + signs out Firebase
       navigate('/login');
       if (window.innerWidth < 1024) {
         closeMobile();
@@ -202,7 +210,7 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
             {/* Collapsible Settings Menu */}
             <div
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className={`sidebar-nav-item justify-between ${isSettingsOpen || location.pathname.includes('/settings') || location.pathname.includes('/patient/profile') ? 'text-primary bg-primary/10' : ''}`}
+              className={`sidebar-nav-item justify-between ${isSettingsOpen || location.pathname.includes('/settings') || location.pathname.includes('/patient/profile') || location.pathname.includes('/counsellor/profile') ? 'text-primary bg-primary/10' : ''}`}
               role="button"
               tabIndex={0}
             >

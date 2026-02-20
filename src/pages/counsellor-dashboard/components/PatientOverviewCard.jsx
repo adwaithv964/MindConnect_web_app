@@ -29,7 +29,7 @@ const PatientOverviewCard = ({ patient, onViewDetails, onStartChat }) => {
     const sessionDate = new Date(date);
     const now = new Date();
     const diffDays = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -41,11 +41,22 @@ const PatientOverviewCard = ({ patient, onViewDetails, onStartChat }) => {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Image
-              src={patient?.avatar}
-              alt={patient?.avatarAlt}
-              className="w-16 h-16 rounded-full object-cover border-2 border-border"
-            />
+            <div className="relative w-16 h-16">
+              {patient?.avatar ? (
+                <img
+                  src={patient.avatar}
+                  alt={patient?.avatarAlt || patient?.name}
+                  className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                  onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                />
+              ) : null}
+              <div
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-bold text-2xl border-2 border-border"
+                style={{ display: patient?.avatar ? 'none' : 'flex' }}
+              >
+                {(patient?.name || 'P')[0].toUpperCase()}
+              </div>
+            </div>
             {patient?.isOnline && (
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-success rounded-full border-2 border-background"></span>
             )}
@@ -89,7 +100,7 @@ const PatientOverviewCard = ({ patient, onViewDetails, onStartChat }) => {
           <span className="text-xs font-medium text-foreground">{patient?.goalsCompleted}/{patient?.totalGoals}</span>
         </div>
         <div className="w-full bg-muted rounded-full h-2">
-          <div 
+          <div
             className="bg-primary rounded-full h-2 transition-all duration-500"
             style={{ width: `${(patient?.goalsCompleted / patient?.totalGoals) * 100}%` }}
           ></div>

@@ -19,9 +19,9 @@ const RecommendedSection = ({ resources, onBookmark, onPreview, onShare }) => {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resources?.map(resource => (
+        {resources?.map((resource, index) => (
           <ResourceCard
-            key={resource?.id}
+            key={resource?._id || resource?.id || index}
             resource={resource}
             onBookmark={onBookmark}
             onPreview={onPreview}

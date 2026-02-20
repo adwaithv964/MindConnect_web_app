@@ -7,8 +7,10 @@ const ResourceCard = ({ resource, onBookmark, onPreview, onShare }) => {
     const [isBookmarked, setIsBookmarked] = useState(resource?.isBookmarked || false);
 
     const handleBookmark = () => {
-        setIsBookmarked(!isBookmarked);
-        onBookmark(resource?.id, !isBookmarked);
+        const newVal = !isBookmarked;
+        setIsBookmarked(newVal);
+        // Use _id (MongoDB) with fallback to id (legacy mock)
+        onBookmark(resource?._id || resource?.id, newVal);
     };
 
     const getContentTypeIcon = (type) => {
@@ -31,8 +33,16 @@ const ResourceCard = ({ resource, onBookmark, onPreview, onShare }) => {
     };
 
     return (
-        <div className="glass-card overflow-hidden group hover:shadow-lg transition-all duration-300">
-            <div className="relative h-48 overflow-hidden bg-muted">
+        <div className="glass-card overflow-hidden group hover:shadow-lg transition-all duration-300 relative">
+            {/* Completed badge */}
+            {resource?.isCompleted && (
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center gap-1.5 py-1.5 bg-success/90 backdrop-blur-sm text-white text-xs font-semibold">
+                    <Icon name="CheckCircle" size={13} />
+                    Completed
+                </div>
+            )}
+
+            <div className={`relative h-48 overflow-hidden bg-muted ${resource?.isCompleted ? 'mt-7' : ''}`}>
                 <Image
                     src={resource?.thumbnail}
                     alt={resource?.thumbnailAlt}
@@ -48,12 +58,13 @@ const ResourceCard = ({ resource, onBookmark, onPreview, onShare }) => {
                     aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
                 >
                     <Icon
-                        name={isBookmarked ? 'Bookmark' : 'Bookmark'}
+                        name="Bookmark"
                         size={18}
                         className={isBookmarked ? 'text-primary fill-primary' : 'text-foreground'}
                     />
                 </button>
             </div>
+
             <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
                     <h3 className="font-heading font-semibold text-base text-foreground line-clamp-2 flex-1">
@@ -120,13 +131,13 @@ const ResourceCard = ({ resource, onBookmark, onPreview, onShare }) => {
                 </div>
 
                 <Button
-                    variant="default"
+                    variant={resource?.isCompleted ? 'outline' : 'default'}
                     fullWidth
                     onClick={() => onPreview(resource)}
-                    iconName="ArrowRight"
+                    iconName={resource?.isCompleted ? 'RotateCcw' : 'ArrowRight'}
                     iconPosition="right"
                 >
-                    View Resource
+                    {resource?.isCompleted ? 'Review Again' : 'View Resource'}
                 </Button>
             </div>
         </div>
