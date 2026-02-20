@@ -122,6 +122,7 @@ app.use('/api/notes', require('./routes/notes'));
 app.use('/api/mood', require('./routes/moodLogs'));
 app.use('/api/wellness', require('./routes/wellness'));
 app.use('/api/resources', require('./routes/resources'));
+app.use('/api/dashboard', require('./routes/dashboard'));
 
 // Sync endpoint
 app.post('/api/sync', async (req, res) => {
