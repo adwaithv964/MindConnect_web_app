@@ -111,6 +111,10 @@ mongoose.model('JournalEntry', JournalEntrySchema);
 mongoose.model('WellnessGoal', WellnessGoalSchema);
 mongoose.model('BreathingSession', BreathingSessionSchema);
 
+// Pre-load admin models so they are registered before route imports
+require('./models/ActivityLog');
+require('./models/SecurityLog');
+
 // --- API ROUTES START HERE ---
 
 // Auth Routes
@@ -123,6 +127,7 @@ app.use('/api/mood', require('./routes/moodLogs'));
 app.use('/api/wellness', require('./routes/wellness'));
 app.use('/api/resources', require('./routes/resources'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Sync endpoint
 app.post('/api/sync', async (req, res) => {

@@ -25,6 +25,14 @@ import PatientLayout from './components/layout/PatientLayout';
 import PatientProfile from './pages/patient-dashboard/PatientProfile';
 import PatientRequests from './pages/patient-dashboard/PatientRequests';
 import MyBookings from './pages/my-bookings';
+// Admin imports
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminActivityLogs from './pages/admin/AdminActivityLogs';
+import AdminSecurityLogs from './pages/admin/AdminSecurityLogs';
+import AdminAppointments from './pages/admin/AdminAppointments';
 
 const Routes = () => {
   return (
@@ -61,6 +69,14 @@ const Routes = () => {
             <Route path="/settings/general" element={<PatientLayout><SettingsGeneral /></PatientLayout>} />
             <Route path="/settings/preferences" element={<PatientLayout><SettingsPreferences /></PatientLayout>} />
 
+            {/* Admin Routes — separate login, no Firebase */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
+            <Route path="/admin/users" element={<AdminProtectedRoute><AdminLayout><AdminUsers /></AdminLayout></AdminProtectedRoute>} />
+            <Route path="/admin/activity-logs" element={<AdminProtectedRoute><AdminLayout><AdminActivityLogs /></AdminLayout></AdminProtectedRoute>} />
+            <Route path="/admin/security-logs" element={<AdminProtectedRoute><AdminLayout><AdminSecurityLogs /></AdminLayout></AdminProtectedRoute>} />
+            <Route path="/admin/appointments" element={<AdminProtectedRoute><AdminLayout><AdminAppointments /></AdminLayout></AdminProtectedRoute>} />
+
             <Route path="*" element={<NotFound />} />
           </RouterRoutes>
         </ErrorBoundary>
@@ -83,10 +99,17 @@ const ProtectedRoute = ({ children, role }) => {
   if (role && userRole && userRole !== role) {
     console.warn(`[ProtectedRoute] User role "${userRole}" tried to access "${role}" route. Redirecting.`);
     if (userRole === 'counsellor') return <Navigate to="/counsellor-dashboard" replace />;
-    if (userRole === 'admin') return <Navigate to="/admin-dashboard" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/patient-dashboard" replace />;
   }
 
+  return children;
+};
+
+// Admin-only route guard — uses adminToken in localStorage, no Firebase
+const AdminProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('adminToken');
+  if (!token) return <Navigate to="/admin" replace />;
   return children;
 };
 
@@ -98,7 +121,7 @@ const AuthRedirect = ({ children }) => {
     if (userRole === 'counsellor') {
       return <Navigate to="/counsellor-dashboard" replace />;
     } else if (userRole === 'admin') {
-      return <Navigate to="/admin-dashboard" replace />;
+      return <Navigate to="/admin/dashboard" replace />;
     } else {
       return <Navigate to="/patient-dashboard" replace />;
     }
@@ -108,4 +131,3 @@ const AuthRedirect = ({ children }) => {
 };
 
 export default Routes;
-

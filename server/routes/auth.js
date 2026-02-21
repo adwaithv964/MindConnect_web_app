@@ -4,6 +4,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const CounsellorProfile = require('../models/CounsellorProfile');
+const SecurityLog = require('../models/SecurityLog');
+const ActivityLog = require('../models/ActivityLog');
+
+const getClientInfo = (req) => ({
+    ipAddress: req.ip || req.connection?.remoteAddress || '',
+    userAgent: req.headers['user-agent'] || ''
+});
 
 // Register
 router.post('/register', async (req, res) => {
@@ -128,18 +135,25 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        const { ipAddress, userAgent } = getClientInfo(req);
 
         // Check if user exists
         let user = await User.findOne({ email });
         if (!user) {
+            await SecurityLog.create({ userEmail: email, event: 'LOGIN_FAILED', success: false, severity: 'warning', details: 'User not found', ipAddress, userAgent }).catch(() => { });
             return res.status(400).json({ message: 'Invalid Credentials' });
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            await SecurityLog.create({ userId: user._id.toString(), userName: user.name, userEmail: user.email, event: 'LOGIN_FAILED', success: false, severity: 'warning', details: 'Wrong password', ipAddress, userAgent }).catch(() => { });
             return res.status(400).json({ message: 'Invalid Credentials' });
         }
+
+        // Log successful login
+        await SecurityLog.create({ userId: user._id.toString(), userName: user.name, userEmail: user.email, event: 'LOGIN_SUCCESS', success: true, severity: 'info', details: `${user.role} login`, ipAddress, userAgent }).catch(() => { });
+        await ActivityLog.create({ userId: user._id.toString(), userRole: user.role, userName: user.name, userEmail: user.email, action: 'LOGIN', category: 'auth', details: `${user.role} logged in via email/password`, ipAddress, userAgent }).catch(() => { });
 
         // Create token
         const payload = {
@@ -168,11 +182,13 @@ router.post('/login', async (req, res) => {
 router.post('/firebase-login', async (req, res) => {
     try {
         const { email, firebaseUid } = req.body;
+        const { ipAddress, userAgent } = getClientInfo(req);
 
         // Check if user exists
         let user = await User.findOne({ email });
 
         if (!user) {
+            await SecurityLog.create({ userEmail: email, event: 'FIREBASE_LOGIN_FAILED', success: false, severity: 'warning', details: 'User not found', ipAddress, userAgent }).catch(() => { });
             return res.status(400).json({ message: 'User not found. Please register first.' });
         }
 
@@ -181,6 +197,9 @@ router.post('/firebase-login', async (req, res) => {
             user.firebaseUid = firebaseUid;
             await user.save();
         }
+
+        await SecurityLog.create({ userId: user._id.toString(), userName: user.name, userEmail: user.email, event: 'FIREBASE_LOGIN_SUCCESS', success: true, severity: 'info', details: `${user.role} Firebase login`, ipAddress, userAgent }).catch(() => { });
+        await ActivityLog.create({ userId: user._id.toString(), userRole: user.role, userName: user.name, userEmail: user.email, action: 'LOGIN', category: 'auth', details: `${user.role} logged in via Firebase`, ipAddress, userAgent }).catch(() => { });
 
         // Create token
         const payload = {
