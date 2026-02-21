@@ -24,6 +24,7 @@ import CounsellorLayout from './components/layout/CounsellorLayout';
 import PatientLayout from './components/layout/PatientLayout';
 import PatientProfile from './pages/patient-dashboard/PatientProfile';
 import PatientRequests from './pages/patient-dashboard/PatientRequests';
+import PatientConsultationRoom from './pages/patient-dashboard/PatientConsultationRoom';
 import MyBookings from './pages/my-bookings';
 // Admin imports
 import AdminLogin from './pages/admin/AdminLogin';
@@ -65,6 +66,7 @@ const Routes = () => {
             <Route path="/resource-library" element={<PatientLayout><ResourceLibrary /></PatientLayout>} />
             <Route path="/patient/profile" element={<ProtectedRoute role="patient"><PatientLayout><PatientProfile /></PatientLayout></ProtectedRoute>} />
             <Route path="/patient/requests" element={<ProtectedRoute role="patient"><PatientLayout><PatientRequests /></PatientLayout></ProtectedRoute>} />
+            <Route path="/patient/consultation" element={<ProtectedRoute role="patient"><PatientLayout><PatientConsultationRoom /></PatientLayout></ProtectedRoute>} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/settings/general" element={<PatientLayout><SettingsGeneral /></PatientLayout>} />
             <Route path="/settings/preferences" element={<PatientLayout><SettingsPreferences /></PatientLayout>} />

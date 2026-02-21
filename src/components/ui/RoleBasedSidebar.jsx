@@ -82,6 +82,13 @@ const RoleBasedSidebar = ({ userRole = 'patient' }) => {
       tooltip: 'Browse educational content and support materials'
     },
     {
+      label: 'Consultation',
+      path: '/patient/consultation',
+      icon: 'Video',
+      roles: ['patient'],
+      tooltip: 'Join your scheduled consultation session'
+    },
+    {
       label: 'Requests',
       path: '/counsellor/requests',
       icon: 'Inbox', // Using Inbox icon for requests

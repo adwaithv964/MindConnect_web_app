@@ -128,6 +128,7 @@ app.use('/api/wellness', require('./routes/wellness'));
 app.use('/api/resources', require('./routes/resources'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/consultation', require('./routes/consultation'));
 
 // Sync endpoint
 app.post('/api/sync', async (req, res) => {
