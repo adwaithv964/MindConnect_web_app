@@ -22,10 +22,18 @@ const allowedOrigins = [
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            return callback(new Error('CORS policy: origin not allowed'), false);
+
+        // Allow exact matches
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
         }
-        return callback(null, true);
+
+        // Allow any Vercel preview URL
+        if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('CORS policy: origin not allowed: ' + origin), false);
     },
     credentials: true
 }));
@@ -157,7 +165,12 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigins,
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+            if (origin.endsWith('.vercel.app')) return callback(null, true);
+            return callback(new Error('CORS policy: origin not allowed: ' + origin), false);
+        },
         methods: ['GET', 'POST'],
         credentials: true
     }
