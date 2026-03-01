@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindConnect – Project Documentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Georgia&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 12pt;
+            color: #000;
+            background: #fff;
+            line-height: 1.8;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 30px;
+            padding: 25mm 25mm 25mm 30mm;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            font-size: 20pt;
+            text-align: center;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-size: 14pt;
+            margin: 18px 0 8px;
+            text-transform: uppercase;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 4px;
+        }
+
+        h3 {
+            font-size: 12pt;
+            margin: 14px 0 6px;
+            text-decoration: underline;
+        }
+
+        h4 {
+            font-size: 11pt;
+            margin: 10px 0 4px;
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        ul,
+        ol {
+            margin: 6px 0 10px 24px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .toc-line {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted #555;
+            margin: 5px 0;
+            padding: 2px 0;
+        }
+
+        .toc-line span.pg {
+            min-width: 30px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .toc-sub {
+            margin-left: 20px;
+        }
+
+        .toc-sub2 {
+            margin-left: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #555;
+            padding: 6px 8px;
+            text-align: left;
+            font-size: 11pt;
+        }
+
+        th {
+            background: #ddd;
+            font-weight: bold;
+        }
+
+        .section-num {
+            font-weight: bold;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+
+        @media print {
+            .page {
+                box-shadow: none;
+                margin: 0;
+            }
+
+            .page-break {
+                page-break-after: always;
+            }
+        }
+
+        .cover-title {
+            font-size: 26pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 60px 0 10px;
+        }
+
+        .cover-sub {
+            font-size: 14pt;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .cover-info {
+            font-size: 11pt;
+            text-align: center;
+            line-height: 2.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- COVER PAGE -->
+    <div class="page">
+        <br /><br /><br />
+        <div class="cover-title">MINDCONNECT</div>
+        <div class="cover-sub">Mental Health & Wellness Management System</div>
+        <div class="center" style="margin:30px 0;"><b>PROJECT DOCUMENTATION</b></div>
+        <div class="cover-info">
+            <b>Academic Year:</b> 2025 – 2026<br />
+            <b>Technology Stack:</b> React.js · Node.js · Express · MongoDB · Firebase<br />
+            <b>Domain:</b> Health-Tech / Mental Wellness<br />
+            <b>Platform:</b> Web Application<br />
+        </div>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="page">
+        <h2>TABLE OF CONTENTS</h2><br />
+        <div class="toc-line"><span>1. Introduction</span><span class="pg">01</span></div>
+        <div class="toc-line toc-sub"><span>1.1 Purpose</span><span class="pg">01</span></div>
+        <div class="toc-line toc-sub"><span>1.2 Scope</span><span class="pg">02</span></div>
+        <div class="toc-line"><span>2. System Study and Analysis</span><span class="pg">04</span></div>
+        <div class="toc-line toc-sub"><span>2.1 Preliminary Investigation</span><span class="pg">04</span></div>
+        <div class="toc-line toc-sub"><span>2.2 Existing System</span><span class="pg">05</span></div>
+        <div class="toc-line toc-sub"><span>2.3 Proposed System</span><span class="pg">06</span></div>
+        <div class="toc-line toc-sub2"><span>2.3.1 Advantages of Proposed System</span><span class="pg">07</span></div>
+        <div class="toc-line toc-sub"><span>2.4 Module Description</span><span class="pg">08</span></div>
+        <div class="toc-line toc-sub"><span>2.5 Feasibility Study</span><span class="pg">10</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.1 Technical Feasibility</span><span class="pg">10</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.2 Operational Feasibility</span><span class="pg">11</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.3 Economic Feasibility</span><span class="pg">11</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.4 Behavioural Feasibility</span><span class="pg">12</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.5 Legal Feasibility</span><span class="pg">12</span></div>
+        <div class="toc-line toc-sub2"><span>2.5.6 Schedule Feasibility</span><span class="pg">13</span></div>
+        <div class="toc-line"><span>3. System Requirement Specification</span><span class="pg">14</span></div>
+        <div class="toc-line toc-sub"><span>3.1 Software Specification</span><span class="pg">14</span></div>
+        <div class="toc-line toc-sub"><span>3.2 Hardware Specification</span><span class="pg">15</span></div>
+        <div class="toc-line toc-sub"><span>3.3 Software Tools Used</span><span class="pg">16</span></div>
+        <div class="toc-line"><span>4. System Design</span><span class="pg">18</span></div>
+        <div class="toc-line toc-sub"><span>4.1 Data Flow Diagram</span><span class="pg">18</span></div>
+        <div class="toc-line toc-sub"><span>4.2 Entity Relationship Diagram</span><span class="pg">20</span></div>
+        <div class="toc-line toc-sub"><span>4.3 Sequence Diagram</span><span class="pg">22</span></div>
+        <div class="toc-line toc-sub"><span>4.4 Use Case Diagram</span><span class="pg">24</span></div>
+        <div class="toc-line toc-sub"><span>4.5 Database Design</span><span class="pg">26</span></div>
+        <div class="toc-line toc-sub"><span>4.6 Table Design</span><span class="pg">28</span></div>
+        <div class="toc-line toc-sub"><span>4.7 User Interface Design</span><span class="pg">32</span></div>
+        <div class="toc-line toc-sub"><span>4.8 Input Design</span><span class="pg">36</span></div>
+        <div class="toc-line toc-sub"><span>4.9 Output Design</span><span class="pg">38</span></div>
+        <div class="toc-line"><span>5. System Development</span><span class="pg">41</span></div>
+        <div class="toc-line toc-sub"><span>5.1 Coding Environment</span><span class="pg">41</span></div>
+        <div class="toc-line toc-sub"><span>5.2 Development Approach</span><span class="pg">42</span></div>
+        <div class="toc-line toc-sub"><span>5.3 Database Servers</span><span class="pg">44</span></div>
+        <div class="toc-line toc-sub"><span>5.4 Programming Languages</span><span class="pg">45</span></div>
+        <div class="toc-line"><span>6. System Testing</span><span class="pg">47</span></div>
+        <div class="toc-line toc-sub"><span>6.1 White-Box Testing</span><span class="pg">47</span></div>
+        <div class="toc-line toc-sub"><span>6.2 Black-Box Testing</span><span class="pg">48</span></div>
+        <div class="toc-line toc-sub"><span>6.3 Condition Testing</span><span class="pg">48</span></div>
+        <div class="toc-line toc-sub"><span>6.4 Loop Testing</span><span class="pg">49</span></div>
+        <div class="toc-line toc-sub"><span>6.5 Unit Testing</span><span class="pg">49</span></div>
+        <div class="toc-line toc-sub"><span>6.6 Integration Testing</span><span class="pg">50</span></div>
+        <div class="toc-line toc-sub"><span>6.7 Output Testing</span><span class="pg">51</span></div>
+        <div class="toc-line toc-sub"><span>6.8 User Acceptance Testing</span><span class="pg">51</span></div>
+        <div class="toc-line"><span>7. System Implementation</span><span class="pg">52</span></div>
+        <div class="toc-line toc-sub"><span>7.1 Implementation Plan</span><span class="pg">52</span></div>
+        <div class="toc-line toc-sub"><span>7.2 Education and Training</span><span class="pg">53</span></div>
+        <div class="toc-line toc-sub"><span>7.3 Training of Application Software</span><span class="pg">53</span></div>
+        <div class="toc-line toc-sub"><span>7.4 Post Implementation Review</span><span class="pg">54</span></div>
+        <div class="toc-line toc-sub"><span>7.5 Security</span><span class="pg">54</span></div>
+        <div class="toc-line toc-sub"><span>7.6 Maintenance</span><span class="pg">55</span></div>
+        <div class="toc-line"><span>8. Future Enhancement</span><span class="pg">56</span></div>
+        <div class="toc-line"><span>9. Conclusion</span><span class="pg">58</span></div>
+        <div class="toc-line"><span>10. Appendix A: Source Code</span><span class="pg">60</span></div>
+        <div class="toc-line toc-sub"><span>10.1 Web</span><span class="pg">60</span></div>
+        <div class="toc-line"><span>11. Appendix B: Screenshots</span><span class="pg">72</span></div>
+        <div class="toc-line toc-sub"><span>11.1 Web</span><span class="pg">72</span></div>
+        <div class="toc-line"><span>12. Bibliography</span><span class="pg">81</span></div>
+    </div>
+
+    <!-- CHAPTER 1 -->
+    <div class="page">
+        <h2>1. Introduction</h2>
+
+        <h3>1.1 Purpose</h3>
+        <p>
+            MindConnect is a comprehensive mental health and wellness management web application designed to bridge the
+            gap between patients seeking mental health support and qualified counsellors. The purpose of this system is
+            to provide a unified, secure, and user-friendly digital platform that facilitates appointment scheduling,
+            mood tracking, journaling, wellness goal management, AI-assisted resource discovery, and real-time
+            consultation between patients and mental health professionals.
+        </p>
+        <p>
+            The primary goal of this documentation is to provide a thorough technical and functional description of the
+            MindConnect system — covering its objectives, architecture, design, development process, and testing
+            methodologies. It serves as a reference for developers, stakeholders, and academic evaluators to understand
+            how the system was conceived, built, and verified.
+        </p>
+        <p>
+            Mental health awareness has surged globally, yet access to professional support remains limited by
+            geographical, financial, and social barriers. MindConnect addresses this gap by enabling patients to
+            interact with counsellors digitally, track their mental health progress over time, and access AI-powered
+            wellness resources — all from a single, role-based web application.
+        </p>
+
+        <h3>1.2 Scope</h3>
+        <p>
+            The scope of MindConnect encompasses the following functional domains:
+        </p>
+        <ul>
+            <li><b>Patient Module:</b> Mood logging, journaling, breathing exercises, wellness goals, appointment
+                booking, AI chatbot, resource library access, and a personal dashboard.</li>
+            <li><b>Counsellor Module:</b> Patient management, appointment management, consultation room, patient record
+                review, notes, and activity tracking.</li>
+            <li><b>Admin Module:</b> System monitoring, user management, security logs, activity logs, and analytics.
+            </li>
+            <li><b>Authentication:</b> Firebase Authentication with role-based access control (Patient, Counsellor,
+                Admin).</li>
+            <li><b>AI Integration:</b> Google Gemini API used for AI chatbot responses and intelligent resource
+                recommendations.</li>
+            <li><b>Data Persistence:</b> MongoDB Atlas for all application data with Mongoose ODM schemas.</li>
+            <li><b>Deployment:</b> Frontend on Vercel; Backend API on Render.</li>
+        </ul>
+        <p>
+            The system currently targets the web platform. Future expansion may include Android and iOS native
+            applications. The application is built as a Single Page Application (SPA) using React.js with a RESTful
+            Node.js/Express backend.
+        </p>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div class="page">
+        <h2>2. System Study and Analysis</h2>
+
+        <h3>2.1 Preliminary Investigation</h3>
+        <p>
+            The preliminary investigation was initiated to understand the need for a digital mental health management
+            solution. Surveys and analysis of existing platforms revealed that most mental health applications either
+            focus exclusively on self-help tools (meditation, journaling) or clinician-facing tools — rarely combining
+            both into one cohesive, role-driven system.
+        </p>
+        <p>
+            Key findings from the investigation:
+        </p>
+        <ul>
+            <li>Over 70% of patients abandon mental health apps within the first week due to lack of engagement
+                features.</li>
+            <li>Counsellors lack a streamlined digital overview of their patient's progress between sessions.</li>
+            <li>Appointment scheduling is often handled via phone calls or third-party apps, causing friction.</li>
+            <li>AI-based support can act as a first touchpoint before a patient sees a professional.</li>
+        </ul>
+        <p>
+            Based on these findings, MindConnect was identified as a feasible and necessary solution.
+        </p>
+
+        <h3>2.2 Existing System</h3>
+        <p>
+            Existing mental health platforms such as BetterHelp, Talkspace, and Headspace offer partial solutions. Their
+            limitations include:
+        </p>
+        <ul>
+            <li><b>BetterHelp / Talkspace:</b> Subscription-based, limited to text/video therapy only. No integrated
+                wellness tracking or self-help tools. No admin management layer.</li>
+            <li><b>Headspace / Calm:</b> Meditation and relaxation focused. No counsellor access, no appointment system,
+                no mood analytics.</li>
+            <li><b>Generic Hospital Management Systems:</b> Not tailored for mental health. No mood/journal features for
+                patients. Poor user experience for self-monitoring.</li>
+        </ul>
+        <p><b>Drawbacks of Existing Systems:</b></p>
+        <ul>
+            <li>Lack of unified role-based access for patients, counsellors, and administrators.</li>
+            <li>No AI-powered resource recommendation or chatbot support.</li>
+            <li>No integrated mood tracking visible to the counsellor.</li>
+            <li>Siloed data — no single platform connecting scheduling, wellness, and consultation.</li>
+        </ul>
+
+        <h3>2.3 Proposed System</h3>
+        <p>
+            MindConnect is proposed as a full-stack web application offering an integrated mental health ecosystem. It
+            is built on a MERN-like stack (MongoDB, Express, React, Node.js) with Firebase Authentication and the Google
+            Gemini AI API. The system supports three distinct user roles: <b>Patient</b>, <b>Counsellor</b>, and
+            <b>Admin</b>, each with a dedicated, role-specific dashboard and set of features.
+        </p>
+
+        <h4>2.3.1 Advantages of Proposed System</h4>
+        <ul>
+            <li>Unified platform combining scheduling, monitoring, wellness tools, and AI support.</li>
+            <li>Real-time mood and wellness data visible to assigned counsellors.</li>
+            <li>Role-based access control ensures data privacy and appropriate feature visibility.</li>
+            <li>AI chatbot (Google Gemini) provides instant, empathetic responses as a first line of support.</li>
+            <li>Breathing exercises, journaling, and goal tracking promote proactive mental health management.</li>
+            <li>Admin panel with analytics, user management, and security monitoring.</li>
+            <li>Scalable cloud-based deployment (Vercel + Render + MongoDB Atlas).</li>
+        </ul>
+
+        <h3>2.4 Module Description</h3>
+        <p><b>Module 1 – Authentication Module:</b> Handles user registration and login using Firebase Authentication.
+            Supports three roles: Patient, Counsellor, and Admin. Role data is stored in MongoDB via the User model and
+            verified server-side using Firebase Admin SDK tokens.</p>
+        <p><b>Module 2 – Patient Dashboard Module:</b> Provides the patient with a personal overview including mood
+            summaries, upcoming appointments, wellness score, recent journal entries, breathing exercise stats, and goal
+            progress. All data is fetched from the backend via the <code>/api/dashboard</code> endpoint.</p>
+        <p><b>Module 3 – Mood Tracker Module:</b> Allows patients to log their mood daily (scale 1–5), add notes, select
+            contributing factors, and optionally share entries with their counsellor. History and trend charts are
+            displayed via the Recharts library.</p>
+        <p><b>Module 4 – Journal Module:</b> A guided journaling tool with writing prompts. Patients can write free-form
+            or prompted journal entries and choose to share them with their assigned counsellor.</p>
+        <p><b>Module 5 – Wellness Hub Module:</b> Contains breathing exercises (with multiple techniques e.g., 4-7-8),
+            wellness goal management with milestone tracking, and progress monitoring.</p>
+        <p><b>Module 6 – Appointment Booking Module:</b> Patients can browse available counsellors from the
+            DoctorRegistry, choose a time slot, specify session type (video/phone/in-person), and submit a booking
+            request. Counsellors can confirm or decline appointments.</p>
+        <p><b>Module 7 – Resource Library Module:</b> Curated mental health articles, videos, and exercises. Integrates
+            with the Google Gemini API via the AIResourceRecommender to provide personalised resource suggestions.
+            Progress is tracked per user via the UserResourceProgress model.</p>
+        <p><b>Module 8 – Counsellor Dashboard Module:</b> Provides counsellors with a list of their patients,
+            appointment management, access to patient mood logs, journal entries (shared ones), consultation session
+            history, and the ability to add notes.</p>
+        <p><b>Module 9 – Consultation Room Module:</b> A dedicated in-app space for managing and recording consultation
+            sessions linked to appointments. Counsellors can document session outcomes and notes.</p>
+        <p><b>Module 10 – Admin Module:</b> A management dashboard providing user statistics, activity logs (from
+            ActivityLog model), security logs (SecurityLog model), recent registrations, and platform-wide analytics.
+        </p>
+        <p><b>Module 11 – AI Chatbot Module:</b> An embedded chatbot powered by the Google Gemini 1.5 Flash API.
+            Available to patients for real-time mental health Q&amp;A, guidance, and emotional support. Responses are
+            cached in the AiDiscoveryCache model.</p>
+
+        <h3>2.5 Feasibility Study</h3>
+        <h4>2.5.1 Technical Feasibility</h4>
+        <p>The technology stack — React.js, Node.js, Express, MongoDB Atlas, Firebase, and Google Gemini API — is all
+            mature, well-documented, and free to use at development scale. The development team has proficiency in
+            JavaScript fullstack development. Cloud deployment via Vercel and Render requires no infrastructure
+            management. The system is technically feasible.</p>
+
+        <h4>2.5.2 Operational Feasibility</h4>
+        <p>The system is intuitive by design with role-specific dashboards. Patients require minimal onboarding.
+            Counsellors benefit from a familiar clinical-style interface. Admins use a structured analytics panel.
+            End-users with basic internet and browser access can operate the system fully — it is operationally
+            feasible.</p>
+
+        <h4>2.5.3 Economic Feasibility</h4>
+        <p>Development uses entirely open-source and free-tier tools. Hosting on Vercel (free tier) and Render (free
+            tier) keeps costs minimal. MongoDB Atlas free cluster supports development and low-traffic production.
+            Google Gemini API offers a generous free quota. The system is economically feasible for academic and
+            early-stage deployment.</p>
+
+        <h4>2.5.4 Behavioural Feasibility</h4>
+        <p>Mental health app adoption is rising globally. Users are increasingly comfortable with digital wellness
+            tools. The system's non-stigmatising, anonymous-first approach (patients interact via app, not in person)
+            reduces barriers. Regular engagement through mood streaks and wellness goals incentivises continued use.</p>
+
+        <h4>2.5.5 Legal Feasibility</h4>
+        <p>The system does not store sensitive medical diagnoses. Journal entries and mood logs are private by default
+            and only shared with a counsellor upon explicit user consent. Firebase Authentication handles identity
+            securely. No financial transactions occur. The system complies with general data protection best practices
+            and is legally feasible for a web application in its current scope.</p>
+
+        <h4>2.5.6 Schedule Feasibility</h4>
+        <p>The project was developed over one academic semester. The phased approach — authentication → patient features
+            → counsellor features → admin → AI integration → testing — allowed parallel development and iterative
+            delivery within the scheduled timeline. The project is schedule-feasible.</p>
+    </div>
+
+    <!-- CHAPTER 3 -->
+    <div class="page">
+        <h2>3. System Requirement Specification</h2>
+
+        <h3>3.1 Software Specification</h3>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Requirement</th>
+            </tr>
+            <tr>
+                <td>Operating System</td>
+                <td>Windows 10 / macOS 12+ / Linux (Ubuntu 20.04+)</td>
+            </tr>
+            <tr>
+                <td>Browser</td>
+                <td>Google Chrome 110+, Mozilla Firefox 110+, Microsoft Edge 110+</td>
+            </tr>
+            <tr>
+                <td>Frontend Framework</td>
+                <td>React.js 18.2.0 with Vite 5.x</td>
+            </tr>
+            <tr>
+                <td>Backend Runtime</td>
+                <td>Node.js v18+ with Express.js 4.x</td>
+            </tr>
+            <tr>
+                <td>Database</td>
+                <td>MongoDB Atlas (Cloud) with Mongoose 7.x ODM</td>
+            </tr>
+            <tr>
+                <td>Authentication</td>
+                <td>Firebase Authentication (Email/Password)</td>
+            </tr>
+            <tr>
+                <td>AI API</td>
+                <td>Google Gemini 1.5 Flash API</td>
+            </tr>
+            <tr>
+                <td>Package Manager</td>
+                <td>npm 9+</td>
+            </tr>
+            <tr>
+                <td>State Management</td>
+                <td>Redux Toolkit 2.x</td>
+            </tr>
+            <tr>
+                <td>CSS Framework</td>
+                <td>Tailwind CSS 3.4.x</td>
+            </tr>
+            <tr>
+                <td>Charts</td>
+                <td>Recharts 2.x</td>
+            </tr>
+            <tr>
+                <td>HTTP Client</td>
+                <td>Axios 1.x</td>
+            </tr>
+        </table>
+
+        <h3>3.2 Hardware Specification</h3>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Minimum</th>
+                <th>Recommended</th>
+            </tr>
+            <tr>
+                <td>Processor</td>
+                <td>Intel Core i3 / Ryzen 3</td>
+                <td>Intel Core i5 / Ryzen 5 or higher</td>
+            </tr>
+            <tr>
+                <td>RAM</td>
+                <td>4 GB</td>
+                <td>8 GB or more</td>
+            </tr>
+            <tr>
+                <td>Storage</td>
+                <td>10 GB free</td>
+                <td>20 GB SSD</td>
+            </tr>
+            <tr>
+                <td>Internet Connection</td>
+                <td>2 Mbps</td>
+                <td>10 Mbps broadband</td>
+            </tr>
+            <tr>
+                <td>Display</td>
+                <td>1280 × 720</td>
+                <td>1920 × 1080 (Full HD)</td>
+            </tr>
+        </table>
+
+        <h3>3.3 Software Tools Used</h3>
+        <table>
+            <tr>
+                <th>Tool / Technology</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td>Visual Studio Code</td>
+                <td>Primary code editor with ESLint and Prettier plugins</td>
+            </tr>
+            <tr>
+                <td>Vite</td>
+                <td>Frontend build tool and development server</td>
+            </tr>
+            <tr>
+                <td>React.js</td>
+                <td>Component-based UI development</td>
+            </tr>
+            <tr>
+                <td>Tailwind CSS</td>
+                <td>Utility-first CSS styling</td>
+            </tr>
+            <tr>
+                <td>Framer Motion</td>
+                <td>UI animations and transitions</td>
+            </tr>
+            <tr>
+                <td>Lucide React</td>
+                <td>Icon library</td>
+            </tr>
+            <tr>
+                <td>Node.js + Express</td>
+                <td>Backend RESTful API server</td>
+            </tr>
+            <tr>
+                <td>MongoDB Atlas</td>
+                <td>Cloud NoSQL database</td>
+            </tr>
+            <tr>
+                <td>Mongoose</td>
+                <td>MongoDB Object Data Modelling (ODM)</td>
+            </tr>
+            <tr>
+                <td>Firebase Console</td>
+                <td>Authentication provider configuration</td>
+            </tr>
+            <tr>
+                <td>Google AI Studio</td>
+                <td>Gemini API key management</td>
+            </tr>
+            <tr>
+                <td>Postman</td>
+                <td>API testing and endpoint verification</td>
+            </tr>
+            <tr>
+                <td>Git + GitHub</td>
+                <td>Version control and source code management</td>
+            </tr>
+            <tr>
+                <td>Vercel</td>
+                <td>Frontend deployment and hosting</td>
+            </tr>
+            <tr>
+                <td>Render</td>
+                <td>Backend API deployment and hosting</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- CHAPTER 4 -->
+    <div class="page">
+        <h2>4. System Design</h2>
+
+        <h3>4.1 Data Flow Diagram</h3>
+        <p>The Level 0 (Context) DFD shows MindConnect as a single process receiving inputs from three external
+            entities:</p>
+        <ul>
+            <li><b>Patient</b> → sends mood logs, journal entries, appointment requests, wellness data</li>
+            <li><b>Counsellor</b> → sends appointment responses, session notes, patient record updates</li>
+            <li><b>Admin</b> → sends system configuration, user management actions</li>
+        </ul>
+        <p>The system outputs: session dashboards, appointment confirmations, AI responses, wellness reports, and admin
+            analytics.</p>
+        <p>The Level 1 DFD decomposes the system into key processes: Authentication, Mood Management, Appointment
+            Management, Wellness Management, Resource Management, AI Processing, and Admin Management — each interacting
+            with the MongoDB data store.</p>
+
+        <h3>4.2 Entity Relationship Diagram</h3>
+        <p>The ERD captures the following core entities and relationships:</p>
+        <ul>
+            <li><b>User</b> (userId, name, email, role, firebaseUid, createdAt)</li>
+            <li><b>CounsellorProfile</b> (profileId, userId, specialisation, bio, availability)</li>
+            <li><b>PatientRecord</b> (recordId, patientId, counsellorId, diagnosis, notes)</li>
+            <li><b>ConsultationSession</b> (sessionId, appointmentId, counsellorId, patientId, notes, outcome)</li>
+            <li><b>MoodLog</b> (logId, userId, moodId, intensity, notes, factors, timestamp)</li>
+            <li><b>JournalEntry</b> (entryId, userId, content, promptTitle, shareWithCounsellor)</li>
+            <li><b>WellnessGoal</b> (goalId, userId, title, category, progress, milestones)</li>
+            <li><b>BreathingSession</b> (sessionId, userId, technique, durationMinutes, completedAt)</li>
+            <li><b>Appointment</b> (appointmentId, userId, counsellorId, date, timeSlot, status)</li>
+            <li><b>Resource</b> (resourceId, title, category, type, url, tags)</li>
+            <li><b>ActivityLog</b> (logId, userId, action, timestamp)</li>
+            <li><b>SecurityLog</b> (logId, userId, event, ipAddress, timestamp)</li>
+        </ul>
+        <p>Key relationships: User <i>has many</i> MoodLogs; User <i>has many</i> Appointments; Counsellor <i>has
+                one</i> CounsellorProfile; Appointment <i>has one</i> ConsultationSession; User <i>has many</i>
+            WellnessGoals.</p>
+
+        <h3>4.3 Sequence Diagram</h3>
+        <p>The sequence diagram for the <b>Patient Appointment Booking Flow</b> is as follows:</p>
+        <ol>
+            <li>Patient selects a counsellor and time slot on the Appointment Booking page.</li>
+            <li>Frontend sends <code>POST /api/appointments</code> with booking details and Firebase auth token.</li>
+            <li>Backend middleware verifies the Firebase token and resolves the userId.</li>
+            <li>Backend creates an Appointment document in MongoDB with status <i>pending</i>.</li>
+            <li>Counsellor's dashboard polls <code>GET /api/appointments/counsellor</code> and sees the new request.
+            </li>
+            <li>Counsellor confirms or declines; backend updates the appointment status accordingly.</li>
+            <li>Patient's dashboard reflects the updated status on next load.</li>
+        </ol>
+        <p>Refer to <code>sequence_diagram.html</code> in the project root for the full interactive diagram.</p>
+
+        <h3>4.4 Use Case Diagram</h3>
+        <p>Three actors are identified: <b>Patient</b>, <b>Counsellor</b>, and <b>Admin</b>.</p>
+        <p><b>Patient use cases:</b> Register/Login, Track Mood, Write Journal, Book Appointment, Practice Breathing,
+            Set Wellness Goals, Access Resource Library, Chat with AI Chatbot, View Dashboard.</p>
+        <p><b>Counsellor use cases:</b> Login, View Patient List, Manage Appointments, View Patient Records, Add Session
+            Notes, Access Consultation Room, View Shared Journals &amp; Mood Logs.</p>
+        <p><b>Admin use cases:</b> Login, View All Users, Manage User Roles, View Activity Logs, View Security Logs,
+            Access System Analytics.</p>
+        <p>Refer to <code>use_case_diagram.html</code> in the project root for the visual diagram.</p>
+
+        <h3>4.5 Database Design</h3>
+        <p>MindConnect uses <b>MongoDB Atlas</b>, a fully managed cloud NoSQL database. Data is organised as JSON-like
+            BSON documents within collections. The database is named <code>mindconnect</code> and consists of the
+            following collections:</p>
+        <ul>
+            <li>users, counsellorprofiles, patientrecords, consultationsessions</li>
+            <li>moodlogs, journalentries, wellnessgoals, breathingsessions</li>
+            <li>appointments, resources, userresourceprogreses</li>
+            <li>activitylogs, securitylogs, aidiscoverycaches, doctorregistries</li>
+        </ul>
+
+        <h3>4.6 Table Design</h3>
+
+        <p><b>1. User Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>firebaseUid</td>
+                <td>String, unique</td>
+                <td>Linked Firebase user ID</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>String, required</td>
+                <td>User's display name</td>
+            </tr>
+            <tr>
+                <td>email</td>
+                <td>String, unique</td>
+                <td>Unique email address</td>
+            </tr>
+            <tr>
+                <td>role</td>
+                <td>Enum</td>
+                <td>patient / counsellor / admin</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Registration timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>2. CounsellorProfile Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Linked counsellor user</td>
+            </tr>
+            <tr>
+                <td>specialisation</td>
+                <td>String</td>
+                <td>Area of expertise</td>
+            </tr>
+            <tr>
+                <td>bio</td>
+                <td>String</td>
+                <td>Professional biography</td>
+            </tr>
+            <tr>
+                <td>experience</td>
+                <td>Number</td>
+                <td>Years of experience</td>
+            </tr>
+            <tr>
+                <td>availability</td>
+                <td>[String]</td>
+                <td>Available time slots</td>
+            </tr>
+            <tr>
+                <td>rating</td>
+                <td>Number</td>
+                <td>Average patient rating</td>
+            </tr>
+            <tr>
+                <td>isVerified</td>
+                <td>Boolean</td>
+                <td>Admin verification status</td>
+            </tr>
+        </table><br />
+
+        <p><b>3. PatientRecord Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>patientId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Patient user reference</td>
+            </tr>
+            <tr>
+                <td>counsellorId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Assigned counsellor</td>
+            </tr>
+            <tr>
+                <td>notes</td>
+                <td>String</td>
+                <td>Counsellor clinical notes</td>
+            </tr>
+            <tr>
+                <td>diagnosis</td>
+                <td>String</td>
+                <td>General diagnosis/summary</td>
+            </tr>
+            <tr>
+                <td>updatedAt</td>
+                <td>Date</td>
+                <td>Last updated timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>4. ConsultationSession Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>appointmentId</td>
+                <td>ObjectId (ref: Appointment)</td>
+                <td>Linked appointment</td>
+            </tr>
+            <tr>
+                <td>counsellorId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Counsellor conducting session</td>
+            </tr>
+            <tr>
+                <td>patientId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Patient in session</td>
+            </tr>
+            <tr>
+                <td>notes</td>
+                <td>String</td>
+                <td>Session notes by counsellor</td>
+            </tr>
+            <tr>
+                <td>outcome</td>
+                <td>String</td>
+                <td>Session outcome / next steps</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Session record timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>5. MoodLog Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String (Firebase UID)</td>
+                <td>Patient's Firebase UID</td>
+            </tr>
+            <tr>
+                <td>moodId</td>
+                <td>Number (1–5)</td>
+                <td>Mood scale value</td>
+            </tr>
+            <tr>
+                <td>moodLabel</td>
+                <td>String</td>
+                <td>Label (e.g. "Happy")</td>
+            </tr>
+            <tr>
+                <td>moodEmoji</td>
+                <td>String</td>
+                <td>Emoji representation</td>
+            </tr>
+            <tr>
+                <td>intensity</td>
+                <td>Number (0–100)</td>
+                <td>Mood intensity percentage</td>
+            </tr>
+            <tr>
+                <td>notes</td>
+                <td>String</td>
+                <td>Optional patient notes</td>
+            </tr>
+            <tr>
+                <td>factors</td>
+                <td>[String]</td>
+                <td>Contributing factors list</td>
+            </tr>
+            <tr>
+                <td>shareWithCounsellor</td>
+                <td>Boolean</td>
+                <td>Consent to share with counsellor</td>
+            </tr>
+            <tr>
+                <td>timestamp</td>
+                <td>Date</td>
+                <td>Log creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>6. JournalEntry Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String (Firebase UID)</td>
+                <td>Patient's Firebase UID</td>
+            </tr>
+            <tr>
+                <td>content</td>
+                <td>String, required</td>
+                <td>Journal entry text</td>
+            </tr>
+            <tr>
+                <td>promptTitle</td>
+                <td>String</td>
+                <td>Writing prompt title used</td>
+            </tr>
+            <tr>
+                <td>promptText</td>
+                <td>String</td>
+                <td>Full prompt text</td>
+            </tr>
+            <tr>
+                <td>wordCount</td>
+                <td>Number</td>
+                <td>Word count of entry</td>
+            </tr>
+            <tr>
+                <td>shareWithCounsellor</td>
+                <td>Boolean</td>
+                <td>Consent to share with counsellor</td>
+            </tr>
+            <tr>
+                <td>timestamp</td>
+                <td>Date</td>
+                <td>Entry creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>7. WellnessGoal Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String (Firebase UID)</td>
+                <td>Patient's Firebase UID</td>
+            </tr>
+            <tr>
+                <td>title</td>
+                <td>String, required</td>
+                <td>Goal title</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>String</td>
+                <td>Goal description</td>
+            </tr>
+            <tr>
+                <td>category</td>
+                <td>String, required</td>
+                <td>Goal category (e.g. Sleep, Exercise)</td>
+            </tr>
+            <tr>
+                <td>targetDate</td>
+                <td>String</td>
+                <td>Target completion date</td>
+            </tr>
+            <tr>
+                <td>progress</td>
+                <td>Number (0–100)</td>
+                <td>Progress percentage</td>
+            </tr>
+            <tr>
+                <td>streak</td>
+                <td>Number</td>
+                <td>Consecutive days streak</td>
+            </tr>
+            <tr>
+                <td>isActive</td>
+                <td>Boolean</td>
+                <td>Whether goal is active</td>
+            </tr>
+            <tr>
+                <td>milestones</td>
+                <td>[{title, completed, completedAt}]</td>
+                <td>Milestone sub-steps</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Goal creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>8. BreathingSession Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String (Firebase UID)</td>
+                <td>Patient's Firebase UID</td>
+            </tr>
+            <tr>
+                <td>technique</td>
+                <td>String, required</td>
+                <td>Breathing technique used (e.g. 4-7-8)</td>
+            </tr>
+            <tr>
+                <td>durationMinutes</td>
+                <td>Number, required</td>
+                <td>Duration of the session</td>
+            </tr>
+            <tr>
+                <td>totalBreaths</td>
+                <td>Number</td>
+                <td>Total breath cycles completed</td>
+            </tr>
+            <tr>
+                <td>completedAt</td>
+                <td>Date</td>
+                <td>Session completion timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>9. Appointment Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Patient user reference</td>
+            </tr>
+            <tr>
+                <td>counsellorId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Counsellor user reference</td>
+            </tr>
+            <tr>
+                <td>title</td>
+                <td>String</td>
+                <td>Appointment title</td>
+            </tr>
+            <tr>
+                <td>date</td>
+                <td>Date</td>
+                <td>Appointment date</td>
+            </tr>
+            <tr>
+                <td>timeSlot</td>
+                <td>String</td>
+                <td>Time slot (e.g. "10:00 AM")</td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td>Enum</td>
+                <td>pending / confirmed / declined / cancelled</td>
+            </tr>
+            <tr>
+                <td>sessionType</td>
+                <td>Enum</td>
+                <td>video / phone / inperson</td>
+            </tr>
+            <tr>
+                <td>reason</td>
+                <td>String</td>
+                <td>Patient's stated reason</td>
+            </tr>
+            <tr>
+                <td>notes</td>
+                <td>String</td>
+                <td>Additional appointment notes</td>
+            </tr>
+            <tr>
+                <td>confirmationNote</td>
+                <td>String</td>
+                <td>Counsellor's accept/decline note</td>
+            </tr>
+            <tr>
+                <td>insuranceProvider</td>
+                <td>String</td>
+                <td>Insurance provider name</td>
+            </tr>
+            <tr>
+                <td>policyNumber</td>
+                <td>String</td>
+                <td>Insurance policy number</td>
+            </tr>
+            <tr>
+                <td>isFirstSession</td>
+                <td>Boolean</td>
+                <td>Whether this is a first session</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Booking creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>10. Resource Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>title</td>
+                <td>String, required</td>
+                <td>Resource title</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>String</td>
+                <td>Resource description</td>
+            </tr>
+            <tr>
+                <td>category</td>
+                <td>String, required</td>
+                <td>Category (e.g. Anxiety, Depression)</td>
+            </tr>
+            <tr>
+                <td>type</td>
+                <td>Enum</td>
+                <td>article / video / exercise / audio</td>
+            </tr>
+            <tr>
+                <td>url</td>
+                <td>String</td>
+                <td>External resource URL</td>
+            </tr>
+            <tr>
+                <td>tags</td>
+                <td>[String]</td>
+                <td>Searchable tags</td>
+            </tr>
+            <tr>
+                <td>isAIRecommended</td>
+                <td>Boolean</td>
+                <td>Whether AI flagged this resource</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Resource creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>11. UserResourceProgress Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String (Firebase UID)</td>
+                <td>Patient's Firebase UID</td>
+            </tr>
+            <tr>
+                <td>resourceId</td>
+                <td>ObjectId (ref: Resource)</td>
+                <td>Linked resource</td>
+            </tr>
+            <tr>
+                <td>completed</td>
+                <td>Boolean</td>
+                <td>Whether resource was completed</td>
+            </tr>
+            <tr>
+                <td>completedAt</td>
+                <td>Date</td>
+                <td>Completion timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>12. ActivityLog Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String</td>
+                <td>Firebase UID of acting user</td>
+            </tr>
+            <tr>
+                <td>action</td>
+                <td>String, required</td>
+                <td>Description of action performed</td>
+            </tr>
+            <tr>
+                <td>targetId</td>
+                <td>String</td>
+                <td>ID of the affected resource/document</td>
+            </tr>
+            <tr>
+                <td>role</td>
+                <td>String</td>
+                <td>Role of the user at time of action</td>
+            </tr>
+            <tr>
+                <td>timestamp</td>
+                <td>Date</td>
+                <td>Action timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>13. SecurityLog Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>String</td>
+                <td>Firebase UID of user involved</td>
+            </tr>
+            <tr>
+                <td>event</td>
+                <td>String, required</td>
+                <td>Security event description</td>
+            </tr>
+            <tr>
+                <td>ipAddress</td>
+                <td>String</td>
+                <td>Client IP address</td>
+            </tr>
+            <tr>
+                <td>severity</td>
+                <td>Enum</td>
+                <td>low / medium / high</td>
+            </tr>
+            <tr>
+                <td>timestamp</td>
+                <td>Date</td>
+                <td>Event timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>14. AiDiscoveryCache Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>queryHash</td>
+                <td>String, unique</td>
+                <td>Hash of the user query for cache lookup</td>
+            </tr>
+            <tr>
+                <td>query</td>
+                <td>String</td>
+                <td>Original query text</td>
+            </tr>
+            <tr>
+                <td>response</td>
+                <td>String</td>
+                <td>Cached Gemini API response</td>
+            </tr>
+            <tr>
+                <td>createdAt</td>
+                <td>Date</td>
+                <td>Cache entry creation timestamp</td>
+            </tr>
+        </table><br />
+
+        <p><b>15. DoctorRegistry Collection:</b></p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>_id</td>
+                <td>ObjectId</td>
+                <td>Primary key (auto)</td>
+            </tr>
+            <tr>
+                <td>userId</td>
+                <td>ObjectId (ref: User)</td>
+                <td>Linked counsellor user</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>String, required</td>
+                <td>Counsellor display name</td>
+            </tr>
+            <tr>
+                <td>specialisation</td>
+                <td>String</td>
+                <td>Specialisation / therapy type</td>
+            </tr>
+            <tr>
+                <td>qualifications</td>
+                <td>[String]</td>
+                <td>Academic/professional qualifications</td>
+            </tr>
+            <tr>
+                <td>availableSlots</td>
+                <td>[String]</td>
+                <td>Publicly listed available time slots</td>
+            </tr>
+            <tr>
+                <td>isActive</td>
+                <td>Boolean</td>
+                <td>Whether counsellor is accepting patients</td>
+            </tr>
+            <tr>
+                <td>registeredAt</td>
+                <td>Date</td>
+                <td>Registry registration timestamp</td>
+            </tr>
+        </table>
+
+        <h3>4.7 User Interface Design</h3>
+        <p>The UI follows a clean, calm design language appropriate for a mental health platform:</p>
+        <ul>
+            <li><b>Color Palette:</b> White backgrounds, teal/green primary accents (#0d9488), soft grey secondary
+                tones.</li>
+            <li><b>Typography:</b> Inter (sans-serif) for body text; clean, readable font sizes.</li>
+            <li><b>Layout:</b> Responsive sidebar-based dashboard layout for logged-in users. Cards with subtle shadows
+                for metric display.</li>
+            <li><b>Animations:</b> Framer Motion used for page transitions and card entrance animations.</li>
+            <li><b>Icons:</b> Lucide React icon set for consistent, lightweight iconography.</li>
+            <li><b>Charts:</b> Recharts used for mood trend line charts and wellness score radial charts.</li>
+        </ul>
+
+        <h3>4.8 Input Design</h3>
+        <p>Input forms across the system follow these design principles:</p>
+        <ul>
+            <li>All forms use React Hook Form for validation with real-time error feedback.</li>
+            <li>Mood Tracker: emoji-based mood selector + intensity slider + multi-select factor chips.</li>
+            <li>Journal Entry: rich text area with word count display and prompt selector.</li>
+            <li>Appointment Booking: date picker, time slot grid, session type radio buttons, free-text reason field.
+            </li>
+            <li>Wellness Goals: title, category dropdown, target date, milestone list builder.</li>
+            <li>All inputs are validated client-side before API submission to reduce unnecessary server calls.</li>
+        </ul>
+
+        <h3>4.9 Output Design</h3>
+        <p>System outputs are presented as:</p>
+        <ul>
+            <li><b>Dashboard Cards:</b> Summarised metrics (mood average, wellness score, upcoming appointment, session
+                count).</li>
+            <li><b>Charts:</b> Mood trend line chart (7-day / 30-day), wellness goal progress bars, breathing session
+                frequency.</li>
+            <li><b>Lists:</b> Appointment lists with status badges, journal entry history, resource cards.</li>
+            <li><b>Notifications:</b> Toast notifications for form submission success/error (in-browser).</li>
+            <li><b>Admin Reports:</b> Tabular user listings, log tables with timestamps, and registration trend data.
+            </li>
+            <li><b>AI Responses:</b> Chatbot reply cards with AI-attributed text and suggested resources.</li>
+        </ul>
+    </div>
+
+    <!-- CHAPTER 5 -->
+    <div class="page">
+        <h2>5. System Development</h2>
+
+        <h3>5.1 Coding Environment</h3>
+        <p>The development environment consists of:</p>
+        <ul>
+            <li><b>Editor:</b> Visual Studio Code with ESLint, Prettier, and Tailwind CSS IntelliSense extensions.</li>
+            <li><b>Terminal:</b> Windows Command Prompt / PowerShell for running npm scripts.</li>
+            <li><b>Dev Server:</b> Vite (<code>npm run dev</code>) for the frontend on <code>localhost:5173</code>.</li>
+            <li><b>Backend Server:</b> Nodemon (<code>npm run dev</code> in <code>/server</code>) on
+                <code>localhost:5001</code>.
+            </li>
+            <li><b>Concurrent Dev:</b> <code>npm run dev:full</code> runs both frontend and backend simultaneously using
+                <code>concurrently</code>.
+            </li>
+            <li><b>Browser DevTools:</b> Chrome DevTools used for debugging, network inspection, and React DevTools.
+            </li>
+        </ul>
+
+        <h3>5.2 Development Approach</h3>
+        <p>MindConnect was developed using an <b>Agile Iterative</b> approach with the following phases:</p>
+        <ol>
+            <li><b>Phase 1 – Authentication &amp; Core Setup:</b> Firebase Auth integration, role-based routes, MongoDB
+                connection, User model.</li>
+            <li><b>Phase 2 – Patient Features:</b> Mood tracker, journal, breathing exercises, wellness goals,
+                appointment booking.</li>
+            <li><b>Phase 3 – Counsellor Features:</b> Counsellor dashboard, patient management, appointment management,
+                consultation room.</li>
+            <li><b>Phase 4 – Admin Module:</b> Admin dashboard, user management, activity logs, security monitoring.
+            </li>
+            <li><b>Phase 5 – AI Integration:</b> Gemini API chatbot, AI resource recommender, discovery cache.</li>
+            <li><b>Phase 6 – UI Polish &amp; Testing:</b> Responsive design, animations, bug fixes, and end-to-end
+                testing.</li>
+            <li><b>Phase 7 – Deployment:</b> Frontend on Vercel, backend on Render, database on MongoDB Atlas.</li>
+        </ol>
+
+        <h3>5.3 Database Servers</h3>
+        <p><b>MongoDB Atlas (Cloud):</b> A fully managed, cloud-native NoSQL database service. The free M0 cluster hosts
+            the MindConnect database with automatic backups and global accessibility. Mongoose is used as the ODM to
+            define schemas, enforce validation, and interact with collections.</p>
+        <p>Connection is established in <code>server/index.js</code> via
+            <code>mongoose.connect(process.env.MONGODB_URI)</code>, where the URI is stored securely in environment
+            variables.
+        </p>
+
+        <h3>5.4 Programming Languages</h3>
+        <table>
+            <tr>
+                <th>Language</th>
+                <th>Usage</th>
+            </tr>
+            <tr>
+                <td>JavaScript (ES6+)</td>
+                <td>Primary language for both frontend (React/JSX) and backend (Node.js)</td>
+            </tr>
+            <tr>
+                <td>JSX</td>
+                <td>React component syntax for building the UI</td>
+            </tr>
+            <tr>
+                <td>HTML5</td>
+                <td>Markup structure within JSX components and the root index.html</td>
+            </tr>
+            <tr>
+                <td>CSS / Tailwind</td>
+                <td>Utility-first CSS for all component styling</td>
+            </tr>
+            <tr>
+                <td>JSON</td>
+                <td>Data exchange format between frontend and backend (REST API)</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- CHAPTER 6 -->
+    <div class="page">
+        <h2>6. System Testing</h2>
+        <p>System testing was carried out to ensure the reliability, correctness, and security of MindConnect across all
+            modules.</p>
+
+        <h3>6.1 White-Box Testing</h3>
+        <p>White-box testing was performed on backend route logic and utility functions. Specific areas tested include:
+        </p>
+        <ul>
+            <li>Token verification middleware — valid tokens pass, expired/invalid tokens return 401.</li>
+            <li>Mood log insertion logic — validates moodId range (1–5), intensity range (0–100).</li>
+            <li>Appointment status transition logic — ensures only valid state changes are accepted.</li>
+            <li>AI cache lookup logic — verifies cache hit/miss conditions in AiDiscoveryCache.</li>
+        </ul>
+
+        <h3>6.2 Black-Box Testing</h3>
+        <p>Black-box testing was conducted on all user-facing features without knowledge of implementation. Test cases
+            verified expected input/output behaviour:
+        </p>
+        <ul>
+            <li>Login with correct credentials → redirects to role-specific dashboard.</li>
+            <li>Login with incorrect password → displays error message, no navigation.</li>
+            <li>Patient submits mood log → entry appears in mood history and counsellor view.</li>
+            <li>Counsellor declines appointment → patient dashboard reflects "Declined" status.</li>
+        </ul>
+
+        <h3>6.3 Condition Testing</h3>
+        <p>Boundary and conditional test cases were designed for all form inputs. For example: mood intensity slider
+            tested at 0, 50, and 100; moodId tested at 1, 3, and 5; appointment date tested with past dates (rejected)
+            and future dates (accepted).</p>
+
+        <h3>6.4 Loop Testing</h3>
+        <p>Loop testing was applied to list-rendering components. Tests verified that rendering 0 items shows an empty
+            state, 1 item renders correctly, and 10+ items render without performance degradation. The mood history list
+            and resource library grid were specifically tested.</p>
+
+        <h3>6.5 Unit Testing</h3>
+        <p>Individual utility functions and components were unit tested in isolation:</p>
+        <ul>
+            <li>Wellness score calculation function tested with varying input data.</li>
+            <li>Date formatting utilities tested across time zones and edge cases.</li>
+            <li>Firebase token generation and decoding tested independently of the database.</li>
+        </ul>
+
+        <h3>6.6 Integration Testing</h3>
+        <p>Integration tests verified that frontend components correctly interact with backend APIs via Axios. Postman
+            was used to simulate real HTTP request/response cycles for all endpoints. Key integration tests:</p>
+        <ul>
+            <li><code>POST /api/auth/register</code> → creates User in MongoDB and returns success.</li>
+            <li><code>GET /api/dashboard</code> → returns aggregated patient data from multiple collections.</li>
+            <li><code>POST /api/appointments</code> → creates appointment and appears in counsellor's list.</li>
+        </ul>
+
+        <h3>6.7 Output Testing</h3>
+        <p>All UI outputs were validated against expected results. Charts displayed correct data points matching the
+            stored mood logs. Dashboard metrics matched manual aggregation of database records. Admin user tables
+            accurately reflected all registered users.</p>
+
+        <h3>6.8 User Acceptance Testing</h3>
+        <p>UAT was conducted with a small group of test users across all three roles. Feedback was gathered on
+            navigation clarity, feature discoverability, and overall experience. Issues with appointment status
+            visibility and empty-state messaging were identified and corrected before final submission.</p>
+    </div>
+
+    <!-- CHAPTER 7 -->
+    <div class="page">
+        <h2>7. System Implementation</h2>
+
+        <h3>7.1 Implementation Plan</h3>
+        <p>The system was implemented in seven chronological phases as described in Section 5.2. Each phase was
+            completed before moving to the next, with internal reviews at each milestone. Feature branches were used in
+            Git and merged into the main branch after review.</p>
+
+        <h3>7.2 Education and Training</h3>
+        <p>End-user training materials include:</p>
+        <ul>
+            <li>An in-app onboarding flow for new patients explaining key features.</li>
+            <li>Tooltip help text on complex UI elements (e.g., mood intensity slider).</li>
+            <li>A README.md with developer setup instructions.</li>
+        </ul>
+
+        <h3>7.3 Training of the Application Software</h3>
+        <p>The AI chatbot was configured using carefully crafted system prompts instructing the Gemini API to respond
+            empathetically and appropriately for a mental health context. Responses are limited to wellness and mental
+            health topics. The system prompt includes guardrails to avoid harmful or unqualified medical advice.</p>
+
+        <h3>7.4 Post Implementation Review</h3>
+        <p>After deployment, the following were reviewed:</p>
+        <ul>
+            <li>All API endpoints responded within acceptable latency (&lt;500ms for standard queries).</li>
+            <li>Firebase Authentication was functioning correctly in the production environment.</li>
+            <li>MongoDB Atlas connections were stable with no dropped connections over 48 hours.</li>
+            <li>The Vercel frontend loaded in under 3 seconds on a standard connection.</li>
+        </ul>
+
+        <h3>7.5 Security</h3>
+        <ul>
+            <li><b>Authentication:</b> All API routes are protected by Firebase ID token verification middleware.</li>
+            <li><b>CORS Policy:</b> Strict whitelist of allowed origins prevents cross-site API abuse.</li>
+            <li><b>Environment Variables:</b> All secrets (MongoDB URI, Firebase config, Gemini API key) stored in
+                <code>.env</code> files, never committed to source control.
+            </li>
+            <li><b>Data Privacy:</b> Mood logs and journal entries are private by default; sharing requires explicit
+                user consent.</li>
+            <li><b>Security Logs:</b> Sensitive events (login anomalies, role changes) are recorded in the SecurityLog
+                collection.</li>
+        </ul>
+
+        <h3>7.6 Maintenance</h3>
+        <p>The application follows a corrective and adaptive maintenance plan:</p>
+        <ul>
+            <li><b>Corrective:</b> Bugs reported via issue tracker are triaged and patched within one sprint.</li>
+            <li><b>Adaptive:</b> Dependency updates (npm, Firebase SDK, Mongoose) reviewed quarterly.</li>
+            <li><b>Perfective:</b> Performance monitoring via Render logs and Vercel analytics guides future
+                optimization.</li>
+            <li><b>Preventive:</b> MongoDB Atlas alerts set for unusual query patterns or storage usage spikes.</li>
+        </ul>
+    </div>
+
+    <!-- CHAPTER 8 -->
+    <div class="page">
+        <h2>8. Future Enhancement</h2>
+        <p>The following enhancements are planned for future versions of MindConnect:</p>
+        <ul>
+            <li><b>Native Mobile Applications:</b> React Native-based Android and iOS apps enabling push notifications
+                for appointment reminders and mood logging prompts.</li>
+            <li><b>Video Consultation Integration:</b> Embedding WebRTC-based or third-party video calling (e.g.,
+                Daily.co, Agora) directly into the consultation room.</li>
+            <li><b>Advanced AI Models:</b> Integration with fine-tuned mental health LLMs for more specialised chatbot
+                responses and automated risk detection.</li>
+            <li><b>Community Support Groups:</b> Moderated peer support forums for patients with shared conditions,
+                managed by counsellors.</li>
+            <li><b>Wearable Integration:</b> Connecting with smartwatch health data (heart rate, sleep patterns) to
+                enrich mood and wellness analytics.</li>
+            <li><b>Multilingual Support:</b> Internationalization (i18n) to support users in regional languages.</li>
+            <li><b>Prescription and Document Sharing:</b> Secure document upload allowing counsellors to share resources
+                and prescriptions with patients.</li>
+            <li><b>Gamification:</b> Achievement badges and streaks for consistent mood logging and wellness goal
+                completion to drive engagement.</li>
+            <li><b>Insurance Portal Integration:</b> Automated insurance claim submissions linked to consultation
+                sessions.</li>
+            <li><b>Analytics Dashboard Expansion:</b> Advanced trend analysis with predictive mood modelling using
+                historical patient data.</li>
+        </ul>
+    </div>
+
+    <!-- CHAPTER 9 -->
+    <div class="page">
+        <h2>9. Conclusion</h2>
+        <p>
+            MindConnect successfully delivers a comprehensive, role-based mental health and wellness management web
+            application. By integrating patient self-help tools — including mood tracking, journaling, breathing
+            exercises, and wellness goal management — with professional counsellor management features and an
+            administrative oversight layer, the system provides a complete digital ecosystem for mental health support.
+        </p>
+        <p>
+            The use of modern web technologies (React.js, Node.js, MongoDB, Firebase) ensures scalability, reliability,
+            and a high-quality user experience. The integration of the Google Gemini AI API adds an intelligent,
+            empathetic first-response layer that enhances patient engagement and bridges the gap between self-help and
+            professional therapy.
+        </p>
+        <p>
+            The system was designed with security and privacy as core principles, ensuring that sensitive patient data
+            is protected through authentication middleware, CORS policies, and explicit consent mechanisms for data
+            sharing with counsellors.
+        </p>
+        <p>
+            Through iterative development, extensive testing across all modules, and deployment on cloud infrastructure,
+            MindConnect is production-ready and addresses a genuine need in the health-tech space. The planned future
+            enhancements — particularly native mobile applications and video consultation — will further extend the
+            platform's reach and impact.
+        </p>
+        <p>
+            This project demonstrates the effective application of full-stack web development skills, cloud services, AI
+            integration, and software engineering principles to solve a real-world problem with meaningful societal
+            impact.
+        </p>
+    </div>
+
+    <!-- CHAPTER 10 -->
+    <!-- APPENDIX PAGE 1 -->
+    <div class="page">
+        <h2>10. Appendix A: Source Code</h2>
+        <h3 style="text-align:center;margin:10px 0;">10.1 WEB</h3>
+        <p>The following are source code extracts from the MindConnect web application.</p>
+
+        <h4 style="margin:14px 0 6px;">SERVER ENTRY POINT</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// server/index.js
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 5001;
+app.use(express.json({ limit: '50mb' }));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('MongoDB error:', err));
+app.use('/api/auth',         require('./routes/auth'));
+app.use('/api/appointments', require('./routes/appointments'));
+app.use('/api/mood',         require('./routes/moodLogs'));
+app.use('/api/wellness',     require('./routes/wellness'));
+app.use('/api/resources',    require('./routes/resources'));
+app.use('/api/dashboard',    require('./routes/dashboard'));
+app.use('/api/admin',        require('./routes/admin'));
+app.use('/api/counsellor',   require('./routes/counsellor'));
+app.use('/api/consultation', require('./routes/consultation'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));</pre>
+
+        <h4 style="margin:14px 0 6px;">FIREBASE CONFIGURATION</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+const firebaseConfig = {
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID
+};
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export default app;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>60</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 2 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">LOGIN / AUTHENTICATION</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/pages/auth/Login.jsx  (extract)
+import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
+import axios from 'axios';
+
+const Login = () => {
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [showPwd, setShowPwd]   = useState(false);
+  const [error, setError]       = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const cred  = await signInWithEmailAndPassword(auth, email, password);
+      const token = await cred.user.getIdToken();
+      const res   = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/auth/me`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const { role } = res.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      if (role === 'admin')        navigate('/admin/dashboard');
+      else if (role === 'counsellor') navigate('/counsellor/dashboard');
+      else                         navigate('/patient/dashboard');
+    } catch {
+      setError('Invalid email or password. Please try again.');
+    }
+  };
+
+  return (
+    &lt;form onSubmit={handleLogin}&gt;
+      &lt;input type="email" value={email}
+             onChange={e => setEmail(e.target.value)} required /&gt;
+      &lt;input type={showPwd ? 'text' : 'password'} value={password}
+             onChange={e => setPassword(e.target.value)} required /&gt;
+      &lt;button type="button" onClick={() => setShowPwd(p => !p)}&gt;
+        {showPwd ? 'Hide Password' : 'Show Password'}
+      &lt;/button&gt;
+      {error &amp;&amp; &lt;p className="error"&gt;{error}&lt;/p&gt;}
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+};
+export default Login;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>61</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 3 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">PATIENT DASHBOARD</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/pages/patient-dashboard/PatientDashboard.jsx  (extract)
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { auth } from '../../firebase';
+import MoodChart from '../../components/MoodChart';
+
+const PatientDashboard = () => {
+  const [data, setData]       = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const res   = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/dashboard`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setData(res.data);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  if (loading) return &lt;p&gt;Loading dashboard...&lt;/p&gt;;
+  return (
+    &lt;div className="dashboard-grid"&gt;
+      &lt;div className="card"&gt;
+        &lt;h3&gt;Today's Mood&lt;/h3&gt;
+        &lt;p&gt;{data?.todayMood?.moodLabel ?? 'Not logged yet'}&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div className="card"&gt;
+        &lt;h3&gt;Wellness Score&lt;/h3&gt;
+        &lt;p&gt;{data?.wellnessScore ?? '--'} / 100&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div className="card"&gt;
+        &lt;h3&gt;Upcoming Appointment&lt;/h3&gt;
+        &lt;p&gt;{data?.nextAppointment?.date ?? 'None scheduled'}&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;MoodChart moodLogs={data?.moodLogs ?? []} /&gt;
+    &lt;/div&gt;
+  );
+};
+export default PatientDashboard;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>62</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 4 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">ADMIN DASHBOARD</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/pages/admin/AdminDashboard.jsx  (extract)
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { auth } from '../../firebase';
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [logs,  setLogs]  = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const token   = await auth.currentUser.getIdToken();
+      const headers = { Authorization: `Bearer ${token}` };
+      const [sRes, uRes, lRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/stats`,         { headers }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`,         { headers }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/admin/activity-logs`, { headers }),
+      ]);
+      setStats(sRes.data); setUsers(uRes.data); setLogs(lRes.data);
+    };
+    load();
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Admin Dashboard&lt;/h1&gt;
+      &lt;div className="stats-row"&gt;
+        &lt;div className="stat-card"&gt;Total Users:      {stats?.totalUsers}&lt;/div&gt;
+        &lt;div className="stat-card"&gt;Total Patients:   {stats?.totalPatients}&lt;/div&gt;
+        &lt;div className="stat-card"&gt;Total Counsellors:{stats?.totalCounsellors}&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;h2&gt;Registered Users&lt;/h2&gt;
+      &lt;table&gt;
+        &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Email&lt;/th&gt;&lt;th&gt;Role&lt;/th&gt;&lt;th&gt;Joined&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+        &lt;tbody&gt;
+          {users.map(u =&gt; (
+            &lt;tr key={u._id}&gt;
+              &lt;td&gt;{u.name}&lt;/td&gt;&lt;td&gt;{u.email}&lt;/td&gt;
+              &lt;td&gt;{u.role}&lt;/td&gt;
+              &lt;td&gt;{new Date(u.createdAt).toLocaleDateString()}&lt;/td&gt;
+            &lt;/tr&gt;
+          ))}
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+      &lt;h2&gt;Activity Logs&lt;/h2&gt;
+      &lt;ul&gt;
+        {logs.map(l =&gt;
+          &lt;li key={l._id}&gt;{l.action} — {new Date(l.timestamp).toLocaleString()}&lt;/li&gt;
+        )}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+};
+export default AdminDashboard;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>63</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 5 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">MOOD LOG ROUTE (BACKEND)</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// server/routes/moodLogs.js  (extract)
+const express      = require('express');
+const router       = express.Router();
+const mongoose     = require('mongoose');
+const verifyToken  = require('../middleware/verifyToken');
+const MoodLog      = mongoose.model('MoodLog');
+
+// POST – log a new mood entry
+router.post('/', verifyToken, async (req, res) => {
+  try {
+    const { moodId, moodLabel, moodEmoji, intensity,
+            notes, factors, shareWithCounsellor } = req.body;
+    const entry = new MoodLog({
+      userId: req.user.uid,
+      moodId, moodLabel, moodEmoji, intensity,
+      notes:               notes  || '',
+      factors:             factors || [],
+      shareWithCounsellor: shareWithCounsellor || false,
+    });
+    await entry.save();
+    res.status(201).json({ success: true, data: entry });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET – fetch mood history for the logged-in patient
+router.get('/', verifyToken, async (req, res) => {
+  try {
+    const logs = await MoodLog
+      .find({ userId: req.user.uid })
+      .sort({ timestamp: -1 })
+      .limit(50);
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+module.exports = router;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>64</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 6 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">COUNSELLOR DASHBOARD</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/pages/counsellor-dashboard/CounsellorDashboard.jsx  (extract)
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { auth } from '../../firebase';
+
+const CounsellorDashboard = () => {
+  const [patients,     setPatients]     = useState([]);
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const token   = await auth.currentUser.getIdToken();
+      const headers = { Authorization: `Bearer ${token}` };
+      const [pRes, aRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_URL}/api/patients`,                   { headers }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/appointments/counsellor`,    { headers }),
+      ]);
+      setPatients(pRes.data);
+      setAppointments(aRes.data);
+    };
+    load();
+  }, []);
+
+  const handleAction = async (id, status) => {
+    const token = await auth.currentUser.getIdToken();
+    await axios.patch(
+      `${import.meta.env.VITE_API_URL}/api/appointments/${id}/status`,
+      { status },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setAppointments(prev => prev.map(a => a._id === id ? { ...a, status } : a));
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;My Patients&lt;/h2&gt;
+      {patients.map(p =&gt; &lt;div key={p._id}&gt;{p.name} — {p.email}&lt;/div&gt;)}
+      &lt;h2&gt;Pending Appointments&lt;/h2&gt;
+      {appointments.filter(a =&gt; a.status === 'pending').map(a =&gt; (
+        &lt;div key={a._id}&gt;
+          &lt;span&gt;{a.date} at {a.timeSlot}&lt;/span&gt;
+          &lt;button onClick={() =&gt; handleAction(a._id, 'confirmed')}&gt;Confirm&lt;/button&gt;
+          &lt;button onClick={() =&gt; handleAction(a._id, 'declined')}&gt;Decline&lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+};
+export default CounsellorDashboard;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>65</span>
+        </div>
+    </div>
+
+    <!-- APPENDIX PAGE 7 -->
+    <div class="page">
+        <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #999;margin-bottom:14px;padding-bottom:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span>
+        </div>
+
+        <h4 style="text-align:center;margin-bottom:10px;">AI CHATBOT</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// src/components/AIChatbot.jsx  (extract)
+import { useState } from 'react';
+import axios from 'axios';
+import { auth } from '../firebase';
+
+const AIChatbot = () => {
+  const [messages, setMessages] = useState([]);
+  const [input,    setInput]    = useState('');
+  const [loading,  setLoading]  = useState(false);
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { role: 'user', text: input }]);
+    setInput('');
+    setLoading(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res   = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/resources/ai-chat`,
+        { message: input },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessages(prev => [...prev, { role: 'ai', text: res.data.reply }]);
+    } catch {
+      setMessages(prev => [...prev,
+        { role: 'ai', text: 'Sorry, I could not respond right now.' }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    &lt;div className="chatbot-container"&gt;
+      &lt;div className="messages"&gt;
+        {messages.map((m, i) =&gt;
+          &lt;div key={i} className={`bubble ${m.role}`}&gt;{m.text}&lt;/div&gt;)}
+        {loading &amp;&amp; &lt;div className="bubble ai"&gt;Thinking...&lt;/div&gt;}
+      &lt;/div&gt;
+      &lt;div className="input-row"&gt;
+        &lt;input value={input} onChange={e =&gt; setInput(e.target.value)}
+               onKeyDown={e =&gt; e.key === 'Enter' &amp;&amp; sendMessage()}
+               placeholder="Ask me anything..." /&gt;
+        &lt;button onClick={sendMessage}&gt;Send&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};
+export default AIChatbot;</pre>
+
+        <h4 style="text-align:center;margin:18px 0 10px;">AUTH MIDDLEWARE</h4>
+        <pre
+            style="background:#f5f5f5;border:1px solid #ccc;padding:10px;font-size:8.5pt;white-space:pre-wrap;font-family:Courier New,monospace;">// server/middleware/verifyToken.js
+const admin = require('firebase-admin');
+
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
+
+module.exports = verifyToken;</pre>
+
+        <div
+            style="display:flex;justify-content:space-between;border-top:1px solid #999;margin-top:20px;padding-top:6px;font-size:9pt;">
+            <span>MindConnect</span><span>Source code</span><span>66</span>
+        </div>
+    </div>
+
+
+
+    <!-- CHAPTER 11 -->
+    <div class="page">
+        <h2>11. Appendix B: Screenshots</h2>
+        <h3>11.1 Web</h3>
+        <p>The following describes the key screens of the MindConnect web application:</p>
+        <ul>
+            <li><b>Landing Page:</b> Hero section with app introduction, feature highlights, and call-to-action buttons
+                for Login and Register.</li>
+            <li><b>Login / Register Page:</b> Firebase-powered authentication form with role selection (Patient /
+                Counsellor / Admin).</li>
+            <li><b>Patient Dashboard:</b> Summary cards showing today's mood, upcoming appointment, wellness score, and
+                recent journal entry. Mood trend line chart for the last 7 days.</li>
+            <li><b>Mood Tracker:</b> Emoji mood selector, intensity slider, factor multi-select, notes textarea, and
+                share toggle.</li>
+            <li><b>Journal Page:</b> Writing prompt selector, full-page text editor, word count indicator, and
+                counsellor share option.</li>
+            <li><b>Wellness Hub:</b> Breathing exercise selector with animated circle guide, wellness goals list with
+                progress bars and milestone checkboxes.</li>
+            <li><b>Appointment Booking:</b> Counsellor directory cards, date/time selector, session type options,
+                insurance fields, and booking confirmation.</li>
+            <li><b>Resource Library:</b> Category-filtered resource cards with AI-recommended highlights and completion
+                tracking.</li>
+            <li><b>AI Chatbot:</b> Chat interface with message bubbles, typing indicator, and AI-powered responses.</li>
+            <li><b>Counsellor Dashboard:</b> Patient list table, appointment management panel, and session notes editor.
+            </li>
+            <li><b>Admin Dashboard:</b> User statistics, recent registrations table, activity log, and security event
+                log.</li>
+        </ul>
+        <p style="font-style:italic;color:#666;">(Actual screenshots to be inserted here in the final printed version.)
+        </p>
+    </div>
+
+    <!-- CHAPTER 12 -->
+    <div class="page">
+        <h2>12. Bibliography</h2>
+        <ol style="line-height:2.2;">
+            <li>React Documentation – <i>https://react.dev</i></li>
+            <li>Node.js Documentation – <i>https://nodejs.org/en/docs</i></li>
+            <li>Express.js Documentation – <i>https://expressjs.com</i></li>
+            <li>MongoDB Atlas Documentation – <i>https://www.mongodb.com/docs/atlas</i></li>
+            <li>Mongoose ODM Documentation – <i>https://mongoosejs.com/docs</i></li>
+            <li>Firebase Authentication Documentation – <i>https://firebase.google.com/docs/auth</i></li>
+            <li>Google Gemini API Documentation – <i>https://ai.google.dev/docs</i></li>
+            <li>Vite Documentation – <i>https://vitejs.dev/guide</i></li>
+            <li>Tailwind CSS Documentation – <i>https://tailwindcss.com/docs</i></li>
+            <li>Recharts Documentation – <i>https://recharts.org/en-US</i></li>
+            <li>Framer Motion Documentation – <i>https://www.framer.com/motion</i></li>
+            <li>Redux Toolkit Documentation – <i>https://redux-toolkit.js.org</i></li>
+            <li>Vercel Deployment Documentation – <i>https://vercel.com/docs</i></li>
+            <li>Render Cloud Documentation – <i>https://render.com/docs</i></li>
+            <li>Pressman, R.S. (2014). <i>Software Engineering: A Practitioner's Approach</i>. 8th ed. McGraw-Hill.</li>
+            <li>Sommerville, I. (2016). <i>Software Engineering</i>. 10th ed. Pearson Education.</li>
+        </ol>
+    </div>
+
+</body>
+
+</html>

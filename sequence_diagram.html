@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindConnect – Sequence Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            background: #fff;
+            color: #000;
+            padding: 30px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 13px;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+
+        .diagram-wrap {
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Actor box */
+        .actor-box rect {
+            fill: #fff;
+            stroke: #000;
+            stroke-width: 1.5;
+        }
+
+        .actor-box text {
+            font-family: 'Times New Roman', serif;
+            font-size: 11.5px;
+            fill: #000;
+            text-anchor: middle;
+        }
+
+        /* Lifeline */
+        .lifeline {
+            stroke: #000;
+            stroke-width: 1;
+            stroke-dasharray: 5, 4;
+        }
+
+        /* Arrows */
+        .arr-solid {
+            stroke: #000;
+            stroke-width: 1.2;
+            fill: none;
+            marker-end: url(#arrowFilled);
+        }
+
+        .arr-dashed {
+            stroke: #000;
+            stroke-width: 1.2;
+            fill: none;
+            stroke-dasharray: 5, 4;
+            marker-end: url(#arrowOpen);
+        }
+
+        /* Labels */
+        .msg-label {
+            font-family: 'Times New Roman', serif;
+            font-size: 10.5px;
+            fill: #000;
+        }
+
+        /* Section headings */
+        .section-label {
+            font-family: 'Times New Roman', serif;
+            font-size: 11px;
+            font-weight: bold;
+            fill: #333;
+        }
+
+        /* Section band */
+        .section-band {
+            fill: #f5f5f5;
+            opacity: .55;
+        }
+
+        .note-box rect {
+            fill: #fffbe6;
+            stroke: #bbb;
+            stroke-width: 1;
+        }
+
+        .note-box text {
+            font-family: 'Times New Roman', serif;
+            font-size: 10px;
+            fill: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>4.3. SEQUENCE DIAGRAM</h1>
+    <h2>MindConnect – Mental Health Platform</h2>
+
+    <div class="diagram-wrap">
+        <svg id="seq" width="1100" height="2780" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrowFilled" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" fill="#000" />
+                </marker>
+                <marker id="arrowOpen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#000" stroke-width="1.2" />
+                </marker>
+            </defs>
+
+            <!-- ============================================================
+     COLUMN POSITIONS
+     P=Patient(80) | C=Counsellor(240) | A=Admin(400) | FE=Frontend(540) | BE=Backend(680) | MG=MongoDB(820) | FB=Firebase(940) | GM=Gemini(1060)
+     ============================================================ -->
+
+            <!-- ===== TOP ACTOR BOXES ===== -->
+            <!-- Patient -->
+            <g class="actor-box">
+                <rect x="30" y="22" width="100" height="34" rx="3" /><text x="80" y="43">Patient</text>
+            </g>
+            <!-- Counsellor -->
+            <g class="actor-box">
+                <rect x="190" y="22" width="100" height="34" rx="3" /><text x="240" y="43">Counsellor</text>
+            </g>
+            <!-- Admin -->
+            <g class="actor-box">
+                <rect x="350" y="22" width="100" height="34" rx="3" /><text x="400" y="43">Admin</text>
+            </g>
+            <!-- Frontend -->
+            <g class="actor-box">
+                <rect x="483" y="22" width="114" height="34" rx="3" /><text x="540" y="43">Frontend (React)</text>
+            </g>
+            <!-- Backend -->
+            <g class="actor-box">
+                <rect x="620" y="22" width="120" height="34" rx="3" /><text x="680" y="43">Backend API</text>
+            </g>
+            <!-- MongoDB -->
+            <g class="actor-box">
+                <rect x="770" y="22" width="100" height="34" rx="3" /><text x="820" y="43">MongoDB</text>
+            </g>
+            <!-- Firebase -->
+            <g class="actor-box">
+                <rect x="890" y="22" width="100" height="34" rx="3" /><text x="940" y="43">Firebase Auth</text>
+            </g>
+            <!-- Gemini -->
+            <g class="actor-box">
+                <rect x="1010" y="22" width="80" height="34" rx="3" /><text x="1050" y="43">Gemini AI</text>
+            </g>
+
+            <!-- ===== LIFELINES ===== -->
+            <line class="lifeline" x1="80" y1="56" x2="80" y2="2710" />
+            <line class="lifeline" x1="240" y1="56" x2="240" y2="2710" />
+            <line class="lifeline" x1="400" y1="56" x2="400" y2="2710" />
+            <line class="lifeline" x1="540" y1="56" x2="540" y2="2710" />
+            <line class="lifeline" x1="680" y1="56" x2="680" y2="2710" />
+            <line class="lifeline" x1="820" y1="56" x2="820" y2="2710" />
+            <line class="lifeline" x1="940" y1="56" x2="940" y2="2710" />
+            <line class="lifeline" x1="1050" y1="56" x2="1050" y2="2710" />
+
+
+            <!-- ================================================================
+     SECTION 1 – USER REGISTRATION & LOGIN
+     ================================================================ -->
+            <rect class="section-band" x="0" y="75" width="1100" height="256" />
+            <text class="section-label" x="8" y="90">1. User Registration &amp; Login (Auth Flow)</text>
+
+            <!-- 1.1 Patient fills register form -->
+            <line class="arr-solid" x1="80" y1="110" x2="526" y2="110" />
+            <text class="msg-label" x="180" y="106">Register / Sign-Up request</text>
+
+            <!-- 1.2 Frontend → Firebase Auth -->
+            <line class="arr-solid" x1="540" y1="128" x2="926" y2="128" />
+            <text class="msg-label" x="680" y="124">createUserWithEmailAndPassword()</text>
+
+            <!-- 1.3 Firebase → Frontend : UID + token -->
+            <line class="arr-dashed" x1="926" y1="146" x2="554" y2="146" />
+            <text class="msg-label" x="680" y="142">Return UID + ID Token</text>
+
+            <!-- 1.4 Frontend → Backend POST /api/auth/register -->
+            <line class="arr-solid" x1="540" y1="164" x2="666" y2="164" />
+            <text class="msg-label" x="555" y="160">POST /api/auth/register (token, role, name)</text>
+
+            <!-- 1.5 Backend verifies token with Firebase -->
+            <line class="arr-solid" x1="680" y1="182" x2="926" y2="182" />
+            <text class="msg-label" x="768" y="178">verifyIdToken(token)</text>
+
+            <line class="arr-dashed" x1="926" y1="200" x2="694" y2="200" />
+            <text class="msg-label" x="768" y="196">Decoded UID / Error</text>
+
+            <!-- 1.6 Backend saves user to MongoDB -->
+            <line class="arr-solid" x1="680" y1="218" x2="806" y2="218" />
+            <text class="msg-label" x="697" y="214">User.create({ uid, role, name })</text>
+
+            <line class="arr-dashed" x1="806" y1="236" x2="694" y2="236" />
+            <text class="msg-label" x="709" y="232">User document saved</text>
+
+            <!-- 1.7 Backend → Frontend : 201 Created -->
+            <line class="arr-dashed" x1="666" y1="254" x2="554" y2="254" />
+            <text class="msg-label" x="560" y="250">201 Created { userId, role }</text>
+
+            <!-- 1.8 Frontend → Patient : Redirect to Dashboard -->
+            <line class="arr-dashed" x1="526" y1="272" x2="94" y2="272" />
+            <text class="msg-label" x="140" y="268">Redirect to role-based dashboard</text>
+
+            <!-- ================================================================
+     SECTION 2 – PATIENT DASHBOARD
+     ================================================================ -->
+            <rect class="section-band" x="0" y="345" width="1100" height="200" />
+            <text class="section-label" x="8" y="360">2. Patient Dashboard Data Load</text>
+
+            <!-- 2.1 Patient opens dashboard -->
+            <line class="arr-solid" x1="80" y1="380" x2="526" y2="380" />
+            <text class="msg-label" x="150" y="376">Navigate to /patient/dashboard</text>
+
+            <!-- 2.2 Frontend → Backend GET /api/dashboard -->
+            <line class="arr-solid" x1="540" y1="398" x2="666" y2="398" />
+            <text class="msg-label" x="550" y="394">GET /api/dashboard (Bearer token)</text>
+
+            <!-- 2.3 Backend queries MongoDB (aggregated) -->
+            <line class="arr-solid" x1="680" y1="416" x2="806" y2="416" />
+            <text class="msg-label" x="690" y="412">Aggregate: mood, appt, goals, journal</text>
+
+            <line class="arr-dashed" x1="806" y1="434" x2="694" y2="434" />
+            <text class="msg-label" x="700" y="430">Dashboard data object</text>
+
+            <!-- 2.4 Backend → Frontend -->
+            <line class="arr-dashed" x1="666" y1="452" x2="554" y2="452" />
+            <text class="msg-label" x="556" y="448">200 OK { moodSummary, appointments, wellness }</text>
+
+            <!-- 2.5 → Patient: render UI -->
+            <line class="arr-dashed" x1="526" y1="470" x2="94" y2="470" />
+            <text class="msg-label" x="140" y="466">Render Dashboard Widgets</text>
+
+            <!-- Wellness score calc note -->
+            <g class="note-box">
+                <rect x="685" y="476" width="200" height="22" rx="3" />
+                <text x="690" y="491">Backend computes wellness score (0–100)</text>
+            </g>
+
+            <!-- ================================================================
+     SECTION 3 – MOOD TRACKING
+     ================================================================ -->
+            <rect class="section-band" x="0" y="560" width="1100" height="186" />
+            <text class="section-label" x="8" y="575">3. Mood Logging (Mood Tracker)</text>
+
+            <line class="arr-solid" x1="80" y1="595" x2="526" y2="595" />
+            <text class="msg-label" x="160" y="591">Submit mood (emoji, note, rating)</text>
+
+            <line class="arr-solid" x1="540" y1="613" x2="666" y2="613" />
+            <text class="msg-label" x="550" y="609">POST /api/mood-logs</text>
+
+            <line class="arr-solid" x1="680" y1="631" x2="806" y2="631" />
+            <text class="msg-label" x="690" y="627">MoodLog.create({ userId, mood, note, date })</text>
+
+            <line class="arr-dashed" x1="806" y1="649" x2="694" y2="649" />
+            <text class="msg-label" x="700" y="645">MoodLog saved</text>
+
+            <!-- ActivityLog -->
+            <line class="arr-solid" x1="680" y1="667" x2="806" y2="667" />
+            <text class="msg-label" x="690" y="663">ActivityLog.create({ action:'mood_logged' })</text>
+
+            <line class="arr-dashed" x1="666" y1="685" x2="554" y2="685" />
+            <text class="msg-label" x="556" y="681">201 Created { moodLog }</text>
+
+            <line class="arr-dashed" x1="526" y1="703" x2="94" y2="703" />
+            <text class="msg-label" x="140" y="699">Update Mood Heatmap UI</text>
+
+            <!-- ================================================================
+     SECTION 4 – APPOINTMENT BOOKING
+     ================================================================ -->
+            <rect class="section-band" x="0" y="762" width="1100" height="240" />
+            <text class="section-label" x="8" y="777">4. Appointment Booking Flow</text>
+
+            <!-- Patient searches counsellors -->
+            <line class="arr-solid" x1="80" y1="797" x2="526" y2="797" />
+            <text class="msg-label" x="150" y="793">Search / Browse Counsellors</text>
+
+            <line class="arr-solid" x1="540" y1="815" x2="666" y2="815" />
+            <text class="msg-label" x="552" y="811">GET /api/counsellor/list?specialization=&amp;lang=</text>
+
+            <line class="arr-solid" x1="680" y1="833" x2="806" y2="833" />
+            <text class="msg-label" x="690" y="829">CounsellorProfile.find({ filters })</text>
+
+            <line class="arr-dashed" x1="806" y1="851" x2="694" y2="851" />
+            <text class="msg-label" x="700" y="847">Counsellor list []</text>
+
+            <line class="arr-dashed" x1="666" y1="869" x2="554" y2="869" />
+            <text class="msg-label" x="556" y="865">200 OK [ counsellorProfiles ]</text>
+
+            <!-- Patient books slot -->
+            <line class="arr-solid" x1="80" y1="887" x2="526" y2="887" />
+            <text class="msg-label" x="150" y="883">Select slot → confirm booking</text>
+
+            <line class="arr-solid" x1="540" y1="905" x2="666" y2="905" />
+            <text class="msg-label" x="552" y="901">POST /api/appointments { counsellorId, slot }</text>
+
+            <line class="arr-solid" x1="680" y1="923" x2="806" y2="923" />
+            <text class="msg-label" x="690" y="919">Appointment.create() → mark slot booked</text>
+
+            <line class="arr-dashed" x1="806" y1="941" x2="694" y2="941" />
+            <text class="msg-label" x="700" y="937">Appointment doc saved</text>
+
+            <line class="arr-dashed" x1="666" y1="959" x2="554" y2="959" />
+            <text class="msg-label" x="556" y="955">201 Created { appointmentId, status:'pending' }</text>
+
+            <line class="arr-dashed" x1="526" y1="977" x2="94" y2="977" />
+            <text class="msg-label" x="130" y="973">Show SuccessModal</text>
+
+            <!-- ================================================================
+     SECTION 5 – COUNSELLOR: VIEW & MANAGE APPOINTMENTS
+     ================================================================ -->
+            <rect class="section-band" x="0" y="1018" width="1100" height="200" />
+            <text class="section-label" x="8" y="1033">5. Counsellor Manages Appointments</text>
+
+            <line class="arr-solid" x1="240" y1="1053" x2="526" y2="1053" />
+            <text class="msg-label" x="290" y="1049">Navigate to Counsellor Dashboard</text>
+
+            <line class="arr-solid" x1="540" y1="1071" x2="666" y2="1071" />
+            <text class="msg-label" x="553" y="1067">GET /api/counsellor/appointments</text>
+
+            <line class="arr-solid" x1="680" y1="1089" x2="806" y2="1089" />
+            <text class="msg-label" x="690" y="1085">Appointment.find({ counsellorId })</text>
+
+            <line class="arr-dashed" x1="806" y1="1107" x2="694" y2="1107" />
+            <text class="msg-label" x="700" y="1103">Appointments []</text>
+
+            <line class="arr-dashed" x1="666" y1="1125" x2="554" y2="1125" />
+            <text class="msg-label" x="556" y="1121">200 OK [ appointments ]</text>
+
+            <!-- Approve -->
+            <line class="arr-solid" x1="240" y1="1143" x2="526" y2="1143" />
+            <text class="msg-label" x="292" y="1139">Approve / Reject appointment</text>
+
+            <line class="arr-solid" x1="540" y1="1161" x2="666" y2="1161" />
+            <text class="msg-label" x="553" y="1157">PATCH /api/appointments/:id { status }</text>
+
+            <line class="arr-solid" x1="680" y1="1179" x2="806" y2="1179" />
+            <text class="msg-label" x="690" y="1175">Appointment.findByIdAndUpdate()</text>
+
+            <line class="arr-dashed" x1="806" y1="1197" x2="694" y2="1197" />
+            <text class="msg-label" x="700" y="1193">Updated doc</text>
+
+            <line class="arr-dashed" x1="666" y1="1215" x2="226" y2="1215" />
+            <text class="msg-label" x="318" y="1211">200 OK { status: 'confirmed' }</text>
+
+            <!-- ================================================================
+     SECTION 6 – CONSULTATION SESSION
+     ================================================================ -->
+            <rect class="section-band" x="0" y="1233" width="1100" height="240" />
+            <text class="section-label" x="8" y="1248">6. Consultation Session (Video / Chat)</text>
+
+            <!-- Both join -->
+            <line class="arr-solid" x1="80" y1="1268" x2="526" y2="1268" />
+            <text class="msg-label" x="150" y="1264">Join Consultation Room</text>
+
+            <line class="arr-solid" x1="240" y1="1286" x2="526" y2="1286" />
+            <text class="msg-label" x="298" y="1282">Join Consultation Room</text>
+
+            <!-- Frontend opens session -->
+            <line class="arr-solid" x1="540" y1="1304" x2="666" y2="1304" />
+            <text class="msg-label" x="553" y="1300">POST /api/consultation/start { appointmentId }</text>
+
+            <line class="arr-solid" x1="680" y1="1322" x2="806" y2="1322" />
+            <text class="msg-label" x="692" y="1318">ConsultationSession.create({ status:'active' })</text>
+
+            <line class="arr-dashed" x1="806" y1="1340" x2="694" y2="1340" />
+            <text class="msg-label" x="700" y="1336">Session document</text>
+
+            <line class="arr-dashed" x1="666" y1="1358" x2="554" y2="1358" />
+            <text class="msg-label" x="558" y="1354">Session ID + roomToken</text>
+
+            <!-- Counsellor adds notes -->
+            <line class="arr-solid" x1="240" y1="1376" x2="526" y2="1376" />
+            <text class="msg-label" x="298" y="1372">Add session notes / prescription</text>
+
+            <line class="arr-solid" x1="540" y1="1394" x2="666" y2="1394" />
+            <text class="msg-label" x="553" y="1390">PATCH /api/consultation/:id/notes</text>
+
+            <line class="arr-solid" x1="680" y1="1412" x2="806" y2="1412" />
+            <text class="msg-label" x="692" y="1408">ConsultationSession.findByIdAndUpdate(notes)</text>
+
+            <line class="arr-dashed" x1="806" y1="1430" x2="694" y2="1430" />
+            <text class="msg-label" x="700" y="1426">Notes saved</text>
+
+            <!-- End session -->
+            <line class="arr-solid" x1="240" y1="1448" x2="666" y2="1448" />
+            <text class="msg-label" x="370" y="1444">POST /api/consultation/:id/end</text>
+
+            <line class="arr-solid" x1="680" y1="1466" x2="806" y2="1466" />
+            <text class="msg-label" x="692" y="1462">Session.updateOne({ status:'completed' })</text>
+
+            <line class="arr-dashed" x1="806" y1="1484" x2="694" y2="1484" />
+            <text class="msg-label" x="700" y="1480">OK</text>
+
+            <!-- ================================================================
+     SECTION 7 – PATIENT RECORDS & NOTES
+     ================================================================ -->
+            <rect class="section-band" x="0" y="1488" width="1100" height="160" />
+            <text class="section-label" x="8" y="1503">7. Patient Records &amp; Notes Access</text>
+
+            <line class="arr-solid" x1="240" y1="1523" x2="526" y2="1523" />
+            <text class="msg-label" x="292" y="1519">View patient detail</text>
+
+            <line class="arr-solid" x1="540" y1="1541" x2="666" y2="1541" />
+            <text class="msg-label" x="553" y="1537">GET /api/counsellor/patient/:patientId</text>
+
+            <line class="arr-solid" x1="680" y1="1559" x2="806" y2="1559" />
+            <text class="msg-label" x="692" y="1555">PatientRecord.findOne() + journals + mood</text>
+
+            <line class="arr-dashed" x1="806" y1="1577" x2="694" y2="1577" />
+            <text class="msg-label" x="700" y="1573">Patient data object</text>
+
+            <line class="arr-dashed" x1="666" y1="1595" x2="554" y2="1595" />
+            <text class="msg-label" x="558" y="1591">200 OK { patientRecord, moodLogs, notes }</text>
+
+            <line class="arr-dashed" x1="526" y1="1613" x2="226" y2="1613" />
+            <text class="msg-label" x="300" y="1609">Render Patient Detail View</text>
+
+            <!-- ================================================================
+     SECTION 8 – AI CHATBOT (GEMINI)
+     ================================================================ -->
+            <rect class="section-band" x="0" y="1662" width="1100" height="200" />
+            <text class="section-label" x="8" y="1677">8. AI Chatbot &amp; Resource Recommender (Gemini)</text>
+
+            <line class="arr-solid" x1="80" y1="1697" x2="526" y2="1697" />
+            <text class="msg-label" x="170" y="1693">Send message to AI chatbot</text>
+
+            <line class="arr-solid" x1="540" y1="1715" x2="666" y2="1715" />
+            <text class="msg-label" x="553" y="1711">POST /api/wellness/ai-chat { message, history }</text>
+
+            <!-- Backend checks AiDiscoveryCache -->
+            <line class="arr-solid" x1="680" y1="1733" x2="806" y2="1733" />
+            <text class="msg-label" x="692" y="1729">AiDiscoveryCache.findOne({ prompt })</text>
+
+            <line class="arr-dashed" x1="806" y1="1751" x2="694" y2="1751" />
+            <text class="msg-label" x="700" y="1747">Cache hit / miss</text>
+
+            <!-- On miss → Gemini API -->
+            <line class="arr-solid" x1="680" y1="1769" x2="1036" y2="1769" />
+            <text class="msg-label" x="780" y="1765">gemini-1.5-flash.generateContent(prompt)</text>
+
+            <line class="arr-dashed" x1="1036" y1="1787" x2="694" y2="1787" />
+            <text class="msg-label" x="780" y="1783">AI response text</text>
+
+            <!-- Cache + return -->
+            <line class="arr-solid" x1="680" y1="1805" x2="806" y2="1805" />
+            <text class="msg-label" x="692" y="1801">AiDiscoveryCache.create({ prompt, response })</text>
+
+            <line class="arr-dashed" x1="666" y1="1823" x2="554" y2="1823" />
+            <text class="msg-label" x="558" y="1819">200 OK { reply }</text>
+
+            <line class="arr-dashed" x1="526" y1="1841" x2="94" y2="1841" />
+            <text class="msg-label" x="160" y="1837">Display AI reply in chat bubble</text>
+
+            <!-- ================================================================
+     SECTION 9 – WELLNESS RESOURCES
+     ================================================================ -->
+            <rect class="section-band" x="0" y="1876" width="1100" height="180" />
+            <text class="section-label" x="8" y="1891">9. Wellness &amp; Mental Health Resources</text>
+
+            <line class="arr-solid" x1="80" y1="1911" x2="526" y2="1911" />
+            <text class="msg-label" x="170" y="1907">Browse resources / articles</text>
+
+            <line class="arr-solid" x1="540" y1="1929" x2="666" y2="1929" />
+            <text class="msg-label" x="553" y="1925">GET /api/resources?category=&amp;tag=</text>
+
+            <line class="arr-solid" x1="680" y1="1947" x2="806" y2="1947" />
+            <text class="msg-label" x="692" y="1943">Resource.find({ filters })</text>
+
+            <line class="arr-dashed" x1="806" y1="1965" x2="694" y2="1965" />
+            <text class="msg-label" x="700" y="1961">Resources []</text>
+
+            <line class="arr-dashed" x1="666" y1="1983" x2="554" y2="1983" />
+            <text class="msg-label" x="558" y="1979">200 OK [ resources ]</text>
+
+            <!-- Mark progress -->
+            <line class="arr-solid" x1="80" y1="2001" x2="526" y2="2001" />
+            <text class="msg-label" x="170" y="1997">Mark resource complete</text>
+
+            <line class="arr-solid" x1="540" y1="2019" x2="666" y2="2019" />
+            <text class="msg-label" x="553" y="2015">POST /api/resources/:id/progress</text>
+
+            <line class="arr-solid" x1="680" y1="2037" x2="806" y2="2037" />
+            <text class="msg-label" x="692" y="2033">UserResourceProgress.findOrCreate()</text>
+
+            <line class="arr-dashed" x1="666" y1="2055" x2="94" y2="2055" />
+            <text class="msg-label" x="250" y="2051">201 Created { progress }</text>
+
+            <!-- ================================================================
+     SECTION 10 – ADMIN PANEL
+     ================================================================ -->
+            <rect class="section-band" x="0" y="2072" width="1100" height="280" />
+            <text class="section-label" x="8" y="2087">10. Admin Panel – Manage Users, Counsellors &amp; Platform</text>
+
+            <!-- Login as admin -->
+            <line class="arr-solid" x1="400" y1="2107" x2="526" y2="2107" />
+            <text class="msg-label" x="430" y="2103">Login (admin email)</text>
+
+            <line class="arr-solid" x1="540" y1="2125" x2="666" y2="2125" />
+            <text class="msg-label" x="553" y="2121">POST /api/auth/login → verify admin role</text>
+
+            <line class="arr-dashed" x1="666" y1="2143" x2="386" y2="2143" />
+            <text class="msg-label" x="430" y="2139">JWT + role:'admin'</text>
+
+            <!-- Manage Users -->
+            <line class="arr-solid" x1="400" y1="2161" x2="526" y2="2161" />
+            <text class="msg-label" x="422" y="2157">View all users</text>
+
+            <line class="arr-solid" x1="540" y1="2179" x2="666" y2="2179" />
+            <text class="msg-label" x="553" y="2175">GET /api/admin/users</text>
+
+            <line class="arr-solid" x1="680" y1="2197" x2="806" y2="2197" />
+            <text class="msg-label" x="692" y="2193">User.find({})</text>
+
+            <line class="arr-dashed" x1="666" y1="2215" x2="386" y2="2215" />
+            <text class="msg-label" x="420" y="2211">200 OK [ users ]</text>
+
+            <!-- Approve Counsellor -->
+            <line class="arr-solid" x1="400" y1="2233" x2="526" y2="2233" />
+            <text class="msg-label" x="414" y="2229">Approve counsellor profile</text>
+
+            <line class="arr-solid" x1="540" y1="2251" x2="666" y2="2251" />
+            <text class="msg-label" x="553" y="2247">PATCH /api/admin/counsellors/:id/approve</text>
+
+            <line class="arr-solid" x1="680" y1="2269" x2="806" y2="2269" />
+            <text class="msg-label" x="692" y="2265">CounsellorProfile.findByIdAndUpdate({verified:true})</text>
+
+            <line class="arr-dashed" x1="806" y1="2287" x2="694" y2="2287" />
+            <text class="msg-label" x="700" y="2283">Updated</text>
+
+            <!-- Delete User -->
+            <line class="arr-solid" x1="400" y1="2305" x2="526" y2="2305" />
+            <text class="msg-label" x="414" y="2301">Delete / Suspend user</text>
+
+            <line class="arr-solid" x1="540" y1="2323" x2="666" y2="2323" />
+            <text class="msg-label" x="553" y="2319">DELETE /api/admin/users/:id</text>
+
+            <line class="arr-solid" x1="680" y1="2341" x2="806" y2="2341" />
+            <text class="msg-label" x="692" y="2337">User.findByIdAndDelete()</text>
+
+            <line class="arr-dashed" x1="666" y1="2359" x2="386" y2="2359" />
+            <text class="msg-label" x="414" y="2355">200 OK { deleted }</text>
+
+            <!-- View security logs -->
+            <line class="arr-solid" x1="400" y1="2377" x2="666" y2="2377" />
+            <text class="msg-label" x="430" y="2373">GET /api/admin/security-logs</text>
+
+            <line class="arr-solid" x1="680" y1="2395" x2="806" y2="2395" />
+            <text class="msg-label" x="692" y="2391">SecurityLog.find({}).sort(-timestamp)</text>
+
+            <line class="arr-dashed" x1="666" y1="2413" x2="386" y2="2413" />
+            <text class="msg-label" x="420" y="2409">200 OK [ logs ]</text>
+
+            <!-- ================================================================
+     SECTION 11 – COUNSELLOR PROFILE SETUP
+     ================================================================ -->
+            <rect class="section-band" x="0" y="2448" width="1100" height="160" />
+            <text class="section-label" x="8" y="2463">11. Counsellor Registers &amp; Sets Up Profile</text>
+
+            <line class="arr-solid" x1="240" y1="2483" x2="526" y2="2483" />
+            <text class="msg-label" x="278" y="2479">Register as Counsellor (role='counsellor')</text>
+
+            <line class="arr-solid" x1="540" y1="2501" x2="666" y2="2501" />
+            <text class="msg-label" x="553" y="2497">POST /api/auth/register { role:'counsellor' }</text>
+
+            <line class="arr-solid" x1="680" y1="2519" x2="806" y2="2519" />
+            <text class="msg-label" x="692" y="2515">User.create() + CounsellorProfile.create()</text>
+
+            <line class="arr-dashed" x1="806" y1="2537" x2="694" y2="2537" />
+            <text class="msg-label" x="700" y="2533">Profile created (pending approval)</text>
+
+            <line class="arr-solid" x1="240" y1="2555" x2="526" y2="2555" />
+            <text class="msg-label" x="278" y="2551">Update profile (specialization, availability)</text>
+
+            <line class="arr-solid" x1="540" y1="2573" x2="666" y2="2573" />
+            <text class="msg-label" x="553" y="2569">PUT /api/counsellor/profile</text>
+
+            <line class="arr-solid" x1="680" y1="2591" x2="806" y2="2591" />
+            <text class="msg-label" x="692" y="2587">CounsellorProfile.findOneAndUpdate()</text>
+
+            <line class="arr-dashed" x1="666" y1="2609" x2="226" y2="2609" />
+            <text class="msg-label" x="296" y="2605">200 OK { profile }</text>
+
+            <!-- ================================================================
+     BOTTOM ACTOR BOXES
+     ================================================================ -->
+            <g class="actor-box">
+                <rect x="30" y="2720" width="100" height="34" rx="3" /><text x="80" y="2741">Patient</text>
+            </g>
+            <g class="actor-box">
+                <rect x="190" y="2720" width="100" height="34" rx="3" /><text x="240" y="2741">Counsellor</text>
+            </g>
+            <g class="actor-box">
+                <rect x="350" y="2720" width="100" height="34" rx="3" /><text x="400" y="2741">Admin</text>
+            </g>
+            <g class="actor-box">
+                <rect x="483" y="2720" width="114" height="34" rx="3" /><text x="540" y="2741">Frontend (React)</text>
+            </g>
+            <g class="actor-box">
+                <rect x="620" y="2720" width="120" height="34" rx="3" /><text x="680" y="2741">Backend API</text>
+            </g>
+            <g class="actor-box">
+                <rect x="770" y="2720" width="100" height="34" rx="3" /><text x="820" y="2741">MongoDB</text>
+            </g>
+            <g class="actor-box">
+                <rect x="890" y="2720" width="100" height="34" rx="3" /><text x="940" y="2741">Firebase Auth</text>
+            </g>
+            <g class="actor-box">
+                <rect x="1010" y="2720" width="80" height="34" rx="3" /><text x="1050" y="2741">Gemini AI</text>
+            </g>
+
+            <!-- ===== LEGEND ===== -->
+            <rect x="8" y="2762" width="310" height="60" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1" />
+            <text x="14" y="2778" font-family="Times New Roman" font-size="11" font-weight="bold"
+                fill="#000">Legend</text>
+            <line x1="14" y1="2800" x2="60" y2="2800" stroke="#000" stroke-width="1.2" marker-end="url(#arrowFilled)" />
+            <text x="68" y="2804" font-family="Times New Roman" font-size="10" fill="#000">Request / Action (solid
+                arrow)</text>
+            <line x1="14" y1="2820" x2="60" y2="2820" stroke="#000" stroke-width="1.2" stroke-dasharray="5,4"
+                marker-end="url(#arrowOpen)" />
+            <text x="68" y="2824" font-family="Times New Roman" font-size="10" fill="#000">Response / Return (dashed
+                arrow)</text>
+
+        </svg>
+    </div>
+</body>
+
+</html>

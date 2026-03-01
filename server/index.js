@@ -2,30 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-// const path = require('path'); // <--- REMOVE THIS (Not needed for API-only backend)
+const http = require('http');
+const { Server } = require('socket.io');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// --- 1. UPDATE CORS CONFIGURATION HERE ---
 const allowedOrigins = [
-    'http://localhost:5001',                  // Backend
-    'http://localhost:3000',                  // React default
+    'http://localhost:5001',
+    'http://localhost:3000',
     'http://localhost:4028',
-    'http://localhost:5173',                  // Vite Dev
-    'http://localhost:4173',                  // Vite Preview
-    'https://mind-connect-web-app.vercel.app' // Vercel Frontend
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'https://mind-connect-web-app.vercel.app'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
-            var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
+            return callback(new Error('CORS policy: origin not allowed'), false);
         }
         return callback(null, true);
     },
@@ -34,12 +32,11 @@ app.use(cors({
 
 app.use(express.json({ limit: '50mb' }));
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Schemas
+// ─── Inline Schemas ──────────────────────────────────────────────────────────
 const MoodLogSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     moodId: { type: Number, required: true, min: 1, max: 5 },
@@ -55,18 +52,18 @@ const MoodLogSchema = new mongoose.Schema({
 const AppointmentSchema = new mongoose.Schema({
     title: String,
     date: Date,
-    timeSlot: String, // e.g., "9:00 AM"
-    doctor: String, // Keep for backward compatibility or display name
+    timeSlot: String,
+    doctor: String,
     counsellorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['pending', 'confirmed', 'declined', 'cancelled'], default: 'pending' },
     notes: String,
-    confirmationNote: String, // Counsellor's note when accepting/declining
+    confirmationNote: String,
     sessionType: { type: String, enum: ['video', 'phone', 'inperson'], default: 'video' },
     insuranceProvider: String,
     policyNumber: String,
     reason: String,
     isFirstSession: Boolean,
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Patient ID
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -111,13 +108,10 @@ mongoose.model('JournalEntry', JournalEntrySchema);
 mongoose.model('WellnessGoal', WellnessGoalSchema);
 mongoose.model('BreathingSession', BreathingSessionSchema);
 
-// Pre-load admin models so they are registered before route imports
 require('./models/ActivityLog');
 require('./models/SecurityLog');
 
-// --- API ROUTES START HERE ---
-
-// Auth Routes
+// ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/counsellor', require('./routes/counsellor'));
 app.use('/api/appointments', require('./routes/appointments'));
@@ -130,34 +124,18 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/consultation', require('./routes/consultation'));
 
-// Sync endpoint
 app.post('/api/sync', async (req, res) => {
     const { moodLogs, appointments } = req.body;
-
     try {
-        let savedMoods = [];
-        let savedAppointments = [];
-
-        if (moodLogs && Array.isArray(moodLogs) && moodLogs.length > 0) {
-            const moodsToInsert = moodLogs.map(({ id, ...rest }) => rest);
-            savedMoods = await MoodLog.insertMany(moodsToInsert);
+        let savedMoods = [], savedAppointments = [];
+        if (moodLogs?.length) {
+            savedMoods = await MoodLog.insertMany(moodLogs.map(({ id, ...r }) => r));
         }
-
-        if (appointments && Array.isArray(appointments) && appointments.length > 0) {
-            const appointmentsToInsert = appointments.map(({ id, ...rest }) => rest);
-            savedAppointments = await Appointment.insertMany(appointmentsToInsert);
+        if (appointments?.length) {
+            savedAppointments = await Appointment.insertMany(appointments.map(({ id, ...r }) => r));
         }
-
-        console.log(`Synced ${savedMoods.length} moods and ${savedAppointments.length} appointments.`);
-
-        res.json({
-            success: true,
-            message: 'Data synced successfully',
-            savedMoods,
-            savedAppointments
-        });
+        res.json({ success: true, savedMoods, savedAppointments });
     } catch (error) {
-        console.error('Sync error:', error);
         res.status(500).json({ success: false, message: 'Error syncing data', error: error.message });
     }
 });
@@ -168,17 +146,75 @@ app.get('/api/data', async (req, res) => {
         const appointments = await Appointment.find().sort({ date: 1 });
         res.json({ moodLogs, appointments });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error fetching data', error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// --- API ROUTES END HERE ---
+// ─── Socket.io — WebRTC Signaling ────────────────────────────────────────────
+// Each active consultation session gets its own socket.io room (keyed by sessionId).
+// The server only RELAYS signaling messages; actual media goes peer-to-peer via WebRTC.
+const httpServer = http.createServer(app);
 
-// --- REMOVED STATIC FILE SERVING ---
-// Since you are using Vercel (Frontend) + Render (Backend), 
-// this server does NOT need to serve the React build files.
-// It is purely an API now.
+const io = new Server(httpServer, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 
-app.listen(PORT, () => {
+// roomId (sessionId) → Set of socket IDs currently in the room
+const rooms = {};
+
+io.on('connection', (socket) => {
+    console.log(`[WS] Connected: ${socket.id}`);
+
+    // ── join-room ─────────────────────────────────────────────────────────────
+    // Both the counsellor and patient call this with the shared sessionId.
+    // When the SECOND person joins, the first person is notified so they can
+    // initiate the WebRTC offer.
+    socket.on('join-room', (roomId, userId) => {
+        socket.join(roomId);
+        if (!rooms[roomId]) rooms[roomId] = new Set();
+        rooms[roomId].add(socket.id);
+        console.log(`[WS] ${userId} joined room ${roomId} (${rooms[roomId].size} peers)`);
+        // Tell existing peers someone new has joined → they should create an offer
+        socket.to(roomId).emit('user-joined', { socketId: socket.id, userId });
+    });
+
+    // ── SDP Offer (caller → callee) ──────────────────────────────────────────
+    socket.on('offer', (roomId, offer) => {
+        socket.to(roomId).emit('offer', offer, socket.id);
+    });
+
+    // ── SDP Answer (callee → caller) ─────────────────────────────────────────
+    socket.on('answer', (roomId, answer) => {
+        socket.to(roomId).emit('answer', answer);
+    });
+
+    // ── ICE Candidates (bidirectional) ───────────────────────────────────────
+    socket.on('ice-candidate', (roomId, candidate) => {
+        socket.to(roomId).emit('ice-candidate', candidate);
+    });
+
+    // ── Hang-up Signal ───────────────────────────────────────────────────────
+    socket.on('hang-up', (roomId) => {
+        socket.to(roomId).emit('hang-up');
+    });
+
+    // ── Disconnect cleanup ───────────────────────────────────────────────────
+    socket.on('disconnect', () => {
+        console.log(`[WS] Disconnected: ${socket.id}`);
+        for (const [roomId, members] of Object.entries(rooms)) {
+            if (members.has(socket.id)) {
+                members.delete(socket.id);
+                io.to(roomId).emit('peer-disconnected', socket.id);
+                if (members.size === 0) delete rooms[roomId];
+            }
+        }
+    });
+});
+
+httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

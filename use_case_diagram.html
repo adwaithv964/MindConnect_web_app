@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindConnect – Use Case Diagram</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #fff;
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px 60px;
+        }
+
+        h2 {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        /* ── Outer system boundary ── */
+        .diagram-wrapper {
+            position: relative;
+            width: 980px;
+        }
+
+        .system-box {
+            position: relative;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 50px 60px 60px;
+            display: flex;
+            justify-content: space-between;
+            gap: 0;
+        }
+
+        .system-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: #fff;
+            padding: 0 10px;
+        }
+
+        /* ── Actor columns ── */
+        .actor-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            width: 280px;
+        }
+
+        /* ── Stick figure ── */
+        .stick-figure {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stick-figure svg {
+            width: 52px;
+            height: 80px;
+        }
+
+        .actor-label {
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* ── Use Case ovals ── */
+        .use-case {
+            border: 2px solid #333;
+            border-radius: 50%;
+            padding: 8px 14px;
+            font-size: 12px;
+            text-align: center;
+            width: 190px;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.3;
+            background: #fff;
+            position: relative;
+        }
+
+        /* Arrow line from actor to each use-case — drawn via SVG overlay */
+        .arrow-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* ── Section dividers inside system box ── */
+        .divider {
+            width: 1px;
+            background: #ccc;
+            margin: 0 10px;
+            align-self: stretch;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>MindConnect – Use Case Diagram</h2>
+    <p class="subtitle">Mental Health & Wellness Web Application</p>
+
+    <div class="diagram-wrapper">
+
+        <!-- SVG arrow overlay — drawn after layout is known via JS -->
+        <svg class="arrow-layer" id="arrowLayer"></svg>
+
+        <div class="system-box" id="systemBox">
+            <span class="system-label">MindConnect System</span>
+
+            <!-- ══════════════ ADMIN ══════════════ -->
+            <div class="actor-section" id="secAdmin">
+                <div class="stick-figure">
+                    <svg viewBox="0 0 52 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- head -->
+                        <circle cx="26" cy="12" r="10" stroke="#222" stroke-width="2" />
+                        <!-- body -->
+                        <line x1="26" y1="22" x2="26" y2="52" stroke="#222" stroke-width="2" />
+                        <!-- arms -->
+                        <line x1="6" y1="35" x2="46" y2="35" stroke="#222" stroke-width="2" />
+                        <!-- left leg -->
+                        <line x1="26" y1="52" x2="10" y2="72" stroke="#222" stroke-width="2" />
+                        <!-- right leg -->
+                        <line x1="26" y1="52" x2="42" y2="72" stroke="#222" stroke-width="2" />
+                    </svg>
+                    <div class="actor-label">ADMIN</div>
+                </div>
+
+                <div class="use-case" id="a1">Login</div>
+                <div class="use-case" id="a2">Manage User Accounts</div>
+                <div class="use-case" id="a3">Approve / Reject Counsellors</div>
+                <div class="use-case" id="a4">View All Patients</div>
+                <div class="use-case" id="a5">Manage Resources &amp; Content</div>
+                <div class="use-case" id="a6">View Activity &amp; Security Logs</div>
+                <div class="use-case" id="a7">Monitor Appointments</div>
+                <div class="use-case" id="a8">Manage Doctor Registry</div>
+                <div class="use-case" id="a9">Change Password</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ══════════════ PATIENT ══════════════ -->
+            <div class="actor-section" id="secPatient">
+                <div class="stick-figure">
+                    <svg viewBox="0 0 52 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="26" cy="12" r="10" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="22" x2="26" y2="52" stroke="#222" stroke-width="2" />
+                        <line x1="6" y1="35" x2="46" y2="35" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="52" x2="10" y2="72" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="52" x2="42" y2="72" stroke="#222" stroke-width="2" />
+                    </svg>
+                    <div class="actor-label">PATIENT</div>
+                </div>
+
+                <div class="use-case" id="p1">Sign Up / Login</div>
+                <div class="use-case" id="p2">View &amp; Edit Profile</div>
+                <div class="use-case" id="p3">Track Daily Mood</div>
+                <div class="use-case" id="p4">Write Journal Entries</div>
+                <div class="use-case" id="p5">Book Appointments</div>
+                <div class="use-case" id="p6">View Upcoming Appointments</div>
+                <div class="use-case" id="p7">Join Consultation Room</div>
+                <div class="use-case" id="p8">Access Resource Library</div>
+                <div class="use-case" id="p9">Use Wellness Hub (Breathing / Goals)</div>
+                <div class="use-case" id="p10">Chat with AI Chatbot</div>
+                <div class="use-case" id="p11">View Wellness Dashboard</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ══════════════ DOCTOR / COUNSELLOR ══════════════ -->
+            <div class="actor-section" id="secCounsellor">
+                <div class="stick-figure">
+                    <svg viewBox="0 0 52 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="26" cy="12" r="10" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="22" x2="26" y2="52" stroke="#222" stroke-width="2" />
+                        <line x1="6" y1="35" x2="46" y2="35" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="52" x2="10" y2="72" stroke="#222" stroke-width="2" />
+                        <line x1="26" y1="52" x2="42" y2="72" stroke="#222" stroke-width="2" />
+                    </svg>
+                    <div class="actor-label">DOCTOR / COUNSELLOR</div>
+                </div>
+
+                <div class="use-case" id="c1">Login</div>
+                <div class="use-case" id="c2">View &amp; Edit Profile</div>
+                <div class="use-case" id="c3">View Assigned Patients</div>
+                <div class="use-case" id="c4">View Patient Mood &amp; Journal</div>
+                <div class="use-case" id="c5">Manage Appointments</div>
+                <div class="use-case" id="c6">Start Consultation Room</div>
+                <div class="use-case" id="c7">Write Consultation Notes</div>
+                <div class="use-case" id="c8">Create / Assign Resources</div>
+                <div class="use-case" id="c9">View Patient Progress</div>
+                <div class="use-case" id="c10">Change Password</div>
+            </div>
+        </div><!-- end system-box -->
+
+    </div><!-- end diagram-wrapper -->
+
+    <p class="footer">MindConnect – Mental Health &amp; Wellness Web Application &nbsp;|&nbsp; Use Case Diagram</p>
+
+    <script>
+        /**
+         * Draw arrows from the centre-right of each actor's stick-figure
+         * to the left-centre of each use-case oval inside that section.
+         */
+        function drawArrows() {
+            const svg = document.getElementById('arrowLayer');
+            const board = svg.parentElement.getBoundingClientRect();
+
+            svg.innerHTML = ''; // clear
+
+            // marker (arrowhead)
+            svg.innerHTML = `
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8"
+          refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#333"/>
+        </marker>
+      </defs>`;
+
+            const sections = [
+                { sectionId: 'secAdmin', ids: ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9'] },
+                { sectionId: 'secPatient', ids: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11'] },
+                { sectionId: 'secCounsellor', ids: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'] },
+            ];
+
+            sections.forEach(({ sectionId, ids }) => {
+                const section = document.getElementById(sectionId);
+                const fig = section.querySelector('.stick-figure');
+                const figR = fig.getBoundingClientRect();
+
+                // origin = right edge of the figure, vertically centred
+                const ox = figR.right - board.left;
+                const oy = figR.top + figR.height / 2 - board.top;
+
+                ids.forEach(id => {
+                    const oval = document.getElementById(id);
+                    const oR = oval.getBoundingClientRect();
+
+                    const tx = oR.left - board.left;
+                    const ty = oR.top + oR.height / 2 - board.top;
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', ox);
+                    line.setAttribute('y1', oy);
+                    line.setAttribute('x2', tx);
+                    line.setAttribute('y2', ty);
+                    line.setAttribute('stroke', '#333');
+                    line.setAttribute('stroke-width', '1.5');
+                    line.setAttribute('marker-end', 'url(#arr)');
+                    svg.appendChild(line);
+                });
+            });
+        }
+
+        window.addEventListener('load', drawArrows);
+        window.addEventListener('resize', drawArrows);
+    </script>
+</body>
+
+</html>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import BreadcrumbTrail from '../../components/ui/BreadcrumbTrail';
+import { useWebRTC } from '../../hooks/useWebRTC';
 
 const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -43,8 +44,6 @@ export default function CounsellorConsultationRoom() {
     const [summary, setSummary] = useState('');
     const [ending, setEnding] = useState(false);
 
-    const [videoOn, setVideoOn] = useState(false);
-    const [micOn, setMicOn] = useState(true);
     const [timer, setTimer] = useState(0);
 
     const [history, setHistory] = useState([]);
@@ -56,8 +55,13 @@ export default function CounsellorConsultationRoom() {
     const pollRef = useRef(null);
     const timerRef = useRef(null);
     const lastMsgCount = useRef(0);
-    const videoRef = useRef(null);
-    const streamRef = useRef(null);
+
+    // ── WebRTC (video/audio peer connection) ──────────────────────────────────
+    const { localVideoRef, remoteVideoRef, isConnected: wsConnected, peerConnected,
+        videoOn, micOn, toggleVideo, toggleMic, hangUp: webRTCHangUp } = useWebRTC(
+            session?._id || null,
+            counsellorId
+        );
 
     const showToast = (msg, type = 'success') => {
         setToast({ msg, type });
@@ -149,13 +153,17 @@ export default function CounsellorConsultationRoom() {
                 counsellorId,
                 patientId: selectedPatient.patientId
             });
-            const { session: s, counsellorName: cn } = res.data;
-            setSession(s);
+            const { session: s, counsellorName: cn, patientName: pn } = res.data;
+            // Use the API-resolved name (NMC-verified) if available
+            if (cn) setCounsellorName(cn);
+            // Enrich session with resolved names for header display
+            const enrichedSession = { ...s, counsellorName: cn || counsellorName, patientName: pn || selectedPatient.name };
+            setSession(enrichedSession);
             setMessages(s.messages || []);
             setSessionNotes(s.sessionNotes || '');
             lastMsgCount.current = (s.messages || []).length;
             startPolling(s._id);
-            showToast(`Session started with ${selectedPatient.name}`);
+            showToast(`Session started with ${pn || selectedPatient.name}`);
         } catch (err) {
             showToast(err.response?.data?.message || 'Failed to start session', 'error');
         } finally { setStarting(false); }
@@ -204,33 +212,13 @@ export default function CounsellorConsultationRoom() {
         finally { setEnding(false); }
     };
 
-    // ── Camera ────────────────────────────────────────────────────────
-    const toggleVideo = async () => {
-        if (!videoOn) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: micOn });
-                streamRef.current = stream;
-                if (videoRef.current) videoRef.current.srcObject = stream;
-                setVideoOn(true);
-            } catch { showToast('Camera access denied or unavailable', 'error'); }
-        } else {
-            streamRef.current?.getTracks().forEach(t => t.stop());
-            streamRef.current = null;
-            if (videoRef.current) videoRef.current.srcObject = null;
-            setVideoOn(false);
-        }
+    // ── Hang up (WebRTC + local state) ────────────────────────────────────────
+    const handleHangUp = () => {
+        webRTCHangUp();
+        stopPolling();
+        setSession(prev => prev ? { ...prev, status: 'ended' } : prev);
+        showToast('You have left the call.');
     };
-
-    const toggleMic = () => {
-        if (streamRef.current) {
-            streamRef.current.getAudioTracks().forEach(t => { t.enabled = micOn; });
-        }
-        setMicOn(v => !v);
-    };
-
-    useEffect(() => {
-        return () => { streamRef.current?.getTracks().forEach(t => t.stop()); };
-    }, []);
 
     // ─────────────────────────────────────────────────────────────────
     const sessionActive = session?.status === 'active';
@@ -296,8 +284,8 @@ export default function CounsellorConsultationRoom() {
                                     key={p.patientId || p._id}
                                     onClick={() => setSelectedPatient(p)}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${selectedPatient?.patientId === p.patientId
-                                            ? 'border-primary bg-primary/5 shadow-sm'
-                                            : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
+                                        ? 'border-primary bg-primary/5 shadow-sm'
+                                        : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
                                         }`}
                                 >
                                     <Avatar name={p.name} photo={p.avatar} size={10} ring={selectedPatient?.patientId === p.patientId} />
@@ -373,7 +361,11 @@ export default function CounsellorConsultationRoom() {
                         <div className="xl:col-span-2 space-y-4">
                             {/* Video feed */}
                             <div className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-video flex items-center justify-center shadow-lg">
-                                <video ref={videoRef} autoPlay muted className={`absolute inset-0 w-full h-full object-cover ${videoOn ? 'block' : 'hidden'}`} />
+                                {/* Local (self) video */}
+                                <video ref={localVideoRef} autoPlay muted playsInline
+                                    className={`absolute inset-0 w-full h-full object-cover ${videoOn ? 'block' : 'hidden'}`} />
+
+                                {/* Camera-off placeholder */}
                                 {!videoOn && (
                                     <div className="text-center">
                                         <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center mx-auto mb-3">
@@ -383,6 +375,7 @@ export default function CounsellorConsultationRoom() {
                                         <p className="text-gray-600 text-xs mt-1">Click the camera button to start your feed</p>
                                     </div>
                                 )}
+
                                 {/* Video controls */}
                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
                                     <button onClick={toggleMic}
@@ -393,6 +386,14 @@ export default function CounsellorConsultationRoom() {
                                             : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
                                         }
                                     </button>
+                                    {sessionActive && (
+                                        <button onClick={handleHangUp} title="Hang up"
+                                            className="w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xl transition-all scale-110">
+                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.59.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.01L6.62 10.79z" />
+                                            </svg>
+                                        </button>
+                                    )}
                                     <button onClick={toggleVideo}
                                         className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg ${videoOn ? 'bg-white text-gray-800 hover:bg-gray-100' : 'bg-red-500 text-white hover:bg-red-600'}`}
                                         title={videoOn ? 'Turn off camera' : 'Turn on camera'}>
@@ -402,10 +403,26 @@ export default function CounsellorConsultationRoom() {
                                         }
                                     </button>
                                 </div>
-                                {/* Patient mini-feed placeholder */}
-                                <div className="absolute top-3 right-3 w-28 h-20 rounded-xl bg-gray-800 border border-gray-600 flex items-center justify-center">
-                                    <Avatar name={selectedPatient?.name || 'Patient'} photo={selectedPatient?.avatar} size={9} />
+
+                                {/* Remote (patient) feed — top-right pip */}
+                                <div className="absolute top-3 right-3 w-32 h-24 rounded-xl bg-gray-800 border-2 border-gray-600 overflow-hidden flex items-center justify-center shadow-lg">
+                                    <video ref={remoteVideoRef} autoPlay playsInline
+                                        className="w-full h-full object-cover" />
+                                    {!peerConnected && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <Avatar name={selectedPatient?.name || 'Patient'} photo={selectedPatient?.avatar} size={9} />
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* WebRTC connection status badge */}
+                                {sessionActive && (
+                                    <div className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${peerConnected ? 'bg-emerald-500/90 text-white' : wsConnected ? 'bg-yellow-500/90 text-white' : 'bg-gray-600/90 text-white'
+                                        }`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${peerConnected ? 'bg-white animate-pulse' : wsConnected ? 'bg-white' : 'bg-gray-300'}`} />
+                                        {peerConnected ? 'Connected' : wsConnected ? 'Waiting for patient…' : 'Connecting…'}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -433,7 +450,7 @@ export default function CounsellorConsultationRoom() {
                                                     </div>
                                                 );
                                             }
-                                            const isMe = msg.sender === 'counsellor';
+                                            const isMe = msg.senderId === counsellorId || msg.senderId?.toString() === counsellorId?.toString();
                                             return (
                                                 <div key={i} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                                                     <Avatar name={msg.senderName} size={8} />

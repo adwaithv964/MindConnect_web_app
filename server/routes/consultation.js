@@ -4,9 +4,22 @@ const mongoose = require('mongoose');
 const ConsultationSession = require('../models/ConsultationSession');
 const PatientRecord = require('../models/PatientRecord');
 const User = require('../models/User');
+const CounsellorProfile = require('../models/CounsellorProfile');
 
 const toObjectId = (id) => {
     try { return new mongoose.Types.ObjectId(id); } catch { return null; }
+};
+
+// Returns the NMC-verified name for a counsellor, falling back to User.name
+const getCounsellorName = async (counsellorId) => {
+    const user = await User.findById(counsellorId).select('name').lean();
+    if (!user) return 'Counsellor';
+    try {
+        const profile = await CounsellorProfile.findOne({ userId: counsellorId }).select('verifiedName').lean();
+        return (profile?.verifiedName && profile.verifiedName.trim()) ? profile.verifiedName.trim() : user.name;
+    } catch {
+        return user.name;
+    }
 };
 
 // ─── POST /api/consultation ─────────────────────────────────────────
@@ -19,7 +32,27 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'counsellorId and patientId are required' });
         }
 
-        // Check for an existing active session between this pair
+        // ── Step 1: Close orphaned active sessions this patient has with OTHER counsellors
+        //    This ensures a patient is always in at most one active session at a time.
+        await ConsultationSession.updateMany(
+            {
+                patientId: toObjectId(patientId),
+                counsellorId: { $ne: toObjectId(counsellorId) },
+                status: 'active'
+            },
+            {
+                $set: { status: 'ended', endedAt: new Date() },
+                $push: {
+                    messages: {
+                        sender: 'system', senderId: 'system', senderName: 'System',
+                        text: 'Session automatically closed because a new session was started.',
+                        timestamp: new Date()
+                    }
+                }
+            }
+        );
+
+        // ── Step 2: Find or create session for this specific counsellor-patient pair
         let session = await ConsultationSession.findOne({
             counsellorId: toObjectId(counsellorId),
             patientId: toObjectId(patientId),
@@ -46,13 +79,15 @@ router.post('/', async (req, res) => {
             console.log(`[POST /consultation] Resumed existing session ${session._id}`);
         }
 
-        // Populate names
-        const counsellor = await User.findById(counsellorId).select('name').lean();
-        const patient = await User.findById(patientId).select('name').lean();
+        // Populate names (counsellor uses NMC-verified name if available)
+        const [resolvedCounsellorName, patient] = await Promise.all([
+            getCounsellorName(counsellorId),
+            User.findById(patientId).select('name').lean()
+        ]);
 
         res.status(201).json({
             session,
-            counsellorName: counsellor?.name || 'Counsellor',
+            counsellorName: resolvedCounsellorName,
             patientName: patient?.name || 'Patient'
         });
     } catch (err) {
@@ -123,8 +158,11 @@ router.get('/patient/:patientId/active', async (req, res) => {
 
         if (!session) return res.json(null);
 
-        const counsellor = await User.findById(session.counsellorId).select('name email profilePhoto').lean();
-        res.json({ ...session, counsellorName: counsellor?.name || 'Unknown', counsellorEmail: counsellor?.email || '', counsellorAvatar: counsellor?.profilePhoto || null });
+        const [resolvedCounsellorName, counsellor] = await Promise.all([
+            getCounsellorName(session.counsellorId),
+            User.findById(session.counsellorId).select('name email profilePhoto').lean()
+        ]);
+        res.json({ ...session, counsellorName: resolvedCounsellorName, counsellorEmail: counsellor?.email || '', counsellorAvatar: counsellor?.profilePhoto || null });
     } catch (err) {
         console.error('GET /consultation/patient active error:', err.message);
         res.status(500).json({ message: 'Server Error', error: err.message });
@@ -182,12 +220,15 @@ router.get('/:sessionId', async (req, res) => {
         const session = await ConsultationSession.findById(req.params.sessionId).lean();
         if (!session) return res.status(404).json({ message: 'Session not found' });
 
-        const counsellor = await User.findById(session.counsellorId).select('name profilePhoto').lean();
-        const patient = await User.findById(session.patientId).select('name profilePhoto').lean();
+        const [resolvedCounsellorName, counsellor, patient] = await Promise.all([
+            getCounsellorName(session.counsellorId),
+            User.findById(session.counsellorId).select('name profilePhoto').lean(),
+            User.findById(session.patientId).select('name profilePhoto').lean()
+        ]);
 
         res.json({
             ...session,
-            counsellorName: counsellor?.name || 'Counsellor',
+            counsellorName: resolvedCounsellorName,
             patientName: patient?.name || 'Patient',
             counsellorAvatar: counsellor?.profilePhoto || null,
             patientAvatar: patient?.profilePhoto || null
