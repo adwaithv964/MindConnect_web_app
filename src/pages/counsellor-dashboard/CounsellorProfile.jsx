@@ -68,7 +68,6 @@ const CounsellorProfile = () => {
                     registrationNumber: data.registrationNumber || '',
                     registrationYear: data.registrationYear || '',
                     stateMedicalCouncil: data.stateMedicalCouncil || '',
-                    stateMedicalCouncil: data.stateMedicalCouncil || '',
                     nmcVerificationStatus: data.nmcVerificationStatus || 'unverified',
                     verifiedName: data.verifiedName || data.userId?.name || '' // Use verifiedName, fallback to user name
                 });
