@@ -47,7 +47,6 @@ export default function AdminLogin() {
     return (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f0fdf9 0%, #f8fffe 50%, #f0f7ff 100%)', fontFamily: "'Inter', sans-serif" }}>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         .admin-input:focus { border-color: ${PRIMARY} !important; box-shadow: 0 0 0 3px rgba(74,155,142,0.12) !important; }
         .admin-btn:hover:not(:disabled) { background: #3d8a7e !important; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(74,155,142,0.35) !important; }
         .admin-btn:active { transform: translateY(0); }

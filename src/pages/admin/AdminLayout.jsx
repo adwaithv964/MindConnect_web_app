@@ -61,7 +61,6 @@ export default function AdminLayout({ children }) {
     return (
         <div style={{ display: 'flex', minHeight: '100vh', background: BG, fontFamily: "'Inter', 'Source Sans 3', system-ui, sans-serif", color: TEXT }}>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #F8FAFA; }
         ::-webkit-scrollbar-thumb { background: rgba(74,155,142,0.25); border-radius: 3px; }
         .admin-nav-item { transition: all 0.15s ease; }
