@@ -323,20 +323,17 @@ export default function PatientConsultationRoom() {
                         {/* Video */}
                         <div className="xl:col-span-2">
                             <div className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-video flex items-center justify-center shadow-lg">
-                                {/* Local (self) video */}
-                                <video ref={localVideoRef} autoPlay muted playsInline
-                                    className={`absolute inset-0 w-full h-full object-cover ${videoOn ? 'block' : 'hidden'}`} />
+                                {/* Remote (counsellor) feed */}
+                                <video ref={remoteVideoRef} autoPlay playsInline
+                                    className={`absolute inset-0 w-full h-full object-cover ${peerConnected ? 'block' : 'hidden'}`} />
 
-                                {/* Camera-off placeholder */}
-                                {!videoOn && (
-                                    <div className="text-center">
-                                        <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center mx-auto mb-3">
-                                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
+                                {/* Waiting placeholder */}
+                                {!peerConnected && (
+                                    <div className="text-center absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+                                        <div className="mb-4">
+                                            <Avatar name={counsellorName} photo={counsellorAvatar} size={20} />
                                         </div>
-                                        <p className="text-gray-400 text-sm font-medium">Camera Off</p>
-                                        <p className="text-gray-600 text-xs mt-1">Click the camera button to show your feed</p>
+                                        <p className="text-gray-400 text-sm font-medium">Waiting for Counsellor...</p>
                                     </div>
                                 )}
 
@@ -366,13 +363,13 @@ export default function PatientConsultationRoom() {
                                     </button>
                                 </div>
 
-                                {/* Remote (counsellor) feed — top-right pip */}
-                                <div className="absolute top-3 right-3 w-32 h-24 rounded-xl bg-gray-800 border-2 border-gray-600 overflow-hidden flex items-center justify-center shadow-lg">
-                                    <video ref={remoteVideoRef} autoPlay playsInline
-                                        className="w-full h-full object-cover" />
-                                    {!peerConnected && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <Avatar name={counsellorName} photo={counsellorAvatar} size={9} />
+                                {/* Local (self) feed — top-right pip */}
+                                <div className="absolute top-3 right-3 w-32 h-24 rounded-xl bg-gray-800 border-2 border-gray-600 overflow-hidden flex items-center justify-center shadow-lg z-10">
+                                    <video ref={localVideoRef} autoPlay muted playsInline
+                                        className={`absolute inset-0 w-full h-full object-cover ${videoOn ? 'block' : 'hidden'}`} />
+                                    {!videoOn && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                                            <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                                         </div>
                                     )}
                                 </div>

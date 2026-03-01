@@ -81,9 +81,14 @@ export function useWebRTC(sessionId, userId) {
 
         // Remote tracks → show in remote video element
         pc.ontrack = (event) => {
-            const [remoteStream] = event.streams;
+            console.log('[WebRTC] received remote track:', event.track.kind);
             if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = remoteStream;
+                let stream = remoteVideoRef.current.srcObject;
+                if (!stream) {
+                    stream = new MediaStream();
+                    remoteVideoRef.current.srcObject = stream;
+                }
+                stream.addTrack(event.track);
             }
         };
 
