@@ -1,15 +1,14 @@
 /**
  * useWebRTC — Manages the full WebRTC lifecycle for a consultation session.
  *
- * Responsibilities:
- *  • Connects to the socket.io signaling server
- *  • Joins the room for the given sessionId
- *  • Creates/negotiates RTCPeerConnection (offer → answer → ICE)
- *  • Exposes localStream, remoteStream, and control functions
- *
- * Usage:
- *   const { localVideoRef, remoteVideoRef, isConnected, peerConnected,
- *           videoOn, micOn, toggleVideo, toggleMic, hangUp } = useWebRTC(sessionId, userId);
+ * Key design decisions:
+ *  • Pre-adds audio+video sendrecv TRANSCEIVERS on peer connection creation,
+ *    so the SDP always has m-lines and ICE negotiation starts immediately —
+ *    even before either user enables their camera.
+ *  • Uses replaceTrack() (not addTrack) when camera is enabled, which requires
+ *    no SDP renegotiation.
+ *  • Monitors iceConnectionState (more reliable than connectionState) for the
+ *    peerConnected flag.
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
@@ -44,43 +43,66 @@ export function useWebRTC(sessionId, userId) {
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
     const socketRef = useRef(null);
-    const pcRef = useRef(null);           // RTCPeerConnection
-    const localStreamRef = useRef(null);  // Local MediaStream
-    const pendingCandidates = useRef([]); // ICE candidates buffered before remoteDesc is set
+    const pcRef = useRef(null);          // RTCPeerConnection
+    const localStreamRef = useRef(null);          // Local MediaStream
+    const pendingCandidates = useRef([]);         // Buffered ICE candidates
 
     const [videoOn, setVideoOn] = useState(false);
     const [micOn, setMicOn] = useState(true);
-    const [isConnected, setIsConnected] = useState(false);   // Socket connected
-    const [peerConnected, setPeerConnected] = useState(false); // WebRTC peer connected
+    const [isConnected, setIsConnected] = useState(false);  // Socket connected
+    const [peerConnected, setPeerConnected] = useState(false); // WebRTC ICE connected
 
-    // ── Create / reset the RTCPeerConnection ─────────────────────────────────
+    // ── Helper: find transceiver by kind ─────────────────────────────────────
+    const getTransceiver = (pc, kind) =>
+        pc.getTransceivers().find(t => t.receiver?.track?.kind === kind);
+
+    // ── Create RTCPeerConnection with pre-wired sendrecv transceivers ─────────
+    // Adding transceivers BEFORE creating the offer ensures the SDP always has
+    // audio and video m-lines, so ICE negotiation starts even with camera off.
     const createPeerConnection = useCallback(() => {
         if (pcRef.current) {
             pcRef.current.close();
+            pcRef.current = null;
         }
         const pc = new RTCPeerConnection(ICE_SERVERS);
         pcRef.current = pc;
 
-        // Add any existing local tracks to the new peer connection
+        // Pre-wire sendrecv transceivers → SDP will have audio + video sections
+        pc.addTransceiver('audio', { direction: 'sendrecv' });
+        pc.addTransceiver('video', { direction: 'sendrecv' });
+
+        // If camera is already on, replace null tracks immediately
         if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => {
-                pc.addTrack(track, localStreamRef.current);
-            });
+            for (const track of localStreamRef.current.getTracks()) {
+                const t = getTransceiver(pc, track.kind);
+                if (t) t.sender.replaceTrack(track);
+            }
         }
 
-        // When we receive remote tracks → attach to remote video element
+        // Remote tracks → show in remote video element
         pc.ontrack = (event) => {
             const [remoteStream] = event.streams;
             if (remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = remoteStream;
             }
-            setPeerConnected(true);
         };
 
-        // Send ICE candidates through the signaling server
+        // ICE candidates → relay through signaling server
         pc.onicecandidate = (event) => {
             if (event.candidate && socketRef.current) {
                 socketRef.current.emit('ice-candidate', sessionId, event.candidate);
+            }
+        };
+
+        // ICE connection state — most reliable indicator of P2P connectivity
+        pc.oniceconnectionstatechange = () => {
+            const state = pc.iceConnectionState;
+            console.log('[WebRTC] ICE state:', state);
+            if (state === 'connected' || state === 'completed') {
+                setPeerConnected(true);
+            } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                setPeerConnected(false);
+                if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
             }
         };
 
@@ -88,26 +110,24 @@ export function useWebRTC(sessionId, userId) {
             const state = pc.connectionState;
             console.log('[WebRTC] Connection state:', state);
             if (state === 'connected') setPeerConnected(true);
-            if (state === 'disconnected' || state === 'failed' || state === 'closed') {
-                setPeerConnected(false);
-                if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
-            }
+            if (state === 'failed' || state === 'closed') setPeerConnected(false);
         };
 
         return pc;
     }, [sessionId]);
 
-    // ── Apply buffered ICE candidates ────────────────────────────────────────
+    // ── Flush buffered ICE candidates once remote description is set ──────────
     const flushPendingCandidates = useCallback(async () => {
         const pc = pcRef.current;
         if (!pc || !pc.remoteDescription) return;
         while (pendingCandidates.current.length > 0) {
             const c = pendingCandidates.current.shift();
-            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) { console.warn('[ICE] Failed to add candidate', e); }
+            try { await pc.addIceCandidate(new RTCIceCandidate(c)); }
+            catch (e) { console.warn('[ICE] Failed to add candidate', e); }
         }
     }, []);
 
-    // ── Main effect: connect socket + set up signaling handlers ──────────────
+    // ── Main effect: socket + signaling ──────────────────────────────────────
     useEffect(() => {
         if (!sessionId || !userId) return;
 
@@ -122,20 +142,20 @@ export function useWebRTC(sessionId, userId) {
 
         socket.on('disconnect', () => setIsConnected(false));
 
-        // ── A new peer just joined → WE are the existing peer, create the offer
-        socket.on('user-joined', async ({ userId: remoteUserId }) => {
-            console.log('[WebRTC] Remote user joined, creating offer for', remoteUserId);
+        // Second peer joined → we are the initiator, create offer
+        socket.on('user-joined', async ({ userId: remoteId }) => {
+            console.log('[WebRTC] Peer joined, sending offer to', remoteId);
             const pc = createPeerConnection();
             try {
-                const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+                const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
                 socket.emit('offer', sessionId, pc.localDescription);
-            } catch (e) { console.error('[WebRTC] createOffer failed', e); }
+            } catch (e) { console.error('[WebRTC] createOffer failed:', e); }
         });
 
-        // ── We received an offer → set remote desc + send answer
+        // Received offer → send answer
         socket.on('offer', async (offer) => {
-            console.log('[WebRTC] Received offer, creating answer');
+            console.log('[WebRTC] Received offer, sending answer');
             const pc = createPeerConnection();
             try {
                 await pc.setRemoteDescription(new RTCSessionDescription(offer));
@@ -143,10 +163,10 @@ export function useWebRTC(sessionId, userId) {
                 const answer = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
                 socket.emit('answer', sessionId, pc.localDescription);
-            } catch (e) { console.error('[WebRTC] handleOffer failed', e); }
+            } catch (e) { console.error('[WebRTC] handleOffer failed:', e); }
         });
 
-        // ── We received an answer → complete the offer/answer handshake
+        // Received answer → complete handshake
         socket.on('answer', async (answer) => {
             console.log('[WebRTC] Received answer');
             const pc = pcRef.current;
@@ -154,25 +174,24 @@ export function useWebRTC(sessionId, userId) {
             try {
                 await pc.setRemoteDescription(new RTCSessionDescription(answer));
                 await flushPendingCandidates();
-            } catch (e) { console.error('[WebRTC] setRemoteDescription(answer) failed', e); }
+            } catch (e) { console.error('[WebRTC] setRemoteDesc(answer) failed:', e); }
         });
 
-        // ── ICE candidate from the remote peer
+        // ICE candidate from remote peer
         socket.on('ice-candidate', async (candidate) => {
             const pc = pcRef.current;
             if (!pc) return;
             if (pc.remoteDescription) {
                 try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); }
-                catch (e) { console.warn('[ICE] addIceCandidate failed', e); }
+                catch (e) { console.warn('[ICE] addIceCandidate failed:', e); }
             } else {
-                // Buffer until remoteDescription is set
                 pendingCandidates.current.push(candidate);
             }
         });
 
-        // ── Remote peer hung up
+        // Remote hung up
         socket.on('hang-up', () => {
-            console.log('[WebRTC] Remote hang-up received');
+            console.log('[WebRTC] Remote hang-up');
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
             setPeerConnected(false);
         });
@@ -188,36 +207,40 @@ export function useWebRTC(sessionId, userId) {
             localStreamRef.current?.getTracks().forEach(t => t.stop());
             socketRef.current = null;
             pcRef.current = null;
+            pendingCandidates.current = [];
         };
     }, [sessionId, userId, createPeerConnection, flushPendingCandidates]);
 
-    // ── Toggle local video ───────────────────────────────────────────────────
+    // ── Toggle camera ─────────────────────────────────────────────────────────
     const toggleVideo = useCallback(async () => {
         if (!videoOn) {
             try {
-                // Request camera + mic
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localStreamRef.current = stream;
 
-                // Attach to local <video>
-                if (localVideoRef.current) {
-                    localVideoRef.current.srcObject = stream;
-                }
+                // Show local preview
+                if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-                // If a peer connection already exists, add the tracks
+                // Replace null tracks in the existing peer connection (no renegotiation needed)
                 if (pcRef.current) {
-                    stream.getTracks().forEach(track => {
-                        pcRef.current.addTrack(track, stream);
-                    });
+                    for (const track of stream.getTracks()) {
+                        const t = getTransceiver(pcRef.current, track.kind);
+                        if (t) await t.sender.replaceTrack(track);
+                    }
                 }
 
                 setVideoOn(true);
                 setMicOn(true);
             } catch (e) {
-                console.error('[Camera] Access denied or unavailable', e);
+                console.error('[Camera] Access denied:', e);
             }
         } else {
-            // Stop all tracks
+            // Replace tracks with null (keeps ICE alive, just mutes video)
+            if (pcRef.current) {
+                for (const t of pcRef.current.getTransceivers()) {
+                    if (t.sender.track) await t.sender.replaceTrack(null);
+                }
+            }
             localStreamRef.current?.getTracks().forEach(t => t.stop());
             localStreamRef.current = null;
             if (localVideoRef.current) localVideoRef.current.srcObject = null;
@@ -225,7 +248,7 @@ export function useWebRTC(sessionId, userId) {
         }
     }, [videoOn]);
 
-    // ── Toggle microphone ───────────────────────────────────────────────────
+    // ── Toggle mic ────────────────────────────────────────────────────────────
     const toggleMic = useCallback(() => {
         if (localStreamRef.current) {
             localStreamRef.current.getAudioTracks().forEach(t => { t.enabled = !micOn; });
@@ -233,18 +256,26 @@ export function useWebRTC(sessionId, userId) {
         setMicOn(v => !v);
     }, [micOn]);
 
-    // ── Hang up (local action + signal remote) ───────────────────────────────
+    // ── Hang up ───────────────────────────────────────────────────────────────
     const hangUp = useCallback(() => {
         if (socketRef.current) socketRef.current.emit('hang-up', sessionId);
+        if (pcRef.current) {
+            pcRef.current.getTransceivers().forEach(t => { try { t.stop(); } catch { } });
+            pcRef.current.close();
+            pcRef.current = null;
+        }
         localStreamRef.current?.getTracks().forEach(t => t.stop());
         localStreamRef.current = null;
         if (localVideoRef.current) localVideoRef.current.srcObject = null;
         if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
-        pcRef.current?.close();
-        pcRef.current = null;
         setVideoOn(false);
         setPeerConnected(false);
     }, [sessionId]);
 
-    return { localVideoRef, remoteVideoRef, isConnected, peerConnected, videoOn, micOn, toggleVideo, toggleMic, hangUp };
+    return {
+        localVideoRef, remoteVideoRef,
+        isConnected, peerConnected,
+        videoOn, micOn,
+        toggleVideo, toggleMic, hangUp
+    };
 }
