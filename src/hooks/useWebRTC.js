@@ -52,13 +52,7 @@ export function useWebRTC(sessionId, userId) {
     const [isConnected, setIsConnected] = useState(false);  // Socket connected
     const [peerConnected, setPeerConnected] = useState(false); // WebRTC ICE connected
 
-    // ── Helper: find transceiver by kind ─────────────────────────────────────
-    const getTransceiver = (pc, kind) =>
-        pc.getTransceivers().find(t => t.receiver?.track?.kind === kind);
-
-    // ── Create RTCPeerConnection with pre-wired sendrecv transceivers ─────────
-    // Adding transceivers BEFORE creating the offer ensures the SDP always has
-    // audio and video m-lines, so ICE negotiation starts even with camera off.
+    // ── Create RTCPeerConnection ─────────────────────────────────────
     const createPeerConnection = useCallback(() => {
         if (pcRef.current) {
             pcRef.current.close();
@@ -67,17 +61,26 @@ export function useWebRTC(sessionId, userId) {
         const pc = new RTCPeerConnection(ICE_SERVERS);
         pcRef.current = pc;
 
-        // Pre-wire sendrecv transceivers → SDP will have audio + video sections
-        pc.addTransceiver('audio', { direction: 'sendrecv' });
-        pc.addTransceiver('video', { direction: 'sendrecv' });
-
-        // If camera is already on, replace null tracks immediately
+        // If camera/mic is already on before getting connected, add tracks
         if (localStreamRef.current) {
-            for (const track of localStreamRef.current.getTracks()) {
-                const t = getTransceiver(pc, track.kind);
-                if (t) t.sender.replaceTrack(track);
-            }
+            localStreamRef.current.getTracks().forEach(track => {
+                pc.addTrack(track, localStreamRef.current);
+            });
         }
+
+        // Handle renegotiations automatically (this fires when addTrack/removeTrack is called)
+        pc.onnegotiationneeded = async () => {
+            console.log('[WebRTC] Negotiation needed, creating offer...');
+            try {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                if (socketRef.current) {
+                    socketRef.current.emit('offer', sessionId, pc.localDescription);
+                }
+            } catch (e) {
+                console.error('[WebRTC] Negotiation offer failed:', e);
+            }
+        };
 
         // Remote tracks → show in remote video element
         pc.ontrack = (event) => {
@@ -151,22 +154,27 @@ export function useWebRTC(sessionId, userId) {
 
         socket.on('disconnect', () => setIsConnected(false));
 
-        // Second peer joined → we are the initiator, create offer
+        // Second peer joined → we are the initiator, create peer connection.
+        // The `onnegotiationneeded` handler inside createPeerConnection will automatically fire
+        // and send the offer.
         socket.on('user-joined', async ({ userId: remoteId }) => {
-            console.log('[WebRTC] Peer joined, sending offer to', remoteId);
-            const pc = createPeerConnection();
-            try {
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                socket.emit('offer', sessionId, pc.localDescription);
-            } catch (e) { console.error('[WebRTC] createOffer failed:', e); }
+            console.log('[WebRTC] Peer joined', remoteId);
+            createPeerConnection();
         });
 
         // Received offer → send answer
         socket.on('offer', async (offer) => {
             console.log('[WebRTC] Received offer, sending answer');
-            const pc = createPeerConnection();
+            let pc = pcRef.current;
+            if (!pc) {
+                pc = createPeerConnection();
+            }
             try {
+                // If signaling state is not stable, we might have a collision.
+                // In a perfect system, we'd use perfect negotiation, but here we just try to apply it.
+                if (pc.signalingState !== 'stable') {
+                    console.warn('[WebRTC] Received offer while signaling state is', pc.signalingState);
+                }
                 await pc.setRemoteDescription(new RTCSessionDescription(offer));
                 await flushPendingCandidates();
                 const answer = await pc.createAnswer();
@@ -240,10 +248,9 @@ export function useWebRTC(sessionId, userId) {
                     localVideoRef.current.srcObject = localStreamRef.current;
                 }
 
-                // Replace null tracks in the existing peer connection
+                // Attach to peer connection
                 if (pcRef.current) {
-                    const t = getTransceiver(pcRef.current, 'video');
-                    if (t) await t.sender.replaceTrack(track);
+                    pcRef.current.addTrack(track, localStreamRef.current);
                 }
 
                 setVideoOn(true);
@@ -251,17 +258,17 @@ export function useWebRTC(sessionId, userId) {
                 console.error('[Camera] Access denied:', e);
             }
         } else {
-            // Replace video track with null and stop hardware recording light
+            // Stop hardware recording light and remove track
             if (localStreamRef.current) {
                 const track = localStreamRef.current.getVideoTracks()[0];
                 if (track) {
                     track.stop();
                     localStreamRef.current.removeTrack(track);
+                    if (pcRef.current) {
+                        const sender = pcRef.current.getSenders().find(s => s.track === track);
+                        if (sender) pcRef.current.removeTrack(sender);
+                    }
                 }
-            }
-            if (pcRef.current) {
-                const t = getTransceiver(pcRef.current, 'video');
-                if (t && t.sender.track) await t.sender.replaceTrack(null);
             }
             setVideoOn(false);
         }
@@ -283,8 +290,7 @@ export function useWebRTC(sessionId, userId) {
                         localVideoRef.current.srcObject = localStreamRef.current;
                     }
                     if (pcRef.current) {
-                        const t = getTransceiver(pcRef.current, 'audio');
-                        if (t) await t.sender.replaceTrack(track);
+                        pcRef.current.addTrack(track, localStreamRef.current);
                     }
                 } catch (e) {
                     console.error('[Mic] Access denied:', e);
