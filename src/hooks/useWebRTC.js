@@ -84,11 +84,15 @@ export function useWebRTC(sessionId, userId) {
             console.log('[WebRTC] received remote track:', event.track.kind);
             if (remoteVideoRef.current) {
                 let stream = remoteVideoRef.current.srcObject;
-                if (!stream) {
-                    stream = new MediaStream();
-                    remoteVideoRef.current.srcObject = stream;
-                }
+                if (!stream) stream = new MediaStream();
                 stream.addTrack(event.track);
+
+                // CRITICAL: re-assign srcObject so mobile browsers / Safari pick up the new track
+                remoteVideoRef.current.srcObject = null;
+                remoteVideoRef.current.srcObject = stream;
+
+                // Explicitly play to bypass mobile autoplay limitations
+                remoteVideoRef.current.play().catch(err => console.warn('[WebRTC] Autoplay prevented:', err));
             }
         };
 
