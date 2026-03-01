@@ -48,7 +48,7 @@ export function useWebRTC(sessionId, userId) {
     const pendingCandidates = useRef([]);         // Buffered ICE candidates
 
     const [videoOn, setVideoOn] = useState(false);
-    const [micOn, setMicOn] = useState(true);
+    const [micOn, setMicOn] = useState(false);
     const [isConnected, setIsConnected] = useState(false);  // Socket connected
     const [peerConnected, setPeerConnected] = useState(false); // WebRTC ICE connected
 
@@ -215,45 +215,82 @@ export function useWebRTC(sessionId, userId) {
     const toggleVideo = useCallback(async () => {
         if (!videoOn) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localStreamRef.current = stream;
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const track = stream.getVideoTracks()[0];
+
+                if (!localStreamRef.current) localStreamRef.current = new MediaStream();
+                const existing = localStreamRef.current.getVideoTracks()[0];
+                if (existing) {
+                    existing.stop();
+                    localStreamRef.current.removeTrack(existing);
+                }
+                localStreamRef.current.addTrack(track);
 
                 // Show local preview
-                if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+                if (localVideoRef.current && localVideoRef.current.srcObject !== localStreamRef.current) {
+                    localVideoRef.current.srcObject = localStreamRef.current;
+                }
 
-                // Replace null tracks in the existing peer connection (no renegotiation needed)
+                // Replace null tracks in the existing peer connection
                 if (pcRef.current) {
-                    for (const track of stream.getTracks()) {
-                        const t = getTransceiver(pcRef.current, track.kind);
-                        if (t) await t.sender.replaceTrack(track);
-                    }
+                    const t = getTransceiver(pcRef.current, 'video');
+                    if (t) await t.sender.replaceTrack(track);
                 }
 
                 setVideoOn(true);
-                setMicOn(true);
             } catch (e) {
                 console.error('[Camera] Access denied:', e);
             }
         } else {
-            // Replace tracks with null (keeps ICE alive, just mutes video)
-            if (pcRef.current) {
-                for (const t of pcRef.current.getTransceivers()) {
-                    if (t.sender.track) await t.sender.replaceTrack(null);
+            // Replace video track with null and stop hardware recording light
+            if (localStreamRef.current) {
+                const track = localStreamRef.current.getVideoTracks()[0];
+                if (track) {
+                    track.stop();
+                    localStreamRef.current.removeTrack(track);
                 }
             }
-            localStreamRef.current?.getTracks().forEach(t => t.stop());
-            localStreamRef.current = null;
-            if (localVideoRef.current) localVideoRef.current.srcObject = null;
+            if (pcRef.current) {
+                const t = getTransceiver(pcRef.current, 'video');
+                if (t && t.sender.track) await t.sender.replaceTrack(null);
+            }
             setVideoOn(false);
         }
     }, [videoOn]);
 
     // ── Toggle mic ────────────────────────────────────────────────────────────
-    const toggleMic = useCallback(() => {
-        if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach(t => { t.enabled = !micOn; });
+    const toggleMic = useCallback(async () => {
+        if (!micOn) {
+            // Turning ON
+            let track = localStreamRef.current?.getAudioTracks()[0];
+            if (!track) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    track = stream.getAudioTracks()[0];
+                    if (!localStreamRef.current) localStreamRef.current = new MediaStream();
+                    localStreamRef.current.addTrack(track);
+
+                    if (localVideoRef.current && localVideoRef.current.srcObject !== localStreamRef.current) {
+                        localVideoRef.current.srcObject = localStreamRef.current;
+                    }
+                    if (pcRef.current) {
+                        const t = getTransceiver(pcRef.current, 'audio');
+                        if (t) await t.sender.replaceTrack(track);
+                    }
+                } catch (e) {
+                    console.error('[Mic] Access denied:', e);
+                    return;
+                }
+            } else {
+                track.enabled = true;
+            }
+            setMicOn(true);
+        } else {
+            // Mute mic - rather than stopping it completely, just disable track
+            const track = localStreamRef.current?.getAudioTracks()[0];
+            if (track) track.enabled = false;
+            setMicOn(false);
         }
-        setMicOn(v => !v);
     }, [micOn]);
 
     // ── Hang up ───────────────────────────────────────────────────────────────
@@ -269,6 +306,7 @@ export function useWebRTC(sessionId, userId) {
         if (localVideoRef.current) localVideoRef.current.srcObject = null;
         if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
         setVideoOn(false);
+        setMicOn(false);
         setPeerConnected(false);
     }, [sessionId]);
 
