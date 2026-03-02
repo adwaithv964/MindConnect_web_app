@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 const PRIMARY = '#4A9B8E';
 const SECONDARY = '#7FB069';
 const TEXT = '#2D3748';
