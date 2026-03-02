@@ -61,10 +61,19 @@ export function useWebRTC(sessionId, userId) {
         const pc = new RTCPeerConnection(ICE_SERVERS);
         pcRef.current = pc;
 
-        // If camera/mic is already on before getting connected, add tracks
+        // Pre-add transceivers so ICE negotiation starts even if no camera/mic
+        pc.addTransceiver('audio', { direction: 'sendrecv' });
+        pc.addTransceiver('video', { direction: 'sendrecv' });
+
+        // If camera/mic is already on before getting connected, attach tracks to transceivers
         if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach(track => {
-                pc.addTrack(track, localStreamRef.current);
+                const tc = pc.getTransceivers().find(t => t.receiver.track.kind === track.kind);
+                if (tc && tc.sender) {
+                    tc.sender.replaceTrack(track);
+                } else {
+                    pc.addTrack(track, localStreamRef.current);
+                }
             });
         }
 
@@ -250,7 +259,12 @@ export function useWebRTC(sessionId, userId) {
 
                 // Attach to peer connection
                 if (pcRef.current) {
-                    pcRef.current.addTrack(track, localStreamRef.current);
+                    const tc = pcRef.current.getTransceivers().find(t => t.receiver.track.kind === 'video');
+                    if (tc && tc.sender) {
+                        tc.sender.replaceTrack(track);
+                    } else {
+                        pcRef.current.addTrack(track, localStreamRef.current);
+                    }
                 }
 
                 setVideoOn(true);
@@ -266,7 +280,7 @@ export function useWebRTC(sessionId, userId) {
                     localStreamRef.current.removeTrack(track);
                     if (pcRef.current) {
                         const sender = pcRef.current.getSenders().find(s => s.track === track);
-                        if (sender) pcRef.current.removeTrack(sender);
+                        if (sender) sender.replaceTrack(null); // Keep connection alive, just send empty track
                     }
                 }
             }
@@ -290,7 +304,12 @@ export function useWebRTC(sessionId, userId) {
                         localVideoRef.current.srcObject = localStreamRef.current;
                     }
                     if (pcRef.current) {
-                        pcRef.current.addTrack(track, localStreamRef.current);
+                        const tc = pcRef.current.getTransceivers().find(t => t.receiver.track.kind === 'audio');
+                        if (tc && tc.sender) {
+                            tc.sender.replaceTrack(track);
+                        } else {
+                            pcRef.current.addTrack(track, localStreamRef.current);
+                        }
                     }
                 } catch (e) {
                     console.error('[Mic] Access denied:', e);
