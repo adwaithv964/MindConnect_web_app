@@ -375,8 +375,8 @@ export default function CounsellorConsultationRoom() {
                                     </div>
                                 )}
 
-                                {/* Video controls */}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                                {/* Video controls — z-20 to stay above the waiting overlay (z-10) */}
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
                                     <button onClick={toggleMic}
                                         className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg ${micOn ? 'bg-white text-gray-800 hover:bg-gray-100' : 'bg-red-500 text-white hover:bg-red-600'}`}
                                         title={micOn ? 'Mute mic' : 'Unmute mic'}>
@@ -414,9 +414,9 @@ export default function CounsellorConsultationRoom() {
                                     )}
                                 </div>
 
-                                {/* WebRTC connection status badge */}
+                                {/* WebRTC connection status badge — z-20 to stay above the waiting overlay */}
                                 {sessionActive && (
-                                    <div className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${peerConnected ? 'bg-emerald-500/90 text-white' : wsConnected ? 'bg-yellow-500/90 text-white' : 'bg-gray-600/90 text-white'
+                                    <div className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold z-20 ${peerConnected ? 'bg-emerald-500/90 text-white' : wsConnected ? 'bg-yellow-500/90 text-white' : 'bg-gray-600/90 text-white'}
                                         }`}>
                                         <span className={`w-1.5 h-1.5 rounded-full ${peerConnected ? 'bg-white animate-pulse' : wsConnected ? 'bg-white' : 'bg-gray-300'}`} />
                                         {peerConnected ? 'Connected' : wsConnected ? 'Waiting for patient…' : 'Connecting…'}
