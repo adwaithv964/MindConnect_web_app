@@ -361,13 +361,13 @@ export default function CounsellorConsultationRoom() {
                         <div className="xl:col-span-2 space-y-4">
                             {/* Video feed */}
                             <div className="relative rounded-2xl overflow-hidden bg-gray-900 aspect-video flex items-center justify-center shadow-lg">
-                                {/* Remote (patient) feed */}
+                                {/* Remote (patient) feed — always in DOM so srcObject assignment works */}
                                 <video ref={remoteVideoRef} autoPlay playsInline
-                                    className={`absolute inset-0 w-full h-full object-cover ${peerConnected ? 'block' : 'hidden'}`} />
+                                    className="absolute inset-0 w-full h-full object-cover" />
 
-                                {/* Waiting placeholder */}
+                                {/* Waiting placeholder — overlaid on top, hidden once connected */}
                                 {!peerConnected && (
-                                    <div className="text-center absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+                                    <div className="text-center absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-10">
                                         <div className="mb-4">
                                             <Avatar name={selectedPatient?.name || 'Patient'} photo={selectedPatient?.avatar} size={20} />
                                         </div>

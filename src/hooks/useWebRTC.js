@@ -45,6 +45,7 @@ export function useWebRTC(sessionId, userId) {
     const socketRef = useRef(null);
     const pcRef = useRef(null);          // RTCPeerConnection
     const localStreamRef = useRef(null);          // Local MediaStream
+    const remoteStreamRef = useRef(null);         // Remote MediaStream (persisted)
     const pendingCandidates = useRef([]);         // Buffered ICE candidates
 
     const [videoOn, setVideoOn] = useState(false);
@@ -94,17 +95,26 @@ export function useWebRTC(sessionId, userId) {
         // Remote tracks → show in remote video element
         pc.ontrack = (event) => {
             console.log('[WebRTC] received remote track:', event.track.kind);
-            if (remoteVideoRef.current) {
-                let stream = remoteVideoRef.current.srcObject;
-                if (!stream) stream = new MediaStream();
+
+            // Use the streams array from the event if available, else build our own
+            let stream = (event.streams && event.streams[0]) || remoteStreamRef.current;
+            if (!stream) {
+                stream = new MediaStream();
+            }
+            // Ensure track is in the stream
+            if (!stream.getTracks().find(t => t.id === event.track.id)) {
                 stream.addTrack(event.track);
+            }
+            remoteStreamRef.current = stream;
 
-                // CRITICAL: re-assign srcObject so mobile browsers / Safari pick up the new track
-                remoteVideoRef.current.srcObject = null;
+            if (remoteVideoRef.current) {
+                // Always assign — even if the element is currently hidden.
+                // The visibility is controlled by CSS; assigning srcObject while
+                // hidden is fine. We'll re-trigger play() once connected.
                 remoteVideoRef.current.srcObject = stream;
-
-                // Explicitly play to bypass mobile autoplay limitations
-                remoteVideoRef.current.play().catch(err => console.warn('[WebRTC] Autoplay prevented:', err));
+                remoteVideoRef.current.play().catch(err =>
+                    console.warn('[WebRTC] Autoplay prevented (will retry on connect):', err)
+                );
             }
         };
 
@@ -219,11 +229,13 @@ export function useWebRTC(sessionId, userId) {
         socket.on('hang-up', () => {
             console.log('[WebRTC] Remote hang-up');
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+            remoteStreamRef.current = null;
             setPeerConnected(false);
         });
 
         socket.on('peer-disconnected', () => {
             if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+            remoteStreamRef.current = null;
             setPeerConnected(false);
         });
 
@@ -233,9 +245,21 @@ export function useWebRTC(sessionId, userId) {
             localStreamRef.current?.getTracks().forEach(t => t.stop());
             socketRef.current = null;
             pcRef.current = null;
+            remoteStreamRef.current = null;
             pendingCandidates.current = [];
         };
     }, [sessionId, userId, createPeerConnection, flushPendingCandidates]);
+
+    // ── Re-trigger play when ICE connects (mobile browsers often silently fail
+    //    play() when the video element was display:none at the time ontrack fired) ─
+    useEffect(() => {
+        if (peerConnected && remoteVideoRef.current && remoteStreamRef.current) {
+            remoteVideoRef.current.srcObject = remoteStreamRef.current;
+            remoteVideoRef.current.play().catch(err =>
+                console.warn('[WebRTC] Re-play after connect failed:', err)
+            );
+        }
+    }, [peerConnected]);
 
     // ── Toggle camera ─────────────────────────────────────────────────────────
     const toggleVideo = useCallback(async () => {
